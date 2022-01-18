@@ -100,7 +100,7 @@ pipeline {
 				withKubeConfig([credentialsId: env.k8s_config]) {
                     withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
                         sh '''
-                            helm template deployment/k8s/profit-rebate-service \
+                            helm template deployment/k8s/report-aggregate-service \
                                 --set image.tag=${TAG} \
                                 --set namespace=${kube_ns} \
                                 --set autoscaling.enabled=${tgs_autoscaling} \
@@ -113,7 +113,7 @@ pipeline {
                                 --set rabbit.vhost="$tgs_rabbit_vhost"
                         '''
                         sh '''
-                            helm template deployment/k8s/profit-rebate-service \
+                            helm template deployment/k8s/report-aggregate-service \
                                 --set image.tag=${TAG} \
                                 --set namespace=${kube_ns} \
                                 --set autoscaling.enabled=${tgs_autoscaling} \
