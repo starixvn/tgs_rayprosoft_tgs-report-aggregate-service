@@ -30,7 +30,6 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
         public async Task<MessageResponse> Handle(ManualCreateUpdatePlayerAggregateModel request,
             CancellationToken cancellationToken)
         {
-            var id = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();
             DateTimeOffset reportDate;
 
             if (!string.IsNullOrEmpty(request.Date) &&
@@ -45,7 +44,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
             }
 
             var marketsOfDay = await _repository.PlayerAggregates
-                .Where(x => x.ReportDate == reportDate)
+                .Where(x => x.ReportDate == reportDate.ToUniversalTime())
                 .Where(x => x.Hour != request.Hour)
                 .Select(x => x.Hour).Distinct().ToArrayAsync(cancellationToken);
 

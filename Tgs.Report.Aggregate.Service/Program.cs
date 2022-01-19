@@ -1,3 +1,5 @@
+using Tgs.Report.Aggregate.Service.Middlewares;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ConfigureAppConfiguration((_, builder) =>
@@ -29,7 +31,7 @@ builder.Services
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
 
-                options.RabbitMQUrl = new Uri(configuration.GetConnectionString("RabbitMQ"));
+                options.RabbitMQUrl = configuration.GetValue<Uri>("ConnectionStrings:RabbitMQ");
             });
     })
     .ClearAllExchanges()
@@ -45,6 +47,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

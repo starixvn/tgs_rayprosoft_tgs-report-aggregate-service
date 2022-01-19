@@ -45,10 +45,10 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
                 0,
                 0,
                 0,
-                previousHour.Offset).ToUniversalTime();
+                previousHour.Offset);
 
             var marketsOfDay = await _repository.PlayerAggregates
-                .Where(x => x.ReportDate == reportDate)
+                .Where(x => x.ReportDate == reportDate.ToUniversalTime())
                 .Select(x => x.Hour).Distinct().ToArrayAsync(cancellationToken);
 
             var hourArray = Enumerable.Range(0, previousHour.Hour + 1);

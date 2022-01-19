@@ -9,13 +9,15 @@ namespace Tgs.Report.Aggregate.Service.Middlewares
 {
     public class ExceptionMiddleware
     {
+        private readonly IWebHostEnvironment _env;
         private readonly IMessageSender _messageSender;
 
         private readonly RequestDelegate _next;
 
-        public ExceptionMiddleware(RequestDelegate next, IMessageSender messageSender)
+        public ExceptionMiddleware(RequestDelegate next, IMessageSender messageSender, IWebHostEnvironment env)
         {
             _next = next;
+            _env = env;
             _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         }
 
@@ -36,8 +38,8 @@ namespace Tgs.Report.Aggregate.Service.Middlewares
                     exception);
 
                 await _messageSender.PublishAsync("report.error",
-                        Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ReportErrorMessage(exception.Message,
-                            exception.StackTrace, exception.InnerException?.Message))))
+                        Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ReportErrorMessage(
+                            $"{_env.EnvironmentName}: {exception.Message}"))))
                     .ConfigureAwait(false);
 
                 await context.Response.WriteAsJsonAsync(new MessageResponse

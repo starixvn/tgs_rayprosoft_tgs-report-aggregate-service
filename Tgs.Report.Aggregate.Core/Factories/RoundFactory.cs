@@ -25,13 +25,13 @@ namespace Tgs.Report.Aggregate.Core.Factories
             var result = await conn.QueryAsync<RoundAggregateModel>(spName,
                 new Dictionary<string, object>
                 {
-                    { "_from", start },
-                    { "_to", end },
+                    { "_from", start.ToUniversalTime() },
+                    { "_to", end.ToUniversalTime() },
                     {
                         "_report_date",
-                        new DateTimeOffset(start.Year, start.Month, start.Day, 0, 0, 0, start.Offset)
+                        new DateTimeOffset(start.Year, start.Month, start.Day, 0, 0, 0, start.Offset).ToUniversalTime()
                     },
-                    { "_created_on", DateTimeOffset.Now.ToOffset(start.Offset) },
+                    { "_created_on", DateTimeOffset.UtcNow },
                     { "_hour", start.Hour },
                     { "_minute", start.Minute }
                 }, commandType: CommandType.StoredProcedure, transaction: transaction);
@@ -48,11 +48,11 @@ namespace Tgs.Report.Aggregate.Core.Factories
             var result = await conn.QueryAsync<RoundAggregateModel>(spName,
                 new Dictionary<string, object>
                 {
-                    { "_from", start },
-                    { "_to", end },
+                    { "_from", start.ToUniversalTime() },
+                    { "_to", end.ToUniversalTime() },
                     {
                         "_report_date",
-                        new DateTimeOffset(start.Year, start.Month, start.Day, 0, 0, 0, start.Offset)
+                        new DateTimeOffset(start.Year, start.Month, start.Day, 0, 0, 0, start.Offset).ToUniversalTime()
                     },
                     { "_hour", start.Hour },
                     { "_minute", start.Minute }

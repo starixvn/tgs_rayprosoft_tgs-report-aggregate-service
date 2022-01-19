@@ -26,10 +26,10 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
         {
             var previousHour = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddHours(-1);
             var theDay = new DateTimeOffset(previousHour.Year, previousHour.Month, previousHour.Day, 0, 0, 0,
-                previousHour.Offset).ToUniversalTime();
+                previousHour.Offset);
 
             var marketsOfDay = await _repository.RoundAggregates
-                .Where(x => x.ReportDate == theDay)
+                .Where(x => x.ReportDate == theDay.ToUniversalTime())
                 .Select(x => x.Hour).Distinct().ToArrayAsync(cancellationToken);
 
             var hourArray = Enumerable.Range(0, previousHour.Hour + 1);
@@ -39,12 +39,12 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
             foreach (var doHour in doHours)
             {
                 var start = new DateTimeOffset(previousHour.Year, previousHour.Month, previousHour.Day, doHour,
-                    0, 0, previousHour.Offset).ToUniversalTime();
+                    0, 0, previousHour.Offset);
                 var end = new DateTimeOffset(previousHour.Year, previousHour.Month, previousHour.Day, doHour,
-                    0, 0, previousHour.Offset).AddHours(1).ToUniversalTime();
+                    0, 0, previousHour.Offset).AddHours(1);
 
                 if (await _repository.RoundAggregates.AnyAsync(x =>
-                        x.ReportDate == theDay && x.Hour == start.Hour, cancellationToken))
+                        x.ReportDate == theDay.ToUniversalTime() && x.Hour == start.Hour, cancellationToken))
                 {
                     return new MessageResponse
                     {

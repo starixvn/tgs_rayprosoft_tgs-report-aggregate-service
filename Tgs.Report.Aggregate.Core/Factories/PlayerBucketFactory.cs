@@ -56,8 +56,8 @@ namespace Tgs.Report.Aggregate.Core.Factories
                     {
                         PlayerCode = player.PlayerCode,
                         Turnover = amount,
-                        From = request.From,
-                        To = request.To,
+                        From = request.From.ToUniversalTime(),
+                        To = request.To.ToUniversalTime(),
                         CreatedOn = DateTimeOffset.UtcNow
                     });
                 }

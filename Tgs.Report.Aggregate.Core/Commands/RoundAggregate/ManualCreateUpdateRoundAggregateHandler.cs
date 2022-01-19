@@ -39,7 +39,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
             }
 
             var marketsOfDay = await _repository.RoundAggregates
-                .Where(x => x.ReportDate == reportDate)
+                .Where(x => x.ReportDate == reportDate.ToUniversalTime())
                 .Select(x => x.Hour).Distinct().ToArrayAsync(cancellationToken);
 
             var hourArray = Enumerable.Range(0, result.Hour + 1);
@@ -59,7 +59,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
                     0, 0, result.Offset).AddHours(1);
 
                 if (await _repository.RoundAggregates.AnyAsync(x =>
-                        x.ReportDate == reportDate && x.Hour == start.Hour, cancellationToken) ||
+                        x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour, cancellationToken) ||
                     end > DateTimeOffset.Now)
                 {
                     continue;

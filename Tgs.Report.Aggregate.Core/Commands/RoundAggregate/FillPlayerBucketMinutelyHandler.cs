@@ -28,11 +28,11 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
 
             var start = new DateTimeOffset(previousMinute.Year, previousMinute.Month, previousMinute.Day,
                 previousMinute.Hour,
-                previousMinute.Minute, 0, previousMinute.Offset).ToUniversalTime();
+                previousMinute.Minute, 0, previousMinute.Offset);
 
             var end = new DateTimeOffset(previousMinute.Year, previousMinute.Month, previousMinute.Day,
                 previousMinute.Hour,
-                previousMinute.Minute, 0, previousMinute.Offset).AddMinutes(1).ToUniversalTime();
+                previousMinute.Minute, 0, previousMinute.Offset).AddMinutes(1);
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
