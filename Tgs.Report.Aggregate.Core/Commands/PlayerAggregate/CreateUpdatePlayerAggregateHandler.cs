@@ -83,7 +83,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
                     previousHour.Offset).AddHours(1);
 
                 if (await _repository.PlayerAggregates.AnyAsync(x =>
-                        x.ReportDate == reportDate && x.Hour == start.Hour, cancellationToken))
+                        x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour, cancellationToken))
                 {
                     return new MessageResponse
                     {

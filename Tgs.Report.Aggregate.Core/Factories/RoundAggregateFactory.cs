@@ -27,14 +27,16 @@ namespace Tgs.Report.Aggregate.Core.Factories
                 0,
                 0,
                 0,
-                start.Offset).ToUniversalTime();
+                start.Offset);
 
             var utcStart = start.ToUniversalTime();
             var utcEnd = end.ToUniversalTime();
 
             var roundAggregates =
                 await _repository.RoundAggregates.Where(x
-                    => x.ReportDate == reportDate && x.Hour == start.Hour && x.Minute == start.Minute).ToArrayAsync();
+                        => x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour &&
+                        x.Minute == start.Minute)
+                    .ToArrayAsync();
 
             var playerAggregates = await _repository.Players.Include(x => x.Agent)
                 .GroupJoin(_repository.Transactions,
@@ -65,7 +67,7 @@ namespace Tgs.Report.Aggregate.Core.Factories
                         {
                             BrandId = x.BrandId,
                             Hour = start.Hour,
-                            ReportDate = reportDate,
+                            ReportDate = reportDate.ToUniversalTime(),
                             AgentId = x.AgentId,
                             PlayerCode = x.PlayerCode,
                             RegisteredCount =
@@ -206,7 +208,7 @@ namespace Tgs.Report.Aggregate.Core.Factories
                                         x.GameType,
                                         aggregate.Select(a => a.r)),
                             CreatedOn = DateTimeOffset.UtcNow,
-                            ReportDate = reportDate
+                            ReportDate = reportDate.ToUniversalTime()
                         };
                     }).ToArray();
 
