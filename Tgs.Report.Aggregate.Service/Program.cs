@@ -31,7 +31,7 @@ builder.Services
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
 
-                options.RabbitMQUrl = configuration.GetValue<Uri>("ConnectionStrings:RabbitMQ");
+                configuration.GetSection("RabbitMQ").Bind(options);
             });
     })
     .ClearAllExchanges()
