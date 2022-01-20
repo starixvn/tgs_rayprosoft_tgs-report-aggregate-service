@@ -66,7 +66,10 @@ namespace Tgs.Report.Aggregate.Core.Factories
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             _repository.PlayerBuckets.UpdateRange(playerBuckets);
+
             await _repository.PlayerBucketHistories.AddRangeAsync(playerBucketHistories);
+
+            await _repository.SaveChangesAsync();
 
             scope.Complete();
         }

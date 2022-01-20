@@ -16,7 +16,8 @@ namespace Tgs.Report.Aggregate.Core.Factories
         }
 
         public Task CreatePlayerGameAggregatesAsync(
-            PlayerGameTypeAggregateModel[] models) =>
+            PlayerGameTypeAggregateModel[] models)
+        {
             _repository.PlayerGameRebateAggregates.AddRangeAsync(models.Select(model => new PlayerGameRebateAggregate
             {
                 BrandId = model.BrandId,
@@ -43,10 +44,7 @@ namespace Tgs.Report.Aggregate.Core.Factories
                 VipLotteryRebatePercentage = model.VipLotteryRebatePercentage
             }));
 
-        public ValueTask DeletePlayerGameAggregatesAsync(PlayerGameRebateAggregate[] models)
-        {
-            _repository.PlayerGameRebateAggregates.RemoveRange(models);
-            return ValueTask.CompletedTask;
+            return _repository.SaveChangesAsync();
         }
     }
 }

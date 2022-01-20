@@ -39,6 +39,8 @@ builder.Services
     .AddNatsGlobPatternExchange("tgs.viplevel.aggregate.server")
     .AddNatsGlobPatternExchange("*");
 
+builder.Services.AddHealthChecks();
+
 // Add services to the container.
 
 builder.Services.AddControllers();

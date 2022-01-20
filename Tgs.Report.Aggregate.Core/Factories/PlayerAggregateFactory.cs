@@ -15,7 +15,8 @@ namespace Tgs.Report.Aggregate.Core.Factories
             _repository = repository;
         }
 
-        public Task CreatePlayerAggregatesAsync(PlayerAggregateModel[] models) =>
+        public Task CreatePlayerAggregatesAsync(PlayerAggregateModel[] models)
+        {
             _repository.PlayerAggregates.AddRangeAsync(models.Select(model => new PlayerAggregate
             {
                 BrandId = model.BrandId,
@@ -40,5 +41,8 @@ namespace Tgs.Report.Aggregate.Core.Factories
                 WinLossAmount = model.WinLossAmount.Truncate(2),
                 AllAgentRebateAmount = model.AllAgentRebateAmount.Truncate(2)
             }));
+
+            return _repository.SaveChangesAsync();
+        }
     }
 }
