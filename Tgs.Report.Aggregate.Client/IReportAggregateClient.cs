@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Tgs.Report.Aggregate.Client.Models;
-using Tgs.Report.Aggregate.Domain;
 
 namespace Tgs.Report.Aggregate.Client
 {
