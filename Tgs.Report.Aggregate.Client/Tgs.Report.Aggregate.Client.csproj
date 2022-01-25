@@ -3,11 +3,14 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
 	<Nullable>enable</Nullable>
-	  <Version>0.0.1</Version>
+	  <Version>0.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tgs.Report.Aggregate.Domain\Tgs.Report.Aggregate.Domain.csproj" />
+	  <ProjectReference Include="..\Tgs.Report.Aggregate.Domain\Tgs.Report.Aggregate.Domain.csproj">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </ProjectReference>
   </ItemGroup>
 
 </Project>
