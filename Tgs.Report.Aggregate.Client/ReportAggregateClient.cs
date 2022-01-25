@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Tgs.Report.Aggregate.Client.Models;
 using Tgs.Report.Aggregate.Domain;
 
-namespace TGS.Clients.Report.Client
+namespace Tgs.Report.Aggregate.Client
 {
     public class ReportAggregateClient : IReportAggregateClient
     {
@@ -29,7 +29,6 @@ namespace TGS.Clients.Report.Client
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
                 new() { PropertyNameCaseInsensitive = true })!;
-
         }
 
         public async ValueTask<MessageResponse> ManualCreatePlayerAggregateAsync(
@@ -45,7 +44,6 @@ namespace TGS.Clients.Report.Client
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
                 new() { PropertyNameCaseInsensitive = true })!;
-
         }
 
         public async ValueTask<MessageResponse> CreateRoundAggregateAsync(
@@ -61,7 +59,6 @@ namespace TGS.Clients.Report.Client
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
                 new() { PropertyNameCaseInsensitive = true })!;
-
         }
 
         public async ValueTask<MessageResponse> ManualCreateRoundAggregateAsync(
@@ -77,7 +74,6 @@ namespace TGS.Clients.Report.Client
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
                 new() { PropertyNameCaseInsensitive = true })!;
-
         }
 
         public async ValueTask<MessageResponse> FillPlayerBucketMinutelyAsync(
@@ -93,16 +89,16 @@ namespace TGS.Clients.Report.Client
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
                 new() { PropertyNameCaseInsensitive = true })!;
-
         }
 
         public async ValueTask<MessageResponse> ManualFillPlayerBucketMinutelyAsync(
             ManualFillPlayerBucketMinutelyModel request)
         {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/roundAggregate/manualFillPlayerBucketMinutely")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
-            };
+            var httpRequest =
+                new HttpRequestMessage(HttpMethod.Post, "/api/roundAggregate/manualFillPlayerBucketMinutely")
+                {
+                    Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+                };
             var response = await _client.SendAsync(httpRequest).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();

@@ -1,9 +1,8 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
-using Tgs.Report.Aggregate.Domain;
+﻿using System.Threading.Tasks;
 using Tgs.Report.Aggregate.Client.Models;
+using Tgs.Report.Aggregate.Domain;
 
-namespace TGS.Clients.Report.Client
+namespace Tgs.Report.Aggregate.Client
 {
     public interface IReportAggregateClient
     {
