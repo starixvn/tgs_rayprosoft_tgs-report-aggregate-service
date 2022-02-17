@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Tgs.Report.Aggregate.Core\Tgs.Report.Aggregate.Core.csproj" />
     <ProjectReference Include="..\Tgs.Report.Aggregate.Domain\Tgs.Report.Aggregate.Domain.csproj" />
+    <ProjectReference Include="..\Tgs.Report.Aggregate.Repository\Tgs.Report.Aggregate.Repository.csproj" />
   </ItemGroup>
 
 </Project>
