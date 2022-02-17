@@ -11,8 +11,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddDbContext<TgsRepository>(options =>
             {
                 options.UseNpgsql(connectionString);
-                options.UseSnakeCaseNamingConvention();
-                options.UseLazyLoadingProxies();
             });
 
             services.AddScoped<ITgsRepository>(c => c.GetRequiredService<TgsRepository>());
