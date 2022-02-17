@@ -13,8 +13,8 @@ WORKDIR /src
 COPY ["nuget.config", "."]
 COPY ["Tgs.Report.Aggregate.Service/Tgs.Report.Aggregate.Service.csproj", "Tgs.Report.Aggregate.Service/"]
 COPY ["Tgs.Report.Aggregate.Core/Tgs.Report.Aggregate.Core.csproj", "Tgs.Report.Aggregate.Core/"]
-COPY ["Tgs.Report.Aggregate.Infrastructure/Tgs.Report.Aggregate.Repository.csproj", "Tgs.Report.Aggregate.Infrastructure/"]
 COPY ["Tgs.Report.Aggregate.Domain/Tgs.Report.Aggregate.Domain.csproj", "Tgs.Report.Aggregate.Domain/"]
+COPY ["Tgs.Report.Aggregate.Repository/Tgs.Report.Aggregate.Repository.csproj", "Tgs.Report.Aggregate.Repository/"]
 RUN dotnet restore "Tgs.Report.Aggregate.Service/Tgs.Report.Aggregate.Service.csproj"
 COPY . .
 WORKDIR "/src/Tgs.Report.Aggregate.Service"
