@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 using Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate;
@@ -56,12 +57,12 @@ namespace Tgs.Report.Aggregate.Core.Factories
                         transaction
                     })
                 .GroupBy(x => new
-                    {
-                        x.BrandId,
-                        x.Player.AgentId,
-                        x.Player.Agent.DividendPercentage,
-                        x.Player.PlayerCode
-                    },
+                {
+                    x.BrandId,
+                    x.Player.AgentId,
+                    x.Player.Agent.DividendPercentage,
+                    x.Player.PlayerCode
+                },
                     (x, players) =>
                         new PlayerAggregateModel
                         {
@@ -168,16 +169,16 @@ namespace Tgs.Report.Aggregate.Core.Factories
                         player.Agent
                     })
                 .GroupBy(x => new
-                    {
-                        x.r.BrandId,
-                        x.r.AgentId,
-                        x.r.PlayerCode,
-                        x.r.GameProviderId,
-                        x.r.GameId,
-                        x.r.GameType,
-                        x.Vip,
-                        x.Agent
-                    },
+                {
+                    x.r.BrandId,
+                    x.r.AgentId,
+                    x.r.PlayerCode,
+                    x.r.GameProviderId,
+                    x.r.GameId,
+                    x.r.GameType,
+                    x.Vip,
+                    x.Agent
+                },
                     (x, aggregate) =>
                     {
                         return new PlayerGameTypeAggregateModel
@@ -235,18 +236,22 @@ namespace Tgs.Report.Aggregate.Core.Factories
                     return vip.SportsRebatePercentage * roundAggregates.Where(a =>
                             a.GameType == (short)GameType.Sportsbook || a.GameType == (short)GameType.ESports)
                         .Sum(a => a.Turnover) / 100M;
+
                 case GameType.VirtualSports:
                     return vip.VirtualSportsRebatePercentage * roundAggregates.Where(a =>
                             a.GameType == (short)GameType.VirtualSports)
                         .Sum(a => a.Turnover) / 100M;
+
                 case GameType.LiveDealer:
                     return vip.LiveDealerRebatePercentage * roundAggregates.Where(a =>
                             a.GameType == (short)GameType.LiveDealer)
                         .Sum(a => a.Turnover) / 100M;
+
                 case GameType.CardGame:
                     return vip.CardGameRebatePercentage * roundAggregates.Where(a =>
                             a.GameType == (short)GameType.CardGame)
                         .Sum(a => a.Turnover) / 100M;
+
                 case GameType.Fishing:
                 case GameType.Arcade:
                 case GameType.Slot:
@@ -255,10 +260,12 @@ namespace Tgs.Report.Aggregate.Core.Factories
                             a.GameType == (short)GameType.Fishing || a.GameType == (short)GameType.Arcade ||
                             a.GameType == (short)GameType.Slot || a.GameType == (short)GameType.TableGame)
                         .Sum(a => a.Turnover) / 100M;
+
                 case GameType.Lottery:
                     return vip.LotteryRebatePercentage * roundAggregates.Where(a =>
                             a.GameType == (short)GameType.Lottery)
                         .Sum(a => a.Turnover) / 100M;
+
                 default:
                     return 0M;
             }

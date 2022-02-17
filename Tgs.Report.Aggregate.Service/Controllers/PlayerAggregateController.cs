@@ -1,6 +1,9 @@
 ﻿using System.ComponentModel;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
+
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 

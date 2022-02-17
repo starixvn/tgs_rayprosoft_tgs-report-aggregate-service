@@ -1,6 +1,8 @@
 ﻿using System;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+
 using Tgs.Report.Aggregate.Client;
 
 namespace Microsoft.Extensions.DependencyInjection

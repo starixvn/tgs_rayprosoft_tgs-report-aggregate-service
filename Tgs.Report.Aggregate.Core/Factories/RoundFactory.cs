@@ -1,6 +1,9 @@
 ﻿using System.Data;
+
 using Dapper;
+
 using Microsoft.EntityFrameworkCore.Storage;
+
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models;
 using Tgs.Report.Aggregate.Repository.Repositories;

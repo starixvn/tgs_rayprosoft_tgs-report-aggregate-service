@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate

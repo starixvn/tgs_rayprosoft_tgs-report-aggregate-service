@@ -43,7 +43,6 @@ namespace Tgs.Report.Aggregate.Infrastructure.Configurations
         public DateTime? FirstDepositOn { get; set; }
         public string? AreaCode { get; set; }
         public DateTime? FirstPromotionOn { get; set; }
-        public string? ParentPlayerCode { get; set; }
 
         public virtual Agent? Agent { get; set; }
         public virtual VipLevel? Vip { get; set; }

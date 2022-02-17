@@ -1,5 +1,7 @@
 ﻿using System.Transactions;
+
 using Microsoft.EntityFrameworkCore;
+
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models;
 using Tgs.Report.Aggregate.Infrastructure.Configurations;

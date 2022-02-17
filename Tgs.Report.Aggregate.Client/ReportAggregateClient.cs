@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+
 using Tgs.Report.Aggregate.Client.Models;
 
 namespace Tgs.Report.Aggregate.Client
@@ -30,21 +31,6 @@ namespace Tgs.Report.Aggregate.Client
                 new() { PropertyNameCaseInsensitive = true })!;
         }
 
-        public async ValueTask<MessageResponse> ManualCreatePlayerAggregateAsync(
-            ManualCreateUpdatePlayerAggregateModel request)
-        {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/playerAggregate/manual")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
-            };
-            var response = await _client.SendAsync(httpRequest).ConfigureAwait(false);
-
-            response.EnsureSuccessStatusCode();
-
-            return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-                new() { PropertyNameCaseInsensitive = true })!;
-        }
-
         public async ValueTask<MessageResponse> CreateRoundAggregateAsync(
             CreateRoundAggregateModel request)
         {
@@ -60,10 +46,10 @@ namespace Tgs.Report.Aggregate.Client
                 new() { PropertyNameCaseInsensitive = true })!;
         }
 
-        public async ValueTask<MessageResponse> ManualCreateRoundAggregateAsync(
-            ManualCreateUpdateRoundAggregateModel request)
+        public async ValueTask<MessageResponse> FillPlayerBucketMinutelyAsync(
+            FillPlayerBucketMinutelyModel request)
         {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/roundAggregate/manual")
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/roundAggregate/fillPlayerBucketMinutely")
             {
                 Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
             };
@@ -75,10 +61,25 @@ namespace Tgs.Report.Aggregate.Client
                 new() { PropertyNameCaseInsensitive = true })!;
         }
 
-        public async ValueTask<MessageResponse> FillPlayerBucketMinutelyAsync(
-            FillPlayerBucketMinutelyModel request)
+        public async ValueTask<MessageResponse> ManualCreatePlayerAggregateAsync(
+                            ManualCreateUpdatePlayerAggregateModel request)
         {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/roundAggregate/fillPlayerBucketMinutely")
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/playerAggregate/manual")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+            };
+            var response = await _client.SendAsync(httpRequest).ConfigureAwait(false);
+
+            response.EnsureSuccessStatusCode();
+
+            return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
+                new() { PropertyNameCaseInsensitive = true })!;
+        }
+
+        public async ValueTask<MessageResponse> ManualCreateRoundAggregateAsync(
+            ManualCreateUpdateRoundAggregateModel request)
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/roundAggregate/manual")
             {
                 Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
             };

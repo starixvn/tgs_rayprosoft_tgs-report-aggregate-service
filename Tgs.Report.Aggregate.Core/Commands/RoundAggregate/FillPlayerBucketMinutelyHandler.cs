@@ -1,5 +1,7 @@
 ﻿using System.Transactions;
+
 using MediatR;
+
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models;
@@ -44,7 +46,8 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
                         (playerCode, list) => new { playerCode, list })
                     .Select(x => new PlayerTurnoverModel
                     {
-                        PlayerCode = x.playerCode, Turnover = x.list.Sum(l => l.Turnover)
+                        PlayerCode = x.playerCode,
+                        Turnover = x.list.Sum(l => l.Turnover)
                     }).ToArray();
 
                 await _playerBucketFactory.FillInBucketAsync(

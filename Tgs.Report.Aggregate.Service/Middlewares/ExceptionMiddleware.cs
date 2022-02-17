@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
+
 using Microsoft.AspNetCore.Mvc.Controllers;
+
 using Tgs.Logging;
 using Tgs.MessageQueue;
 using Tgs.Report.Aggregate.Domain;
