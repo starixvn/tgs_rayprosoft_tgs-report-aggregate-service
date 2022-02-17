@@ -1,5 +1,7 @@
 ﻿using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;

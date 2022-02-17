@@ -1,8 +1,11 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Transactions;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using Tgs.MessageQueue;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;

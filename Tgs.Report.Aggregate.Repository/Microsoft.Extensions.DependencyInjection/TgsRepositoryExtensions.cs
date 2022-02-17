@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using Tgs.Report.Aggregate.Repository.Repositories;
 
 namespace Microsoft.Extensions.DependencyInjection

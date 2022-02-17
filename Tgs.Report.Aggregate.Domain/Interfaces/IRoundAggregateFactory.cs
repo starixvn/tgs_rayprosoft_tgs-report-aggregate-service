@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 using Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate;
 

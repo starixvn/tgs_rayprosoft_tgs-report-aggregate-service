@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+
 using MediatR;
+
 using Tgs.Report.Aggregate.Core.Factories;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 
