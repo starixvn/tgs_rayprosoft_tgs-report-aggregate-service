@@ -1,3 +1,4 @@
+@Library('global-shared-library') _
 def message = "";
 
 pipeline {
@@ -97,37 +98,52 @@ pipeline {
 
         stage('Deploy to k8s') {
 			steps {
-				withKubeConfig([credentialsId: env.k8s_config]) {
-                    withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
-                        sh '''
-                            helm template deployment/k8s/report-aggregate-service \
-                                --set image.tag=${TAG} \
-                                --set namespace=${kube_ns} \
-                                --set autoscaling.enabled=${tgs_autoscaling} \
-								--set connectionStrings.tgs="$tgs_tgs" \
-								--set connectionStrings.redis="$tgs_redis" \
-                                --set nats.urls="$tgs_nats" \
-                                --set rabbit.url="$tgs_rabbit_url" \
-                                --set rabbit.user="$tgs_rabbit_user" \
-                                --set rabbit.password="$tgs_rabbit_pass" \
-                                --set rabbit.vhost="$tgs_rabbit_vhost"
-                        '''
-                        sh '''
-                            helm template deployment/k8s/report-aggregate-service \
-                                --set image.tag=${TAG} \
-                                --set namespace=${kube_ns} \
-                                --set autoscaling.enabled=${tgs_autoscaling} \
-								--set connectionStrings.tgs="$tgs_tgs" \
-								--set connectionStrings.redis="$tgs_redis" \
-                                --set nats.urls="$tgs_nats" \
-                                --set rabbit.url="$tgs_rabbit_url" \
-                                --set rabbit.user="$tgs_rabbit_user" \
-                                --set rabbit.password="$tgs_rabbit_pass" \
-                                --set rabbit.vhost="$tgs_rabbit_vhost" \
-                                | kubectl -n ${kube_ns} apply -f -
-                        '''
+                script {
+                    withKubeConfig([credentialsId: env.k8s_config]) {
+                        def resources = getResources(env.k8s_config, env.kube_ns, "report-aggregate-service")
+                        println resources
+
+                        withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
+                            sh """
+                                helm template deployment/k8s/report-aggregate-service \
+                                    --set image.tag=${TAG} \
+                                    --set namespace=${kube_ns} \
+                                    --set autoscaling.enabled=${tgs_autoscaling} \
+                                    --set connectionStrings.tgs="$tgs_tgs" \
+                                    --set connectionStrings.redis="$tgs_redis" \
+                                    --set nats.urls="$tgs_nats" \
+                                    --set rabbit.url="$tgs_rabbit_url" \
+                                    --set rabbit.user="$tgs_rabbit_user" \
+                                    --set rabbit.password="$tgs_rabbit_pass" \
+                                    --set rabbit.vhost="$tgs_rabbit_vhost" \
+                                    -f -
+                                {
+                                    "resources": $resources
+                                }
+
+                            """
+                            sh """
+                                helm template deployment/k8s/report-aggregate-service \
+                                    --set image.tag=${TAG} \
+                                    --set namespace=${kube_ns} \
+                                    --set autoscaling.enabled=${tgs_autoscaling} \
+                                    --set connectionStrings.tgs="$tgs_tgs" \
+                                    --set connectionStrings.redis="$tgs_redis" \
+                                    --set nats.urls="$tgs_nats" \
+                                    --set rabbit.url="$tgs_rabbit_url" \
+                                    --set rabbit.user="$tgs_rabbit_user" \
+                                    --set rabbit.password="$tgs_rabbit_pass" \
+                                    --set rabbit.vhost="$tgs_rabbit_vhost" \
+                                    -f - \
+                                    | kubectl -n ${kube_ns} apply -f -
+                                    -f -
+                                {
+                                    "resources": $resources
+                                }
+                            """
+                        }
                     }
-				}
+                }
 			}
 		}
 
