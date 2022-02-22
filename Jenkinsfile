@@ -103,9 +103,11 @@ pipeline {
                         def resources = getResources(env.k8s_config, env.kube_ns, "report-aggregate-service")
                         def dedicated = getTgsSettings(env.k8s_config, env.kube_ns, "dedicated")
                         def node_selector = getTgsSettings(env.k8s_config, env.kube_ns, "node-selector")
+                        
                         println resources
                         println dedicated
                         println node_selector
+                        
                         withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
                             sh """
                                 helm template deployment/k8s/report-aggregate-service \
