@@ -101,8 +101,11 @@ pipeline {
                 script {
                     withKubeConfig([credentialsId: env.k8s_config]) {
                         def resources = getResources(env.k8s_config, env.kube_ns, "report-aggregate-service")
+                        def dedicated = getTgsSetting(env.k8s_config, env.kube_ns, "dedicated")
+                        def node_selector = getTgsSetting(env.k8s_config, env.kube_ns, "node-selector")
                         println resources
-
+                        println dedicated
+                        println node_selector
                         withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
                             sh """
                                 helm template deployment/k8s/report-aggregate-service \
@@ -118,6 +121,8 @@ pipeline {
                                     --set rabbit.vhost="$tgs_rabbit_vhost" \
                                     -f -
                                 {
+                                    "nodeSelector": $node_selector,
+                                    "tolerations": [$dedicated],
                                     "resources": $resources
                                 }
 
@@ -138,6 +143,8 @@ pipeline {
                                     | kubectl -n ${kube_ns} apply -f -
                                     -f -
                                 {
+                                    "nodeSelector": $node_selector,
+                                    "tolerations": [$dedicated],
                                     "resources": $resources
                                 }
                             """
