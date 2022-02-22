@@ -142,7 +142,6 @@ pipeline {
                                     --set rabbit.vhost="$tgs_rabbit_vhost" \
                                     -f - \
                                     | kubectl -n ${kube_ns} apply -f -
-                                    -f -
                                 {
                                     "nodeSelector": $node_selector,
                                     "tolerations": [$dedicated],
