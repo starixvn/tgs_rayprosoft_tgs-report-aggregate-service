@@ -111,7 +111,7 @@ pipeline {
 
                         withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
                             sh """
-                                helm template deployment/k8s/report-aggregate-service \
+                                 cat << EOF | yq e -P | helm template deployment/k8s/report-aggregate-service \
                                     --set image.tag=${TAG} \
                                     --set namespace=${kube_ns} \
                                     --set autoscaling.enabled=${tgs_autoscaling} \
@@ -130,7 +130,7 @@ pipeline {
                                 }
                             """
                             sh """
-                                helm template deployment/k8s/report-aggregate-service \
+                                 cat << EOF | yq e -P | helm template deployment/k8s/report-aggregate-service \
                                     --set image.tag=${TAG} \
                                     --set namespace=${kube_ns} \
                                     --set autoscaling.enabled=${tgs_autoscaling} \
