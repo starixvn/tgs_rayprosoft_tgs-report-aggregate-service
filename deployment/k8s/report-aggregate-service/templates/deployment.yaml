@@ -27,24 +27,6 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{ if eq .Values.namespace "staging" }}
-      nodeSelector:
-        dedicated: nonprod
-      tolerations:
-      - effect: NoSchedule
-        key: dedicated
-        operator: Equal
-        value: nonprod
-      {{ end }}
-      {{ if eq .Values.namespace "prod" }}
-      nodeSelector:
-        dedicated: prod
-      tolerations:
-      - effect: NoSchedule
-        key: dedicated
-        operator: Equal
-        value: prod
-      {{ end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
