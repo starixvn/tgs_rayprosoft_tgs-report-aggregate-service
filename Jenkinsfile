@@ -125,7 +125,6 @@ pipeline {
                                     "tolerations": [$dedicated],
                                     "resources": $resources
                                 }
-
                             """
                             sh """
                                 helm template deployment/k8s/report-aggregate-service \
