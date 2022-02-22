@@ -101,7 +101,7 @@ pipeline {
                 script {
                     withKubeConfig([credentialsId: env.k8s_config]) {
 
-                        def resources = getResources(env.k8s_config, env.kube_ns, "sms-plivo")
+                        def resources = getResources(env.k8s_config, env.kube_ns, "report-aggregate-service")
                         def dedicated = getTgsSettings(env.k8s_config, env.kube_ns, "dedicated")
                         def node_selector = getTgsSettings(env.k8s_config, env.kube_ns, "node-selector")
                            
