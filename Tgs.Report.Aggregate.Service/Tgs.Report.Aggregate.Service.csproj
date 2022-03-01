@@ -17,9 +17,9 @@
 		<PackageReference Include="MediatR" Version="10.0.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
-		<PackageReference Include="Tgs.Logging" Version="0.0.13" />
-		<PackageReference Include="Tgs.MessageQueue.Nats" Version="1.4.0" />
-		<PackageReference Include="Tgs.MessageQueue.RabbitMQ" Version="1.4.0" />
+		<PackageReference Include="Tgs.Logging" Version="0.0.15" />
+		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.0.3" />
+		<PackageReference Include="Tgs.MessageQueue.RabbitMQ" Version="2.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>

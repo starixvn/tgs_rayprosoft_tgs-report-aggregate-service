@@ -1,13 +1,9 @@
 ﻿using System.Transactions;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
-
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
-using Tgs.Report.Aggregate.Repository.Repositories;
 
 namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
 {
@@ -71,7 +67,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
                         x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour, cancellationToken))
                 {
                     return new MessageResponse
-                    { Valid = false, Message = $"{reportDate.Date} {start.Hour} is already existed." };
+                        { Valid = false, Message = $"{reportDate.Date} {start.Hour} is already existed." };
                 }
 
                 var (aggregates, aggregatesByGameType) =

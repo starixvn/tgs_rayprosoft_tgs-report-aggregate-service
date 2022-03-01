@@ -1,16 +1,12 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Transactions;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
-
 using Tgs.MessageQueue;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
-using Tgs.Report.Aggregate.Repository.Repositories;
 
 namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
 {
@@ -21,17 +17,17 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
         private readonly IMessageSender _messageSender;
         private readonly IPlayerAggregateFactory _playerAggregateFactory;
         private readonly IPlayerGameAggregateFactory _playerGameAggregateFactory;
-        private readonly ITgsRepository _repository;
         private readonly IRoundAggregateFactory _roundAggregateFactory;
+        private readonly ITgsService<Domain.Entities.PlayerAggregate> _tgsPlayerAggregateService;
 
         public CreateUpdatePlayerAggregateHandler(
-            ITgsRepository repository,
+            ITgsService<Domain.Entities.PlayerAggregate> tgsPlayerAggregateService,
             IMessageSender messageSender,
             IRoundAggregateFactory roundAggregateFactory,
             IPlayerAggregateFactory playerAggregateFactory,
             IPlayerGameAggregateFactory playerGameAggregateFactory)
         {
-            _repository = repository;
+            _tgsPlayerAggregateService = tgsPlayerAggregateService;
             _messageSender = messageSender;
             _roundAggregateFactory = roundAggregateFactory;
             _playerAggregateFactory = playerAggregateFactory;
@@ -50,7 +46,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
                 0,
                 previousHour.Offset);
 
-            var marketsOfDay = await _repository.PlayerAggregates
+            var marketsOfDay = await _tgsPlayerAggregateService.GetQueries()
                 .Where(x => x.ReportDate == reportDate.ToUniversalTime())
                 .Select(x => x.Hour).Distinct().ToArrayAsync(cancellationToken);
 
@@ -85,7 +81,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
                     0,
                     previousHour.Offset).AddHours(1);
 
-                if (await _repository.PlayerAggregates.AnyAsync(x =>
+                if (await _tgsPlayerAggregateService.GetQueries().AnyAsync(x =>
                         x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour, cancellationToken))
                 {
                     return new MessageResponse
@@ -122,7 +118,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
             };
 
             await _messageSender.PublishAsync("tgs.viplevel.aggregate.server",
-                    Encoding.UTF8.GetBytes(JsonSerializer.Serialize(sendForVipLevelUpCalculation)))
+                    Encoding.UTF8.GetBytes(JsonSerializer.Serialize(sendForVipLevelUpCalculation)), cancellationToken)
                 .ConfigureAwait(false);
 
             return new() { Valid = true };

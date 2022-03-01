@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-
 using Tgs.Report.Aggregate.Client.Models;
 
 namespace Tgs.Report.Aggregate.Client
@@ -17,5 +16,11 @@ namespace Tgs.Report.Aggregate.Client
         ValueTask<MessageResponse> ManualCreateRoundAggregateAsync(ManualCreateUpdateRoundAggregateModel request);
 
         ValueTask<MessageResponse> ManualFillPlayerBucketMinutelyAsync(ManualFillPlayerBucketMinutelyModel request);
+
+        ValueTask<MessageResponse> RemoveBrandGameProviderAggregateAsync(
+            RemoveBrandGameProviderAggregateRequest request);
+
+        ValueTask<MessageResponse> RemoveGameProviderAggregateAsync(
+            RemoveGameProviderAggregateRequest request);
     }
 }

@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
 using Tgs.Report.Aggregate.Client.Models;
 
 namespace Tgs.Report.Aggregate.Client
@@ -62,7 +61,7 @@ namespace Tgs.Report.Aggregate.Client
         }
 
         public async ValueTask<MessageResponse> ManualCreatePlayerAggregateAsync(
-                            ManualCreateUpdatePlayerAggregateModel request)
+            ManualCreateUpdatePlayerAggregateModel request)
         {
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/playerAggregate/manual")
             {
@@ -105,6 +104,36 @@ namespace Tgs.Report.Aggregate.Client
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
                 new() { PropertyNameCaseInsensitive = true })!;
+        }
+
+        public async ValueTask<MessageResponse> RemoveBrandGameProviderAggregateAsync(
+            RemoveBrandGameProviderAggregateRequest request)
+        {
+            var path = ClientPath.AppendWithProperties("/api/brandGameProviderAggregate?", request);
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Delete, path);
+            var response = await _client.SendAsync(httpRequest).ConfigureAwait(false);
+
+            response.EnsureSuccessStatusCode();
+
+            return JsonSerializer.Deserialize<MessageResponse>(
+                await response.Content.ReadAsStringAsync(),
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        }
+
+        public async ValueTask<MessageResponse> RemoveGameProviderAggregateAsync(
+            RemoveGameProviderAggregateRequest request)
+        {
+            var path = ClientPath.AppendWithProperties("/api/gameProviderAggregate?", request);
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Delete, path);
+            var response = await _client.SendAsync(httpRequest).ConfigureAwait(false);
+
+            response.EnsureSuccessStatusCode();
+
+            return JsonSerializer.Deserialize<MessageResponse>(
+                await response.Content.ReadAsStringAsync(),
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         }
     }
 }

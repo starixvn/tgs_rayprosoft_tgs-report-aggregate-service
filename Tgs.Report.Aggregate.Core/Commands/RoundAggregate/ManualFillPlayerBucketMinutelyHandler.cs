@@ -1,7 +1,5 @@
 ﻿using System.Transactions;
-
 using MediatR;
-
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models;
