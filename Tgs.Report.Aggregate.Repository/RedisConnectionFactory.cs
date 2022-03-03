@@ -2,7 +2,7 @@
 using StackExchange.Redis;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 
-namespace Tgs.VipLevels.PromotionServer
+namespace Tgs.Report.Aggregate.Repository
 {
     internal class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     {
