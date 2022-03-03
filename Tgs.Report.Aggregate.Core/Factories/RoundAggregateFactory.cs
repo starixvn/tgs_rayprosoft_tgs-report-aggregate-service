@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
+using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 using Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate;
 using Tgs.Report.Aggregate.Domain.Shared;
-using Tgs.Report.Aggregate.Infrastructure.Configurations;
-using Tgs.Report.Aggregate.Repository.Repositories;
 
 namespace Tgs.Report.Aggregate.Core.Factories
 {
@@ -57,12 +55,12 @@ namespace Tgs.Report.Aggregate.Core.Factories
                         transaction
                     })
                 .GroupBy(x => new
-                {
-                    x.BrandId,
-                    x.Player.AgentId,
-                    x.Player.Agent.DividendPercentage,
-                    x.Player.PlayerCode
-                },
+                    {
+                        x.BrandId,
+                        x.Player.AgentId,
+                        x.Player.Agent.DividendPercentage,
+                        x.Player.PlayerCode
+                    },
                     (x, players) =>
                         new PlayerAggregateModel
                         {
@@ -169,16 +167,16 @@ namespace Tgs.Report.Aggregate.Core.Factories
                         player.Agent
                     })
                 .GroupBy(x => new
-                {
-                    x.r.BrandId,
-                    x.r.AgentId,
-                    x.r.PlayerCode,
-                    x.r.GameProviderId,
-                    x.r.GameId,
-                    x.r.GameType,
-                    x.Vip,
-                    x.Agent
-                },
+                    {
+                        x.r.BrandId,
+                        x.r.AgentId,
+                        x.r.PlayerCode,
+                        x.r.GameProviderId,
+                        x.r.GameId,
+                        x.r.GameType,
+                        x.Vip,
+                        x.Agent
+                    },
                     (x, aggregate) =>
                     {
                         return new PlayerGameTypeAggregateModel

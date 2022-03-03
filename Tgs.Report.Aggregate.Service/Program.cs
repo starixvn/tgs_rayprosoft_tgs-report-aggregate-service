@@ -1,3 +1,4 @@
+using Tgs.Report.Aggregate.Service.MessageHandlers;
 using Tgs.Report.Aggregate.Service.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,12 @@ builder.Host.ConfigureAppConfiguration((_, builder) =>
 builder.Services
     .AddTgsRepository(builder.Configuration.GetConnectionString("Tgs"))
     .AddReportAggregateCore()
+    .AddRedis((options, sp) =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+
+        options.ConnectionString = config.GetConnectionString("RedisConfigurationString");
+    })
     .AddTgsLog();
 
 builder.Services
@@ -23,6 +30,10 @@ builder.Services
 
                 options.Url = configuration.GetConnectionString("Nats");
             });
+        natsConfig.AddHandler<BrandGameProviderAggregateMessageHandler>("tgs.report.aggregate.brand.game.provider",
+            "tgs.report.aggregate");
+        natsConfig.AddHandler<GameProviderAggregateMessageHandler>("tgs.report.aggregate.game.provider",
+            "tgs.report.aggregate");
     })
     .AddRabbitMessageQueue(config =>
     {
@@ -37,6 +48,8 @@ builder.Services
     .ClearAllExchanges()
     .AddRabbitGlobPatternExchange("report.error", "amq.direct")
     .AddNatsGlobPatternExchange("tgs.viplevel.aggregate.server")
+    .AddNatsGlobPatternExchange("tgs.report.aggregate.brand.game.provider")
+    .AddNatsGlobPatternExchange("tgs.report.aggregate.game.provider")
     .AddNatsGlobPatternExchange("*");
 
 builder.Services.AddHealthChecks();

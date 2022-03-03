@@ -1,11 +1,8 @@
 ﻿using MediatR;
-
 using Microsoft.EntityFrameworkCore;
-
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
-using Tgs.Report.Aggregate.Repository.Repositories;
 
 namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
 {
@@ -13,15 +10,15 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
         ManualCreateUpdateRoundAggregateHandler : IRequestHandler<ManualCreateRoundAggregateModel,
             MessageResponse>
     {
-        private readonly ITgsRepository _repository;
         private readonly IRoundFactory _roundFactory;
+        private readonly ITgsService<Domain.Entities.RoundAggregate> _tgsRoundAggregateService;
 
         public ManualCreateUpdateRoundAggregateHandler(
-            ITgsRepository repository,
+            ITgsService<Domain.Entities.RoundAggregate> tgsRoundAggregateService,
             IRoundFactory roundFactory)
         {
             _roundFactory = roundFactory;
-            _repository = repository;
+            _tgsRoundAggregateService = tgsRoundAggregateService;
         }
 
         public async Task<MessageResponse> Handle(ManualCreateRoundAggregateModel request,
@@ -40,7 +37,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
                 return new MessageResponse { Valid = false, Message = "Date is invalid." };
             }
 
-            var marketsOfDay = await _repository.RoundAggregates
+            var marketsOfDay = await _tgsRoundAggregateService.GetQueries()
                 .Where(x => x.ReportDate == reportDate.ToUniversalTime())
                 .Select(x => x.Hour).Distinct().ToArrayAsync(cancellationToken);
 
@@ -60,7 +57,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
                 var end = new DateTimeOffset(result.Year, result.Month, result.Day, doHour,
                     0, 0, result.Offset).AddHours(1);
 
-                if (await _repository.RoundAggregates.AnyAsync(x =>
+                if (await _tgsRoundAggregateService.GetQueries().AnyAsync(x =>
                         x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour, cancellationToken) ||
                     end > DateTimeOffset.Now)
                 {
