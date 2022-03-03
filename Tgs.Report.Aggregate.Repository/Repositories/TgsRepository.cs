@@ -7,11 +7,33 @@ using Tgs.Report.Aggregate.Domain.Interfaces;
 
 namespace Tgs.Report.Aggregate.Repository.Repositories
 {
-    public class TgsRepository : TgsContext, ITgsRepository
+    public class TgsRepository : DbContext, ITgsRepository
     {
-        public TgsRepository(DbContextOptions<TgsRepository> options)
+        public TgsRepository(DbContextOptions<TgsRepository> options) : base(options)
         {
         }
+
+        public DbSet<PlayerAggregate> PlayerAggregates { get; set; }
+
+        public DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; }
+
+        public DbSet<PlayerBucket> PlayerBuckets { get; set; }
+
+        public DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; }
+
+        public DbSet<Player> Players { get; set; }
+
+        public DbSet<RoundAggregate> RoundAggregates { get; set; }
+
+        public DbSet<Transaction> Transactions { get; set; }
+
+        public DbSet<VipLevel> VipLevels { get; set; }
+
+        public DbSet<Wallet> Wallets { get; set; }
+
+        public DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; }
+
+        public DbSet<GameProviderAggregate> GameProviderAggregates { get; set; }
 
         public IDbContextTransaction? CurrentTransaction =>
             Database.CurrentTransaction;
