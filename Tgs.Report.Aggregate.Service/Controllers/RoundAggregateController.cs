@@ -1,9 +1,6 @@
 ﻿using System.ComponentModel;
-
 using MediatR;
-
 using Microsoft.AspNetCore.Mvc;
-
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 
@@ -27,8 +24,8 @@ namespace Tgs.Report.Aggregate.Service.Controllers
 
         [HttpPost("fillPlayerBucketMinutely")]
         [Description("Fill player bucket minutely")]
-        public Task<MessageResponse> FillPlayerBucketMinutelyAsync() =>
-            _mediator.Send(new FillPlayerBucketMinutelyRequest());
+        public Task<MessageResponse> FillPlayerBucketMinutelyAsync(FillPlayerBucketMinutelyRequest request) =>
+            _mediator.Send(request);
 
         [HttpPost("manual")]
         [Description("Manual create or update round aggregate")]
