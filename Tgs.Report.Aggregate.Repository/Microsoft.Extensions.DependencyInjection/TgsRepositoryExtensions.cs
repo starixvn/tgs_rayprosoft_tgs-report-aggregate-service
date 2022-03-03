@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tgs.Report.Aggregate.Domain.Interfaces;
+using Tgs.Report.Aggregate.Repository;
 using Tgs.Report.Aggregate.Repository.Repositories;
-using Tgs.VipLevels.PromotionServer;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -16,6 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             services.AddScoped<ITgsRepository>(c => c.GetRequiredService<TgsRepository>());
+            services.AddTransient(typeof(ITgsService<>), typeof(TgsService<>));
 
             return services;
         }

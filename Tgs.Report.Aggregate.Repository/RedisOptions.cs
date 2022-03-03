@@ -1,4 +1,4 @@
-﻿namespace Tgs.VipLevels.PromotionServer
+﻿namespace Tgs.Report.Aggregate.Repository
 {
     public class RedisOptions
     {
