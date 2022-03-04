@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.Report.Aggregate.Client
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.Report.Aggregate.Repository", "Tgs.Report.Aggregate.Repository\Tgs.Report.Aggregate.Repository.csproj", "{742A0E5A-D39E-4361-A47A-4A1F6FDF6A54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.Report.Aggregate.UnitTest", "Tgs.Report.Aggregate.UnitTest\Tgs.Report.Aggregate.UnitTest.csproj", "{07AAF337-2E6D-4A88-B82D-C47C9DE4B13F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{742A0E5A-D39E-4361-A47A-4A1F6FDF6A54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{742A0E5A-D39E-4361-A47A-4A1F6FDF6A54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{742A0E5A-D39E-4361-A47A-4A1F6FDF6A54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07AAF337-2E6D-4A88-B82D-C47C9DE4B13F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07AAF337-2E6D-4A88-B82D-C47C9DE4B13F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07AAF337-2E6D-4A88-B82D-C47C9DE4B13F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07AAF337-2E6D-4A88-B82D-C47C9DE4B13F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

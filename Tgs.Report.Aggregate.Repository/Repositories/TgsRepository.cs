@@ -1,55 +1,68 @@
 ﻿using System.Data;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-
-using Tgs.Report.Aggregate.Infrastructure.Configurations;
+using Tgs.Report.Aggregate.Domain.Entities;
+using Tgs.Report.Aggregate.Domain.Entities.Configurations;
+using Tgs.Report.Aggregate.Domain.Interfaces;
 
 namespace Tgs.Report.Aggregate.Repository.Repositories
 {
     public class TgsRepository : DbContext, ITgsRepository
     {
-        public DbSet<Agent> Agents { get; set; } = null!;
+        public TgsRepository(DbContextOptions<TgsRepository> options) : base(options)
+        {
+        }
+
+        public DbSet<PlayerAggregate> PlayerAggregates { get; set; }
+
+        public DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; }
+
+        public DbSet<PlayerBucket> PlayerBuckets { get; set; }
+
+        public DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; }
+
+        public DbSet<Player> Players { get; set; }
+
+        public DbSet<RoundAggregate> RoundAggregates { get; set; }
+
+        public DbSet<Transaction> Transactions { get; set; }
+
+        public DbSet<VipLevel> VipLevels { get; set; }
+
+        public DbSet<Wallet> Wallets { get; set; }
+
+        public DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; }
+
+        public DbSet<GameProviderAggregate> GameProviderAggregates { get; set; }
 
         public IDbContextTransaction? CurrentTransaction =>
             Database.CurrentTransaction;
 
-        public DbSet<PlayerAggregate> PlayerAggregates { get; set; } = null!;
-
-        public DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; } = null!;
-
-        public DbSet<PlayerBucket> PlayerBuckets { get; set; } = null!;
-
-        public DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; } = null!;
-
-        public DbSet<Player> Players { get; set; } = null!;
-
-        public DbSet<RoundAggregate> RoundAggregates { get; set; } = null!;
-
-        public DbSet<Transaction> Transactions { get; set; } = null!;
-
-        public DbSet<VipLevel> VipLevels { get; set; } = null!;
-
-        public DbSet<Wallet> Wallets { get; set; } = null!;
-
-        public TgsRepository(DbContextOptions<TgsRepository> options) : base(options)
-        {
-        }
+        public IDbConnection GetDbConnection() =>
+            Database.GetDbConnection();
 
         public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel level) =>
             Database.BeginTransactionAsync(level);
 
         public Task<bool> CanConnectionAsync() => Database.CanConnectAsync();
 
-        public IDbConnection GetDbConnection() =>
-                            Database.GetDbConnection();
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
-            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-
             modelBuilder.HasPostgresExtension("pg_trgm");
+
+            modelBuilder.ApplyConfiguration(new AgentConfiguration());
+            modelBuilder.ApplyConfiguration(new BrandGameProviderAggregateConfiguration());
+            modelBuilder.ApplyConfiguration(new GameProviderAggregateConfiguration());
+            modelBuilder.ApplyConfiguration(new PlayerConfiguration());
+            modelBuilder.ApplyConfiguration(new PlayerAggregateConfiguration());
+            modelBuilder.ApplyConfiguration(new PlayerBucketConfiguration());
+            modelBuilder.ApplyConfiguration(new PlayerBucketHistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new PlayerGameRebateAggregateConfiguration());
+            modelBuilder.ApplyConfiguration(new RoundAggregateConfiguration());
+            modelBuilder.ApplyConfiguration(new TransactionConfiguration());
+            modelBuilder.ApplyConfiguration(new VipLevelConfiguration());
+            modelBuilder.ApplyConfiguration(new WalletConfiguration());
         }
     }
 }

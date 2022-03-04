@@ -1,7 +1,5 @@
 ﻿using System.Reflection;
-
 using MediatR;
-
 using Tgs.Report.Aggregate.Core.Factories;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 
@@ -17,6 +15,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IRoundAggregateFactory, RoundAggregateFactory>();
             services.AddTransient<IRoundFactory, RoundFactory>();
             services.AddTransient<IPlayerAggregateFactory, PlayerAggregateFactory>();
+            services.AddTransient<IBrandGameProviderAggregateFactory, BrandGameProviderAggregateFactory>();
+            services.AddTransient<IGameProviderAggregateFactory, GameProviderAggregateFactory>();
 
             return services;
         }
