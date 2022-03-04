@@ -17,7 +17,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public string? Description { get; set; }
         public short Type { get; set; }
         public DateTimeOffset RecordedOn { get; set; }
-        public DateTime? SentOn { get; set; }
+        public DateTimeOffset? SentOn { get; set; }
         public Guid? CreatedByUserId { get; set; }
 
         public virtual Wallet Wallet { get; set; } = null!;

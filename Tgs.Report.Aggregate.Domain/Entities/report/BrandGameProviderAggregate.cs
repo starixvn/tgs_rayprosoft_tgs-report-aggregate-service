@@ -11,6 +11,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public int AuditLogId { get; set; }
         public Guid BrandId { get; set; }
         public Guid GameProviderId { get; set; }
+        public int GameType { get; set; }
         public string CurrencyCode { get; set; } = null!;
         public int TransactionCount { get; set; }
         public decimal BetAmount { get; set; }

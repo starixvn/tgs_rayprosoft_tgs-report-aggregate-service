@@ -40,6 +40,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.Property(e => e.GameProviderId).HasColumnName("game_provider_id");
 
+            entity.Property(e => e.GameType).HasColumnName("game_type");
+
             entity.Property(e => e.ReportDate).HasColumnName("report_date");
 
             entity.Property(e => e.SettleAmount)
