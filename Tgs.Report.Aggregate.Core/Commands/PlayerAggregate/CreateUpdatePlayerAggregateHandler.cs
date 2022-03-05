@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tgs.MessageQueue;
 using Tgs.Report.Aggregate.Domain;
+using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 
@@ -19,19 +20,25 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
         private readonly IPlayerGameAggregateFactory _playerGameAggregateFactory;
         private readonly IRoundAggregateFactory _roundAggregateFactory;
         private readonly ITgsService<Domain.Entities.PlayerAggregate> _tgsPlayerAggregateService;
+        private readonly ITgsService<Domain.Entities.RoundAggregate> _tgsRoundAggregateService;
+        private readonly ITgsService<Round> _tgsRoundsService;
 
         public CreateUpdatePlayerAggregateHandler(
             ITgsService<Domain.Entities.PlayerAggregate> tgsPlayerAggregateService,
             IMessageSender messageSender,
             IRoundAggregateFactory roundAggregateFactory,
             IPlayerAggregateFactory playerAggregateFactory,
-            IPlayerGameAggregateFactory playerGameAggregateFactory)
+            IPlayerGameAggregateFactory playerGameAggregateFactory,
+            ITgsService<Domain.Entities.RoundAggregate> tgsRoundAggregateService,
+            ITgsService<Round> tgsRoundsService)
         {
             _tgsPlayerAggregateService = tgsPlayerAggregateService;
             _messageSender = messageSender;
             _roundAggregateFactory = roundAggregateFactory;
             _playerAggregateFactory = playerAggregateFactory;
             _playerGameAggregateFactory = playerGameAggregateFactory;
+            _tgsRoundAggregateService = tgsRoundAggregateService;
+            _tgsRoundsService = tgsRoundsService;
         }
 
         public async Task<MessageResponse> Handle(CreateUpdatePlayerAggregateModel request,
@@ -89,6 +96,15 @@ namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate
                         Valid = false,
                         Message = $"{reportDate.Date} {start.Hour} is already existed."
                     };
+                }
+
+                if (!await _tgsRoundAggregateService.GetQueries().AnyAsync(x =>
+                        x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour, cancellationToken) &&
+                    await _tgsRoundsService.GetQueries().AnyAsync(x =>
+                            x.ClosedOn >= start.ToUniversalTime() && x.ClosedOn >= end.ToUniversalTime(),
+                        cancellationToken))
+                {
+                    continue;
                 }
 
                 var (aggregates, aggregatesByGameType) =

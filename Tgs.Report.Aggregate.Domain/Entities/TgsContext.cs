@@ -27,6 +27,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public virtual DbSet<PlayerBucket> PlayerBuckets { get; set; } = null!;
         public virtual DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; } = null!;
         public virtual DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; } = null!;
+        public virtual DbSet<Round> Rounds { get; set; } = null!;
         public virtual DbSet<RoundAggregate> RoundAggregates { get; set; } = null!;
         public virtual DbSet<Transaction> Transactions { get; set; } = null!;
         public virtual DbSet<VipLevel> VipLevels { get; set; } = null!;
@@ -47,6 +48,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketHistoryConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerGameRebateAggregateConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.RoundConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.RoundAggregateConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.TransactionConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.VipLevelConfiguration());
