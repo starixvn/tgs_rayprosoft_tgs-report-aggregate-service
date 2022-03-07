@@ -1,12 +1,70 @@
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Diagnostics;
+using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Tgs.MessageQueue;
+using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Service.MessageHandlers;
-using Tgs.Report.Aggregate.Service.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ConfigureAppConfiguration((_, builder) =>
 {
-    builder.AddJsonFile("/config/appsettings.json", true);
+    builder
+        .AddJsonFile("/config/appsettings.json", true)
+        .AddEnvironmentVariables();
 });
+
+builder.Logging
+    .AddOpenTelemetry(options =>
+    {
+        options.IncludeFormattedMessage = true;
+        options.ParseStateValues = true;
+        _ = options.AddFluentdForwardExporter(fluentOptions =>
+        {
+            var nodeIp = builder.Configuration.GetValue<string>("NODE_IP");
+            fluentOptions.Host = nodeIp;
+            fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME");
+            fluentOptions.UseMessagePack();
+        });
+    });
+
+builder.Services
+    .AddOpenTelemetryTracing(builder => builder
+        .SetResourceBuilder(ResourceBuilder.CreateDefault()
+            .AddEnvironmentVariableDetector())
+        .AddSource("Tgs.*")
+        .AddSource("TGS.*")
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddEntityFrameworkCoreInstrumentation(options =>
+        {
+            options.SetDbStatementForText = true;
+        })
+        .AddProfileViewExporter()
+        .AddOtlpExporter())
+    .Configure<AspNetCoreInstrumentationOptions>(options =>
+    {
+        options.Filter = httpContext =>
+        {
+            return !httpContext.Request.Path.HasValue
+                || !httpContext.Request.Path.StartsWithSegments("/swagger")
+                && !httpContext.Request.Path.StartsWithSegments("/health")
+                && !httpContext.Request.Path.StartsWithSegments("/profiler/")
+                && !new[]
+                {
+                    "html",
+                    "ico",
+                    "png",
+                    "jpg"
+                }.Any(
+                    ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
+        };
+    });
+
+builder.Services.AddProfileViewer();
 
 builder.Services
     .AddTgsRepository(builder.Configuration.GetConnectionString("Tgs"))
@@ -63,17 +121,32 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionMiddleware>();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseExceptionHandler(new ExceptionHandlerOptions
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    ExceptionHandler = async context =>
+    {
+        var exceptionFeature = context.Features.Get<IExceptionHandlerFeature>();
+        if (exceptionFeature?.Error != null)
+        {
+            var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger("ExceptionHandler");
+
+            logger.LogError(exceptionFeature.Error, exceptionFeature.Error.Message);
+
+            var messageSender = app.Services.GetRequiredService<IMessageSender>();
+
+            await messageSender.PublishAsync("report.error",
+                    Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ReportErrorMessage(
+                        $"{app.Environment}: {exceptionFeature.Error.Message}"))))
+                .ConfigureAwait(false);
+        }
+    }
+});
+// Configure the HTTP request pipeline.
+app.UseSwaggerUI();
 
 app.MapControllers();
-
+app.MapSwagger();
 app.MapHealthChecks("/health");
 
 app.Run();
