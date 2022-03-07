@@ -24,7 +24,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public Guid DefaultWalletId { get; set; }
         public string DefaultWalletCurrencyCode { get; set; } = null!;
         public Guid BrandId { get; set; }
-        public DateTime? RegisteredOn { get; set; }
+        public DateTimeOffset? RegisteredOn { get; set; }
         public DateTimeOffset LastActiveOn { get; set; }
         public short Status { get; set; }
         public int BetLimitId { get; set; }
@@ -40,9 +40,9 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public Guid? VipId { get; set; }
         public string? UpdatedByUsername { get; set; }
         public DateTimeOffset UpdatedOn { get; set; }
-        public DateTime? FirstDepositOn { get; set; }
+        public DateTimeOffset? FirstDepositOn { get; set; }
         public string? AreaCode { get; set; }
-        public DateTime? FirstPromotionOn { get; set; }
+        public DateTimeOffset? FirstPromotionOn { get; set; }
 
         public virtual Agent? Agent { get; set; }
         public virtual VipLevel? Vip { get; set; }

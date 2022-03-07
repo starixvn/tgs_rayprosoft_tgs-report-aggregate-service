@@ -35,6 +35,8 @@ namespace Tgs.Report.Aggregate.Repository.Repositories
 
         public DbSet<GameProviderAggregate> GameProviderAggregates { get; set; }
 
+        public DbSet<Round> Rounds { get; set; }
+
         public IDbContextTransaction? CurrentTransaction =>
             Database.CurrentTransaction;
 
@@ -63,6 +65,7 @@ namespace Tgs.Report.Aggregate.Repository.Repositories
             modelBuilder.ApplyConfiguration(new TransactionConfiguration());
             modelBuilder.ApplyConfiguration(new VipLevelConfiguration());
             modelBuilder.ApplyConfiguration(new WalletConfiguration());
+            modelBuilder.ApplyConfiguration(new RoundConfiguration());
         }
     }
 }

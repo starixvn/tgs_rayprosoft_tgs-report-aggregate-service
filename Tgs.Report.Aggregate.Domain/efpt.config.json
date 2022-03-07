@@ -42,15 +42,19 @@
          "ObjectType": 0
       },
       {
+         "Name": "bet.rounds",
+         "ObjectType": 0
+      },
+      {
+         "Name": "report.game_provider_aggregates",
+         "ObjectType": 0
+      },
+      {
          "Name": "report.round_aggregates",
          "ObjectType": 0
       },
       {
          "Name": "report.player_aggregates",
-         "ObjectType": 0
-      },
-      {
-         "Name": "report.game_provider_aggregates",
          "ObjectType": 0
       },
       {

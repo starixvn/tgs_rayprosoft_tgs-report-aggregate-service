@@ -32,6 +32,7 @@ namespace Tgs.Report.Aggregate.Domain.Interfaces
         DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; }
 
         DbSet<GameProviderAggregate> GameProviderAggregates { get; set; }
+        DbSet<Round> Rounds { get; set; }
 
         IDbConnection GetDbConnection();
 
