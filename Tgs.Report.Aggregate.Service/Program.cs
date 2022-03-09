@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
+using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -29,6 +30,18 @@ builder.Logging
             fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME");
             fluentOptions.UseMessagePack();
         });
+    });
+
+builder.Services
+    .AddOptions<OtlpExporterOptions>()
+    .Configure<IConfiguration>((options, conifg) =>
+    {
+        var nodeIp = conifg.GetValue<string>("NODE_IP");
+
+        if (!string.IsNullOrWhiteSpace(nodeIp))
+            options.Endpoint = new Uri($"http://{nodeIp}:4317");
+
+        conifg.GetSection("Opentelemetry:Tracing").Bind(options);
     });
 
 builder.Services
