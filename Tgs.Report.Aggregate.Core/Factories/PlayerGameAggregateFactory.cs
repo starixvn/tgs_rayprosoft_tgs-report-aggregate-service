@@ -1,8 +1,7 @@
 ﻿using Tgs.Report.Aggregate.Core.Extensions;
+using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate;
-using Tgs.Report.Aggregate.Infrastructure.Configurations;
-using Tgs.Report.Aggregate.Repository.Repositories;
 
 namespace Tgs.Report.Aggregate.Core.Factories
 {

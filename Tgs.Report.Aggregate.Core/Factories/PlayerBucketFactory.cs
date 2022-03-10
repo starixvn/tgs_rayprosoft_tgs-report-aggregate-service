@@ -1,11 +1,8 @@
 ﻿using System.Transactions;
-
 using Microsoft.EntityFrameworkCore;
-
+using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models;
-using Tgs.Report.Aggregate.Infrastructure.Configurations;
-using Tgs.Report.Aggregate.Repository.Repositories;
 
 namespace Tgs.Report.Aggregate.Core.Factories
 {

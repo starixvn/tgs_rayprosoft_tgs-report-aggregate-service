@@ -1,4 +1,6 @@
-﻿namespace Tgs.Report.Aggregate.Client.Models
+﻿using System;
+
+namespace Tgs.Report.Aggregate.Client.Models
 {
-    public record FillPlayerBucketMinutelyModel;
+    public record FillPlayerBucketMinutelyModel(DateTimeOffset StartDate);
 }

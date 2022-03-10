@@ -1,7 +1,4 @@
-﻿using System.Transactions;
-
-using MediatR;
-
+﻿using MediatR;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models;
@@ -26,7 +23,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
         public async Task<MessageResponse> Handle(FillPlayerBucketMinutelyRequest request,
             CancellationToken cancellationToken)
         {
-            var previousMinute = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddMinutes(-1);
+            var previousMinute = request.StartDate.ToOffset(new(8, 0, 0));
 
             var start = new DateTimeOffset(previousMinute.Year, previousMinute.Month, previousMinute.Day,
                 previousMinute.Hour,
@@ -35,8 +32,6 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
             var end = new DateTimeOffset(previousMinute.Year, previousMinute.Month, previousMinute.Day,
                 previousMinute.Hour,
                 previousMinute.Minute, 0, previousMinute.Offset).AddMinutes(1);
-
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var models = await _roundFactory.GetMinuteRoundAggregateAsync(start, end);
 
@@ -53,8 +48,6 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
                 await _playerBucketFactory.FillInBucketAsync(
                     new() { From = start, To = end, PlayerTurnovers = playerTurnovers });
             }
-
-            scope.Complete();
 
             return new() { Valid = true };
         }
