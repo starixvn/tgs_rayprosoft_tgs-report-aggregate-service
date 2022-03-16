@@ -27,7 +27,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.BrandGameProviderAggregate
                 throw new Exception("The date must be number 1 of each month.");
             }
 
-            var end = DateGenerator.GetLastDayOfMonth(start);
+            var end = DateGenerator.GetFirstDayOfMonth(start.AddMonths(1));
 
             await _brandGameProviderFactory.RemoveBrandGameProviderAggregateAsync(request.BrandId, start, end);
 
