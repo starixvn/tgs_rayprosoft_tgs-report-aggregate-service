@@ -4,7 +4,7 @@
     {
         Deposit = 0,
         Withdrawal = 1,
-        Adjust = 2,
+        CompanyAdjust = 2,
         Bonus = 3,
         Rebate = 4,
         Dividend = 5,
@@ -51,9 +51,12 @@
         DividendAllAgentRebate = 4100,
 
         /// <summary>
-        /// 調帳 5000~5999
+        ///     調帳 5000~5999
         /// </summary>
         //Adjust = 5000,
+        AgentAdjust = 5100,
+        SystemAdjust = 5200,
+        TransferAdjust = 5300,
 
         /// <summary>
         ///     已結算單再調整

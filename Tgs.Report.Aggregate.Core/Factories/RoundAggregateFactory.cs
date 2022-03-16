@@ -90,8 +90,16 @@ namespace Tgs.Report.Aggregate.Core.Factories
                                     p.transaction.Type == (short)TransactionType.Withdrawal &&
                                     p.transaction.RecordedOn >= utcStart &&
                                     p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
-                            AdjustmentAmount = players.Where(p =>
-                                p.transaction.Type == (short)TransactionType.Adjust &&
+                            CompanyAdjustAmount = players.Where(p =>
+                                p.transaction.Type == (short)TransactionType.CompanyAdjust &&
+                                p.transaction.RecordedOn >= utcStart &&
+                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
+                            AgentAdjustAmount = players.Where(p =>
+                                p.transaction.Type == (short)TransactionType.AgentAdjust &&
+                                p.transaction.RecordedOn >= utcStart &&
+                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
+                            SystemAdjustAmount = players.Where(p =>
+                                p.transaction.Type == (short)TransactionType.SystemAdjust &&
                                 p.transaction.RecordedOn >= utcStart &&
                                 p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
                             BonusAmount = players.Where(p =>
@@ -215,9 +223,9 @@ namespace Tgs.Report.Aggregate.Core.Factories
 
             playerAggregates = playerAggregates.Where(x =>
                 x.RegisteredCount != 0 || x.FirstFundInCount != 0 || x.DepositAmount != 0 || x.WithdrawalAmount != 0 ||
-                x.AdjustmentAmount != 0 || x.BonusAmount != 0 || x.RebateAmount != 0 || x.DividendAmount != 0 ||
+                x.CompanyAdjustAmount != 0 || x.BonusAmount != 0 || x.RebateAmount != 0 || x.DividendAmount != 0 ||
                 x.PromotionAmount != 0 || x.BetAmount != 0 || x.OriginalTurnover != 0 || x.ValidBetAmount != 0 ||
-                x.Turnover != 0 ||
+                x.Turnover != 0 || x.AgentAdjustAmount != 0 ||
                 x.WinLossAmount != 0 || players.Contains(x.PlayerCode)).ToArray();
 
             return (playerAggregates, playerAggregateByGameType);

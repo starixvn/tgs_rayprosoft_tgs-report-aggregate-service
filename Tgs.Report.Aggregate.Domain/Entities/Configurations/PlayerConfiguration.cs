@@ -50,6 +50,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.Property(e => e.BetLimitId).HasColumnName("bet_limit_id");
 
+            entity.Property(e => e.Birthday).HasColumnName("birthday");
+
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
 
             entity.Property(e => e.DefaultWalletCurrencyCode)
@@ -91,6 +93,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
                 .HasColumnName("real_name");
 
             entity.Property(e => e.RegisteredOn).HasColumnName("registered_on");
+
+            entity.Property(e => e.Remark).HasColumnName("remark");
 
             entity.Property(e => e.Salt).HasColumnName("salt");
 
