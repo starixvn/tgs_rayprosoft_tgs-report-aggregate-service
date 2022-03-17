@@ -29,7 +29,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.GameProviderAggregate
                     .ConfigureAwait(false))
             {
                 var start = request.StartDate.ToOffset(new(8, 0, 0));
-                var end = DateGenerator.GetLastDayOfMonth(start);
+                var end = DateGenerator.GetFirstDayOfMonth(start.AddMonths(1));
 
                 await _gameProviderFactory.GenerateGameProviderAggregateAsync(request.GameProviderId,
                     start.ToUniversalTime(), end.ToUniversalTime(), request.AuditLogId).ConfigureAwait(false);
