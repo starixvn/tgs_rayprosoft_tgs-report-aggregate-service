@@ -22,9 +22,9 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.Property(e => e.Id).HasColumnName("id");
 
-            entity.Property(e => e.AdjustmentAmount)
+            entity.Property(e => e.AgentAdjustAmount)
                 .HasPrecision(18, 6)
-                .HasColumnName("adjustment_amount");
+                .HasColumnName("agent_adjust_amount");
 
             entity.Property(e => e.AgentId).HasColumnName("agent_id");
 
@@ -41,6 +41,10 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
                 .HasColumnName("bonus_amount");
 
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
+
+            entity.Property(e => e.CompanyAdjustAmount)
+                .HasPrecision(18, 6)
+                .HasColumnName("company_adjust_amount");
 
             entity.Property(e => e.CreatedOn).HasColumnName("created_on");
 
@@ -77,6 +81,10 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.RegisteredCount).HasColumnName("registered_count");
 
             entity.Property(e => e.ReportDate).HasColumnName("report_date");
+
+            entity.Property(e => e.SystemAdjustAmount)
+                .HasPrecision(18, 6)
+                .HasColumnName("system_adjust_amount");
 
             entity.Property(e => e.Turnover)
                 .HasPrecision(18, 6)
