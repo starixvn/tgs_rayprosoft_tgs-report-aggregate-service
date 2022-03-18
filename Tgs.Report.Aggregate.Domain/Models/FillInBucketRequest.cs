@@ -13,5 +13,6 @@ namespace Tgs.Report.Aggregate.Domain.Models
     {
         public string PlayerCode { get; init; }
         public decimal Turnover { get; init; }
+        public string Data { get; init; }
     }
 }
