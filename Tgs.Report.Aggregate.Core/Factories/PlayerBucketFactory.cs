@@ -1,4 +1,5 @@
-﻿using System.Transactions;
+﻿using System.Text.Json;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
@@ -8,69 +9,123 @@ namespace Tgs.Report.Aggregate.Core.Factories
 {
     public class PlayerBucketFactory : IPlayerBucketFactory
     {
-        private readonly ITgsRepository _repository;
+        private readonly ITgsService<PlayerBucketHistory> _playerBucketHistoryService;
+        private readonly ITgsService<PlayerBucket> _playerBucketService;
 
-        public PlayerBucketFactory(ITgsRepository repository)
+        public PlayerBucketFactory(ITgsService<PlayerBucket> playerBucketService,
+            ITgsService<PlayerBucketHistory> playerBucketHistoryService)
         {
-            _repository = repository;
+            _playerBucketService = playerBucketService;
+            _playerBucketHistoryService = playerBucketHistoryService;
         }
 
-        public async ValueTask FillInBucketAsync(FillInPlayerBucketsRequest request)
+        public async ValueTask FillInBucketAsync(DateTimeOffset start, DateTimeOffset end, RoundMinutelyModel[] models)
         {
-            var playerCodes = request.PlayerTurnovers.Select(x => x.PlayerCode).ToArray();
+            var playerCodes = models.GroupBy(x => x.PlayerCode, (playerCode, list) => playerCode).ToArray();
 
-            var playerBuckets = await _repository.PlayerBuckets
-                .Where(x => playerCodes.Contains(x.PlayerCode) && !x.IsFull).ToArrayAsync();
+            var playerBuckets = await _playerBucketService.GetQueries()
+                .Where(x => playerCodes.Contains(x.PlayerCode) && !x.IsFull).ToArrayAsync().ConfigureAwait(false);
+
             var playerBucketHistories = new List<PlayerBucketHistory>();
 
-            foreach (var player in request.PlayerTurnovers)
+            foreach (var playerCode in playerCodes)
             {
-                var turnover = player.Turnover;
-                var buckets = playerBuckets.Where(x => x.PlayerCode == player.PlayerCode).ToArray();
+                var roundMinutelyRecords = models.Where(x => x.PlayerCode == playerCode).Select(x
+                    => new RoundMinutelyRecordModel
+                    {
+                        RoundId = x.RoundId,
+                        PlayerCode = x.PlayerCode,
+                        OriginalTurnover = x.Turnover,
+                        Turnover = x.Turnover * x.EffectiveBettingPercentage / 100M,
+                        EffectiveBettingPercentage = x.EffectiveBettingPercentage,
+                        RemainingTurnover = x.Turnover * x.EffectiveBettingPercentage / 100M
+                    }).ToArray();
+
+                var buckets = playerBuckets.Where(x => x.PlayerCode == playerCode).ToArray();
 
                 foreach (var playerBucket in buckets)
                 {
-                    if (turnover <= 0)
-                    {
-                        break;
-                    }
-
-                    var amount = 0.0M;
-
-                    if (turnover - (playerBucket.BucketAmount - playerBucket.CurrentBucketAmount) >= 0.0M)
-                    {
-                        amount = playerBucket.BucketAmount - playerBucket.CurrentBucketAmount;
-                        turnover -= amount;
-                        playerBucket.IsFull = true;
-                        playerBucket.CurrentBucketAmount = playerBucket.BucketAmount;
-                    }
-                    else
-                    {
-                        amount = turnover;
-                        playerBucket.CurrentBucketAmount += turnover;
-                        turnover = 0;
-                    }
+                    var roundUsedRecord = new List<RoundUsedRecord>();
+                    FillBucketByEachRound(playerBucket, roundUsedRecord, roundMinutelyRecords);
 
                     playerBucketHistories.Add(new()
                     {
-                        PlayerCode = player.PlayerCode,
-                        Turnover = amount,
-                        From = request.From.ToUniversalTime(),
-                        To = request.To.ToUniversalTime(),
-                        CreatedOn = DateTimeOffset.UtcNow
+                        PlayerBucketId = playerBucket.Id,
+                        PlayerCode = playerCode,
+                        Turnover = roundUsedRecord.Sum(x => x.UsedTurnover),
+                        From = start.ToUniversalTime(),
+                        To = end.ToUniversalTime(),
+                        CreatedOn = DateTimeOffset.UtcNow,
+                        RoundData = JsonSerializer.Serialize(roundUsedRecord)
                     });
                 }
             }
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            _repository.PlayerBuckets.UpdateRange(playerBuckets);
+            await _playerBucketService.UpdateEntitiesAsync(playerBuckets).ConfigureAwait(false);
 
-            await _repository.PlayerBucketHistories.AddRangeAsync(playerBucketHistories);
-
-            await _repository.SaveChangesAsync();
+            await _playerBucketHistoryService.CreateEntitiesAsync(playerBucketHistories.ToArray())
+                .ConfigureAwait(false);
 
             scope.Complete();
+        }
+
+        private static (decimal bucketAmount, decimal currentBucketAmount, decimal usedTurnover) FillBucket(
+            decimal bucketAmount, decimal currentBucketAmount, decimal turnover)
+        {
+            if (turnover <= 0M)
+            {
+                return (bucketAmount, currentBucketAmount, 0M);
+            }
+
+            decimal usedTurnover;
+
+            if (turnover - (bucketAmount - currentBucketAmount) >= 0.0M)
+            {
+                usedTurnover = bucketAmount - currentBucketAmount;
+                currentBucketAmount = bucketAmount;
+            }
+            else
+            {
+                usedTurnover = turnover;
+                currentBucketAmount += turnover;
+            }
+
+            return (bucketAmount, currentBucketAmount, usedTurnover);
+        }
+
+        private static void FillBucketByEachRound(PlayerBucket playerBucket,
+            ICollection<RoundUsedRecord> roundUsedRecord,
+            IEnumerable<RoundMinutelyRecordModel> roundMinutelyRecords)
+        {
+            foreach (var round in roundMinutelyRecords.Where(x => x.RemainingTurnover > 0))
+            {
+                var turnover = round.RemainingTurnover;
+                var (bucketAmount, currentBucketAmount, usedTurnover) =
+                    FillBucket(playerBucket.BucketAmount, playerBucket.CurrentBucketAmount, turnover);
+
+                roundUsedRecord.Add(new RoundUsedRecord
+                {
+                    RoundId = round.RoundId,
+                    PlayerCode = round.PlayerCode,
+                    OriginalTurnover = round.OriginalTurnover,
+                    Turnover = round.Turnover,
+                    EffectiveBettingPercentage = round.EffectiveBettingPercentage,
+                    UsedTurnover = usedTurnover
+                });
+
+                round.RemainingTurnover = turnover - usedTurnover;
+
+                if (bucketAmount == currentBucketAmount)
+                {
+                    playerBucket.CurrentBucketAmount = bucketAmount;
+                    playerBucket.IsFull = true;
+                    break;
+                }
+
+                playerBucket.CurrentBucketAmount += usedTurnover;
+            }
         }
     }
 }

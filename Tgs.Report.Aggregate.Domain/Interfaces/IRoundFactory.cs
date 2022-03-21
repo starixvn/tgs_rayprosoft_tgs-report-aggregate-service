@@ -8,6 +8,6 @@ namespace Tgs.Report.Aggregate.Domain.Interfaces
     {
         ValueTask<RoundAggregateModel[]> GenerateRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
 
-        ValueTask<RoundAggregateModel[]> GetMinuteRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
+        ValueTask<RoundMinutelyModel[]> GetMinuteRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
     }
 }
