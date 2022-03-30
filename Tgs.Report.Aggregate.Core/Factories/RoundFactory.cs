@@ -1,12 +1,8 @@
 ﻿using System.Data;
-
 using Dapper;
-
 using Microsoft.EntityFrameworkCore.Storage;
-
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models;
-using Tgs.Report.Aggregate.Repository.Repositories;
 
 namespace Tgs.Report.Aggregate.Core.Factories
 {
@@ -42,23 +38,17 @@ namespace Tgs.Report.Aggregate.Core.Factories
             return result.ToArray();
         }
 
-        public async ValueTask<RoundAggregateModel[]> GetMinuteRoundAggregateAsync(DateTimeOffset start,
+        public async ValueTask<RoundMinutelyModel[]> GetMinuteRoundAggregateAsync(DateTimeOffset start,
             DateTimeOffset end)
         {
             const string spName = "dbo.report_get_round_and_set_game_setting_aggregates";
             var conn = _repository.GetDbConnection();
             var transaction = _repository.CurrentTransaction?.GetDbTransaction();
-            var result = await conn.QueryAsync<RoundAggregateModel>(spName,
+            var result = await conn.QueryAsync<RoundMinutelyModel>(spName,
                 new Dictionary<string, object>
                 {
                     { "_from", start.ToUniversalTime() },
-                    { "_to", end.ToUniversalTime() },
-                    {
-                        "_report_date",
-                        new DateTimeOffset(start.Year, start.Month, start.Day, 0, 0, 0, start.Offset).ToUniversalTime()
-                    },
-                    { "_hour", start.Hour },
-                    { "_minute", start.Minute }
+                    { "_to", end.ToUniversalTime() }
                 }, commandType: CommandType.StoredProcedure, transaction: transaction);
 
             return result.ToArray();

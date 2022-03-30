@@ -2,7 +2,6 @@
 using MediatR;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
-using Tgs.Report.Aggregate.Domain.Models;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 
 namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
@@ -42,16 +41,7 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate
 
                 if (models.Length > 0 && request.FillPlayerBucket)
                 {
-                    var playerTurnovers = models.GroupBy(x => x.PlayerCode,
-                            (playerCode, list) => new { playerCode, list })
-                        .Select(x => new PlayerTurnoverModel
-                        {
-                            PlayerCode = x.playerCode,
-                            Turnover = x.list.Sum(l => l.Turnover)
-                        }).ToArray();
-
-                    await _playerBucketRepository.FillInBucketAsync(
-                        new() { From = start, To = end, PlayerTurnovers = playerTurnovers });
+                    await _playerBucketRepository.FillInBucketAsync(start, end, models);
                 }
 
                 scope.Complete();
