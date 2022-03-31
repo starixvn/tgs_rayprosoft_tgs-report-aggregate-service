@@ -32,5 +32,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public decimal AllAgentRebateAmount { get; set; }
         public decimal AgentAdjustAmount { get; set; }
         public decimal SystemAdjustAmount { get; set; }
+        public decimal NoIncludeNetProfitAgentAdjustAmount { get; set; }
+        public decimal NoIncludeNetProfitCompanyAdjustAmount { get; set; }
     }
 }

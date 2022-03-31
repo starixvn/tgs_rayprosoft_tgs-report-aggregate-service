@@ -150,8 +150,14 @@ app.UseExceptionHandler(new ExceptionHandlerOptions
 
             await messageSender.PublishAsync("report.error",
                     Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ReportErrorMessage(
-                        $"{app.Environment}: {exceptionFeature.Error.Message}"))))
+                        $"{app.Environment}.report.aggregate: {exceptionFeature.Error.Message}"))))
                 .ConfigureAwait(false);
+
+            await context.Response.WriteAsJsonAsync(new MessageResponse
+            {
+                Message = exceptionFeature.Error.Message,
+                Valid = false
+            });
         }
     }
 });

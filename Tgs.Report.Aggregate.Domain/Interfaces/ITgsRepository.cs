@@ -11,6 +11,7 @@ namespace Tgs.Report.Aggregate.Domain.Interfaces
     {
         IDbContextTransaction? CurrentTransaction { get; }
 
+        DbSet<AdjustPlayerRecord> AdjustPlayerRecords { get; set; }
         DbSet<PlayerAggregate> PlayerAggregates { get; set; }
 
         DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; }

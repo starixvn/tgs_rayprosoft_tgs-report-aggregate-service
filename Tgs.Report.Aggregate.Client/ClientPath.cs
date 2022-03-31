@@ -28,6 +28,11 @@ namespace Tgs.Report.Aggregate.Client
 
                     if (propertyInfo.PropertyType.IsArray)
                     {
+                        if (value is null)
+                        {
+                            return $"{current}";
+                        }
+
                         var query = string.Empty;
                         var enumerable = (IEnumerable)value;
 
