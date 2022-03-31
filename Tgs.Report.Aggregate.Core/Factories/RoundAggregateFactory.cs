@@ -50,24 +50,7 @@ namespace Tgs.Report.Aggregate.Core.Factories
             var playerAggregates = await _playerRepository.GetQueries().Include(x => x.Agent)
                 .GroupJoin(
                     _transactionRepository.GetQueries().Where(x => x.RecordedOn >= utcStart && x.RecordedOn < utcEnd)
-                        .GroupJoin(_adjustPlayerRecordRepository.GetQueries().Where(x
-                                => x.TransactionRecordedOn >= utcStart &&
-                                x.TransactionRecordedOn < utcEnd), group => group.Id, adjust => adjust.TransactionId,
-                            (group, adjust) => new
-                            {
-                                group.Type,
-                                group.Wallet,
-                                group.Amount,
-                                adjust
-                            })
-                        .SelectMany(x => x.adjust.DefaultIfEmpty(), (x, adjust) => new
-                        {
-                            x.Type,
-                            x.Wallet,
-                            x.Amount,
-                            AdjustType = adjust == null ? 0 : adjust.Type,
-                            IncludeInNetProfit = adjust == null ? true : adjust.IncludeInNetProfit
-                        }),
+                    ,
                     p => p.PlayerCode,
                     t => t.Wallet.PlayerCode,
                     (p, t) => new
@@ -84,6 +67,31 @@ namespace Tgs.Report.Aggregate.Core.Factories
                         DividendPercentage = x.Player.Agent == null ? 0M : x.Player.Agent.DividendPercentage,
                         transaction
                     })
+                .GroupJoin(_adjustPlayerRecordRepository.GetQueries().Where(x
+                        => x.TransactionRecordedOn >= utcStart &&
+                        x.TransactionRecordedOn < utcEnd), group => group.transaction.Id,
+                    adjust => adjust.TransactionId,
+                    (group, adjust) => new
+                    {
+                        group.BrandId,
+                        group.Player,
+                        group.DividendPercentage,
+                        group.transaction,
+                        group.transaction.Wallet,
+                        group.transaction.Amount,
+                        adjust
+                    })
+                .SelectMany(x => x.adjust.DefaultIfEmpty(), (x, adjust) => new
+                {
+                    x.BrandId,
+                    x.Player,
+                    x.DividendPercentage,
+                    x.transaction,
+                    x.Wallet,
+                    x.Amount,
+                    AdjustType = adjust == null ? 0 : adjust.Type,
+                    IncludeInNetProfit = adjust == null ? true : adjust.IncludeInNetProfit
+                })
                 .GroupBy(x => new
                     {
                         x.BrandId,
@@ -144,12 +152,12 @@ namespace Tgs.Report.Aggregate.Core.Factories
                                 .Sum(t => t.transaction == null ? 0M : t.transaction.Amount),
                             NoIncludeNetProfitCompanyAdjustAmount = players.Where(p => p.transaction != null &&
                                 p.transaction.Type == (short)TransactionType.CompanyAdjust &&
-                                p.transaction.IncludeInNetProfit == false && p.transaction.AdjustType ==
+                                p.IncludeInNetProfit == false && p.AdjustType ==
                                 (short)PlayerAdjustmentTransactionType.CompanyAdjust).Sum(t
                                 => t.transaction == null ? 0M : t.transaction.Amount),
                             NoIncludeNetProfitAgentAdjustAmount = players.Where(p => p.transaction != null &&
                                 p.transaction.Type == (short)TransactionType.AgentAdjust &&
-                                p.transaction.IncludeInNetProfit == false && p.transaction.AdjustType ==
+                                p.IncludeInNetProfit == false && p.AdjustType ==
                                 (short)PlayerAdjustmentTransactionType.AgentAdjust).Sum(t
                                 => t.transaction == null ? 0M : t.transaction.Amount),
                             CreatedOn = DateTimeOffset.UtcNow
