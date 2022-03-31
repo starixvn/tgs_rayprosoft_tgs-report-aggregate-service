@@ -13,29 +13,30 @@ namespace Tgs.Report.Aggregate.Repository.Repositories
         {
         }
 
-        public DbSet<PlayerAggregate> PlayerAggregates { get; set; }
+        public DbSet<AdjustPlayerRecord> AdjustPlayerRecords { get; set; } = default!;
+        public DbSet<PlayerAggregate> PlayerAggregates { get; set; } = default!;
 
-        public DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; }
+        public DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; } = default!;
 
-        public DbSet<PlayerBucket> PlayerBuckets { get; set; }
+        public DbSet<PlayerBucket> PlayerBuckets { get; set; } = default!;
 
-        public DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; }
+        public DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; } = default!;
 
-        public DbSet<Player> Players { get; set; }
+        public DbSet<Player> Players { get; set; } = default!;
 
-        public DbSet<RoundAggregate> RoundAggregates { get; set; }
+        public DbSet<RoundAggregate> RoundAggregates { get; set; } = default!;
 
-        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Transaction> Transactions { get; set; } = default!;
 
-        public DbSet<VipLevel> VipLevels { get; set; }
+        public DbSet<VipLevel> VipLevels { get; set; } = default!;
 
-        public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<Wallet> Wallets { get; set; } = default!;
 
-        public DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; }
+        public DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; } = default!;
 
-        public DbSet<GameProviderAggregate> GameProviderAggregates { get; set; }
+        public DbSet<GameProviderAggregate> GameProviderAggregates { get; set; } = default!;
 
-        public DbSet<Round> Rounds { get; set; }
+        public DbSet<Round> Rounds { get; set; } = default!;
 
         public IDbContextTransaction? CurrentTransaction =>
             Database.CurrentTransaction;
@@ -53,6 +54,7 @@ namespace Tgs.Report.Aggregate.Repository.Repositories
             modelBuilder.HasDefaultSchema("dbo");
             modelBuilder.HasPostgresExtension("pg_trgm");
 
+            modelBuilder.ApplyConfiguration(new AdjustPlayerRecordConfiguration());
             modelBuilder.ApplyConfiguration(new AgentConfiguration());
             modelBuilder.ApplyConfiguration(new BrandGameProviderAggregateConfiguration());
             modelBuilder.ApplyConfiguration(new GameProviderAggregateConfiguration());

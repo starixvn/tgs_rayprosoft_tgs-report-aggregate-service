@@ -19,6 +19,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         {
         }
 
+        public virtual DbSet<AdjustPlayerRecord> AdjustPlayerRecords { get; set; } = null!;
         public virtual DbSet<Agent> Agents { get; set; } = null!;
         public virtual DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; } = null!;
         public virtual DbSet<GameProviderAggregate> GameProviderAggregates { get; set; } = null!;
@@ -40,6 +41,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
                 .HasPostgresExtension("pgcrypto")
                 .HasPostgresExtension("uuid-ossp");
 
+            modelBuilder.ApplyConfiguration(new Configurations.AdjustPlayerRecordConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.AgentConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.BrandGameProviderAggregateConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.GameProviderAggregateConfiguration());

@@ -40,7 +40,9 @@ namespace Tgs.Report.Aggregate.Core.Factories
                 OriginalTurnover = model.OriginalTurnover.Truncate(2),
                 Turnover = model.Turnover.Truncate(2),
                 WinLossAmount = model.WinLossAmount.Truncate(2),
-                AllAgentRebateAmount = model.AllAgentRebateAmount.Truncate(2)
+                AllAgentRebateAmount = model.AllAgentRebateAmount.Truncate(2),
+                NoIncludeNetProfitCompanyAdjustAmount = model.NoIncludeNetProfitCompanyAdjustAmount.Truncate(2),
+                NoIncludeNetProfitAgentAdjustAmount = model.NoIncludeNetProfitAgentAdjustAmount.Truncate(2)
             }));
 
             return _repository.SaveChangesAsync();
