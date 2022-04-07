@@ -8,12 +8,12 @@ namespace Tgs.Report.Aggregate.Domain.Entities
     public partial class PlayerBucketHistory
     {
         public int Id { get; set; }
-        public string? PlayerCode { get; set; }
+        public string PlayerCode { get; set; } = null!;
         public decimal Turnover { get; set; }
         public DateTimeOffset From { get; set; }
         public DateTimeOffset To { get; set; }
-        public int Hour { get; set; }
-        public int Minute { get; set; }
         public DateTimeOffset CreatedOn { get; set; }
+        public Guid PlayerBucketId { get; set; }
+        public string RoundData { get; set; } = null!;
     }
 }

@@ -24,11 +24,17 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.Property(e => e.From).HasColumnName("from");
 
-            entity.Property(e => e.Hour).HasColumnName("hour");
+            entity.Property(e => e.PlayerBucketId).HasColumnName("player_bucket_id");
 
-            entity.Property(e => e.Minute).HasColumnName("minute");
+            entity.Property(e => e.PlayerCode)
+                .HasMaxLength(16)
+                .HasColumnName("player_code")
+                .HasDefaultValueSql("''::text");
 
-            entity.Property(e => e.PlayerCode).HasColumnName("player_code");
+            entity.Property(e => e.RoundData)
+                .HasColumnType("jsonb")
+                .HasColumnName("round_data")
+                .HasDefaultValueSql("'{}'::jsonb");
 
             entity.Property(e => e.To).HasColumnName("to");
 

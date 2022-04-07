@@ -5,7 +5,7 @@
    "DefaultDacpacSchema": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "ModelNamespace": "",
+   "ModelNamespace": "Entities",
    "OutputContextPath": null,
    "OutputPath": "Entities",
    "ProjectRootNamespace": "Tgs.Report.Aggregate.Domain",
@@ -35,6 +35,10 @@
       },
       {
          "Name": "dbo.agents",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dbo.adjust_player_records",
          "ObjectType": 0
       },
       {

@@ -10,10 +10,20 @@ namespace Tgs.Report.Aggregate.Core.Factories
     public class RoundAggregateFactory : IRoundAggregateFactory
     {
         private readonly ITgsRepository _repository;
+        private readonly ITgsService<RoundAggregate> _roundAggregateRepository;
+        private readonly ITgsService<Player> _playerRepository;
+        private readonly ITgsService<Transaction> _transactionRepository;
+        private readonly ITgsService<AdjustPlayerRecord> _adjustPlayerRecordRepository;
 
-        public RoundAggregateFactory(ITgsRepository repository)
+        public RoundAggregateFactory(ITgsRepository repository, ITgsService<RoundAggregate> roundAggregateRepository,
+            ITgsService<Player> playerRepository, ITgsService<Transaction> transactionRepository,
+            ITgsService<AdjustPlayerRecord> adjustPlayerRecordRepository)
         {
             _repository = repository;
+            _roundAggregateRepository = roundAggregateRepository;
+            _playerRepository = playerRepository;
+            _transactionRepository = transactionRepository;
+            _adjustPlayerRecordRepository = adjustPlayerRecordRepository;
         }
 
         public async ValueTask<(PlayerAggregateModel[] playerAggregates, PlayerGameTypeAggregateModel[]
@@ -32,13 +42,15 @@ namespace Tgs.Report.Aggregate.Core.Factories
             var utcEnd = end.ToUniversalTime();
 
             var roundAggregates =
-                await _repository.RoundAggregates.Where(x
+                await _roundAggregateRepository.GetQueries().Where(x
                         => x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour &&
                         x.Minute == start.Minute)
                     .ToArrayAsync();
 
-            var playerAggregates = await _repository.Players.Include(x => x.Agent)
-                .GroupJoin(_repository.Transactions,
+            var playerAggregates = await _playerRepository.GetQueries().Include(x => x.Agent)
+                .GroupJoin(
+                    _transactionRepository.GetQueries().Where(x => x.RecordedOn >= utcStart && x.RecordedOn < utcEnd)
+                    ,
                     p => p.PlayerCode,
                     t => t.Wallet.PlayerCode,
                     (p, t) => new
@@ -52,13 +64,39 @@ namespace Tgs.Report.Aggregate.Core.Factories
                     {
                         x.BrandId,
                         x.Player,
+                        DividendPercentage = x.Player.Agent == null ? 0M : x.Player.Agent.DividendPercentage,
                         transaction
                     })
+                .GroupJoin(_adjustPlayerRecordRepository.GetQueries().Where(x
+                        => x.TransactionRecordedOn >= utcStart &&
+                        x.TransactionRecordedOn < utcEnd), group => group.transaction.Id,
+                    adjust => adjust.TransactionId,
+                    (group, adjust) => new
+                    {
+                        group.BrandId,
+                        group.Player,
+                        group.DividendPercentage,
+                        group.transaction,
+                        group.transaction.Wallet,
+                        group.transaction.Amount,
+                        adjust
+                    })
+                .SelectMany(x => x.adjust.DefaultIfEmpty(), (x, adjust) => new
+                {
+                    x.BrandId,
+                    x.Player,
+                    x.DividendPercentage,
+                    x.transaction,
+                    x.Wallet,
+                    x.Amount,
+                    AdjustType = adjust == null ? 0 : adjust.Type,
+                    IncludeInNetProfit = adjust == null ? true : adjust.IncludeInNetProfit
+                })
                 .GroupBy(x => new
                     {
                         x.BrandId,
                         x.Player.AgentId,
-                        x.Player.Agent.DividendPercentage,
+                        x.DividendPercentage,
                         x.Player.PlayerCode
                     },
                     (x, players) =>
@@ -81,47 +119,47 @@ namespace Tgs.Report.Aggregate.Core.Factories
                                     ? 1
                                     : 0,
                             DepositAmount =
-                                players.Where(p =>
-                                    p.transaction.Type == (short)TransactionType.Deposit &&
-                                    p.transaction.RecordedOn >= utcStart &&
-                                    p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
+                                players.Where(p => p.transaction != null &&
+                                        p.transaction.Type == (short)TransactionType.Deposit)
+                                    .Sum(t => t.transaction == null ? 0M : t.transaction.Amount),
                             WithdrawalAmount =
-                                players.Where(p =>
-                                    p.transaction.Type == (short)TransactionType.Withdrawal &&
-                                    p.transaction.RecordedOn >= utcStart &&
-                                    p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
-                            CompanyAdjustAmount = players.Where(p =>
+                                players.Where(p => p.transaction != null &&
+                                        p.transaction.Type == (short)TransactionType.Withdrawal)
+                                    .Sum(t => t.transaction == null ? 0M : t.transaction.Amount),
+                            CompanyAdjustAmount = players.Where(p => p.transaction != null &&
+                                    p.transaction.Type == (short)TransactionType.CompanyAdjust)
+                                .Sum(t => t.transaction == null ? 0M : t.transaction.Amount),
+                            AgentAdjustAmount = players.Where(p => p.transaction != null &&
+                                    p.transaction.Type == (short)TransactionType.AgentAdjust)
+                                .Sum(t => t.transaction == null ? 0M : t.transaction.Amount),
+                            SystemAdjustAmount = players.Where(p => p.transaction != null &&
+                                    p.transaction.Type == (short)TransactionType.SystemAdjust)
+                                .Sum(t => t.transaction == null ? 0M : t.transaction.Amount),
+                            BonusAmount = players.Where(p => p.transaction != null &&
+                                p.transaction.Type == (short)TransactionType.Bonus).Sum(t
+                                => t.transaction == null ? 0M : t.transaction.Amount),
+                            RebateAmount = players.Where(p => p.transaction != null &&
+                                p.transaction.Type == (short)TransactionType.Rebate).Sum(t
+                                => t.transaction == null ? 0M : t.transaction.Amount),
+                            DividendAmount = players.Where(p => p.transaction != null &&
+                                p.transaction.Type == (short)TransactionType.Dividend).Sum(t
+                                => t.transaction == null ? 0M : t.transaction.Amount),
+                            PromotionAmount = players.Where(p => p.transaction != null &&
+                                p.transaction.Type == (short)TransactionType.Promotion).Sum(t
+                                => t.transaction == null ? 0M : t.transaction.Amount),
+                            AllAgentRebateAmount = players.Where(p => p.transaction != null &&
+                                    p.transaction.Type == (short)TransactionType.DividendAllAgentRebate)
+                                .Sum(t => t.transaction == null ? 0M : t.transaction.Amount),
+                            NoIncludeNetProfitCompanyAdjustAmount = players.Where(p => p.transaction != null &&
                                 p.transaction.Type == (short)TransactionType.CompanyAdjust &&
-                                p.transaction.RecordedOn >= utcStart &&
-                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
-                            AgentAdjustAmount = players.Where(p =>
+                                p.IncludeInNetProfit == false && p.AdjustType ==
+                                (short)PlayerAdjustmentTransactionType.CompanyAdjust).Sum(t
+                                => t.transaction == null ? 0M : t.transaction.Amount),
+                            NoIncludeNetProfitAgentAdjustAmount = players.Where(p => p.transaction != null &&
                                 p.transaction.Type == (short)TransactionType.AgentAdjust &&
-                                p.transaction.RecordedOn >= utcStart &&
-                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
-                            SystemAdjustAmount = players.Where(p =>
-                                p.transaction.Type == (short)TransactionType.SystemAdjust &&
-                                p.transaction.RecordedOn >= utcStart &&
-                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
-                            BonusAmount = players.Where(p =>
-                                p.transaction.Type == (short)TransactionType.Bonus &&
-                                p.transaction.RecordedOn >= utcStart &&
-                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
-                            RebateAmount = players.Where(p =>
-                                p.transaction.Type == (short)TransactionType.Rebate &&
-                                p.transaction.RecordedOn >= utcStart &&
-                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
-                            DividendAmount = players.Where(p =>
-                                p.transaction.Type == (short)TransactionType.Dividend &&
-                                p.transaction.RecordedOn >= utcStart &&
-                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
-                            PromotionAmount = players.Where(p =>
-                                p.transaction.Type == (short)TransactionType.Promotion &&
-                                p.transaction.RecordedOn >= utcStart &&
-                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
-                            AllAgentRebateAmount = players.Where(p =>
-                                p.transaction.Type == (short)TransactionType.DividendAllAgentRebate &&
-                                p.transaction.RecordedOn >= utcStart &&
-                                p.transaction.RecordedOn < utcEnd).Sum(t => t.transaction.Amount),
+                                p.IncludeInNetProfit == false && p.AdjustType ==
+                                (short)PlayerAdjustmentTransactionType.AgentAdjust).Sum(t
+                                => t.transaction == null ? 0M : t.transaction.Amount),
                             CreatedOn = DateTimeOffset.UtcNow
                         }).ToArrayAsync();
 
@@ -171,8 +209,8 @@ namespace Tgs.Report.Aggregate.Core.Factories
                     {
                         x.r,
                         x.p,
-                        player.Vip,
-                        player.Agent
+                        player?.Vip,
+                        player?.Agent
                     })
                 .GroupBy(x => new
                     {
@@ -213,7 +251,7 @@ namespace Tgs.Report.Aggregate.Core.Factories
                                     ? 0M
                                     : GetPlayerRebateAmountByGameType(x.Vip,
                                         x.GameType,
-                                        aggregate.Select(a => a.r)),
+                                        aggregate!.Select(a => a.r)),
                             CreatedOn = DateTimeOffset.UtcNow,
                             ReportDate = reportDate.ToUniversalTime()
                         };
@@ -240,7 +278,7 @@ namespace Tgs.Report.Aggregate.Core.Factories
                 case GameType.Sportsbook:
                 case GameType.ESports:
                     return vip.SportsRebatePercentage * roundAggregates.Where(a =>
-                            a.GameType == (short)GameType.Sportsbook || a.GameType == (short)GameType.ESports)
+                            a.GameType is (short)GameType.Sportsbook or (short)GameType.ESports)
                         .Sum(a => a.Turnover) / 100M;
 
                 case GameType.VirtualSports:
@@ -263,8 +301,8 @@ namespace Tgs.Report.Aggregate.Core.Factories
                 case GameType.Slot:
                 case GameType.TableGame:
                     return vip.SlotRebatePercentage * roundAggregates.Where(a =>
-                            a.GameType == (short)GameType.Fishing || a.GameType == (short)GameType.Arcade ||
-                            a.GameType == (short)GameType.Slot || a.GameType == (short)GameType.TableGame)
+                            a.GameType is (short)GameType.Fishing or (short)GameType.Arcade or (short)GameType.Slot
+                                or (short)GameType.TableGame)
                         .Sum(a => a.Turnover) / 100M;
 
                 case GameType.Lottery:

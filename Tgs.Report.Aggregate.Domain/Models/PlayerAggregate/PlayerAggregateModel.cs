@@ -49,5 +49,9 @@ namespace Tgs.Report.Aggregate.Domain.Models.PlayerAggregate
         public decimal WinLossAmount { get; set; }
 
         public decimal AllAgentRebateAmount { get; set; }
+
+        public decimal NoIncludeNetProfitCompanyAdjustAmount { get; set; }
+
+        public decimal NoIncludeNetProfitAgentAdjustAmount { get; set; }
     }
 }
