@@ -263,7 +263,8 @@ namespace Tgs.Report.Aggregate.Core.Factories
                 x.RegisteredCount != 0 || x.FirstFundInCount != 0 || x.DepositAmount != 0 || x.WithdrawalAmount != 0 ||
                 x.CompanyAdjustAmount != 0 || x.BonusAmount != 0 || x.RebateAmount != 0 || x.DividendAmount != 0 ||
                 x.PromotionAmount != 0 || x.BetAmount != 0 || x.OriginalTurnover != 0 || x.ValidBetAmount != 0 ||
-                x.Turnover != 0 || x.AgentAdjustAmount != 0 ||
+                x.Turnover != 0 || x.AgentAdjustAmount != 0 || x.NoIncludeNetProfitAgentAdjustAmount != 0 ||
+                x.NoIncludeNetProfitCompanyAdjustAmount != 0 ||
                 x.WinLossAmount != 0 || players.Contains(x.PlayerCode)).ToArray();
 
             return (playerAggregates, playerAggregateByGameType);
