@@ -42,4 +42,6 @@ Selector labels
 */}}
 {{- define "report-aggregate-service.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "report-aggregate-service.name" . }}
+app: {{ include "report-aggregate-service.name" . }}
+tgs.kind: report
 {{- end }}
