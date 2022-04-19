@@ -34,17 +34,17 @@ namespace Tgs.Report.Aggregate.UnitTest
             var playerAggregate = CreatePlayerAggregateFixture()
                 .CreateMany<PlayerAggregate>(0)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var roundAggregate = CreateRoundAggregateFixture()
                 .CreateMany<RoundAggregate>(0)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var round = CreateRoundFixture()
                 .CreateMany<Round>(0)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
             fakeRoundAggregateService.GetQueries().Returns(roundAggregate);
@@ -85,17 +85,17 @@ namespace Tgs.Report.Aggregate.UnitTest
             var playerAggregate = CreatePlayerAggregateFixture()
                 .CreateMany<PlayerAggregate>(0)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var roundAggregate = CreateRoundAggregateFixture()
                 .CreateMany<RoundAggregate>(0)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var rounds = CreateRoundFixture()
                 .CreateMany<Round>(DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour + 1)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             foreach (var round in rounds.Select((value, index) => new { value, index }))
             {
@@ -153,17 +153,17 @@ namespace Tgs.Report.Aggregate.UnitTest
             {
                 return CreatePlayerAggregateWithDateFixture(reportDate, x)
                     .CreateMany<PlayerAggregate>(1);
-            }).AsQueryable().BuildMock().Object;
+            }).AsQueryable().BuildMock();
 
             var roundAggregate = CreateRoundAggregateFixture()
                 .CreateMany<RoundAggregate>(0)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var rounds = CreateRoundFixture()
                 .CreateMany<Round>(DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour + 1)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             foreach (var round in rounds.Select((value, index) => new { value, index }))
             {
@@ -210,17 +210,17 @@ namespace Tgs.Report.Aggregate.UnitTest
             var playerAggregate = CreatePlayerAggregateFixture()
                 .CreateMany<PlayerAggregate>(0)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var roundAggregate = CreateRoundAggregateFixture()
                 .CreateMany<RoundAggregate>(0)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var round = CreateRoundFixture()
                 .CreateMany<Round>(1)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
             fakeRoundAggregateService.GetQueries().Returns(roundAggregate);
