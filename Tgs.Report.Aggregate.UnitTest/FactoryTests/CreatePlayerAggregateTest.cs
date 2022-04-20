@@ -25,11 +25,11 @@ namespace Tgs.Report.Aggregate.UnitTest.FactoryTests
             var roundMinutelyModels = CreateRoundMinutelyModelFixture("player", 100, 10)
                 .CreateMany<RoundMinutelyModel>(1).Concat(CreateRoundMinutelyModelFixture("player", 100, 10)
                     .CreateMany<RoundMinutelyModel>(1)).AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var playerBuckets = CreatePlayerBucketFixture("player", 1000, 10)
                 .CreateMany<PlayerBucket>(1).AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             fakePlayerBucketService.GetQueries()
                 .Returns(playerBuckets);
@@ -52,11 +52,11 @@ namespace Tgs.Report.Aggregate.UnitTest.FactoryTests
             var roundMinutelyModels = CreateRoundMinutelyModelFixture("player", 100, 10)
                 .CreateMany<RoundMinutelyModel>(1).Concat(CreateRoundMinutelyModelFixture("player", 100, 10)
                     .CreateMany<RoundMinutelyModel>(1)).AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var playerBuckets = CreatePlayerBucketFixture("player", 1000, 10)
                 .CreateMany<PlayerBucket>(1).AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             fakePlayerBucketService.GetQueries()
                 .Returns(playerBuckets);
@@ -80,11 +80,11 @@ namespace Tgs.Report.Aggregate.UnitTest.FactoryTests
 
             var roundMinutelyModels = CreateRoundMinutelyModelFixture("player", 800, 10)
                 .CreateMany<RoundMinutelyModel>(1).AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var playerBuckets = CreatePlayerBucketFixture("player", 50, 0)
                 .CreateMany<PlayerBucket>(2).AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             fakePlayerBucketService.GetQueries()
                 .Returns(playerBuckets);
@@ -110,11 +110,11 @@ namespace Tgs.Report.Aggregate.UnitTest.FactoryTests
 
             var roundMinutelyModels = CreateRoundMinutelyModelFixture("player", 800, 10)
                 .CreateMany<RoundMinutelyModel>(2).AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             var playerBuckets = CreatePlayerBucketFixture("player", 100, 0)
                 .CreateMany<PlayerBucket>(2).AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             fakePlayerBucketService.GetQueries()
                 .Returns(playerBuckets);

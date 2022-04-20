@@ -25,7 +25,7 @@ namespace Tgs.Report.Aggregate.UnitTest
             var roundAggregate = CreateRoundAggregateFixture()
                 .CreateMany<RoundAggregate>(0)
                 .AsQueryable()
-                .BuildMock().Object;
+                .BuildMock();
 
             fakeTgsRoundAggregateService.GetQueries().Returns(roundAggregate);
 
