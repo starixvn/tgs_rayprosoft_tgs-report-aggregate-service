@@ -22,10 +22,14 @@
         /// 存款 1000~1999
         /// </summary>
         //Deposit = 1000,
+        Deposited = 1100,
         /// <summary>
         /// 提款 2000~2999
         /// </summary>
         //Withdraw = 2000,
+        WithdrawLock = 2100,
+        WithdrawCommit = 2200,
+        WithdrawRollback = 2300,
         /// <summary>
         /// 活動 3000~3999
         /// </summary>
