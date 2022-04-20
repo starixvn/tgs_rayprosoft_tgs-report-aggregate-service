@@ -2,8 +2,8 @@
 
 namespace Tgs.Report.Aggregate.Client
 {
-    public class ReportAggregateOptions
-    {
-        public Uri BaseUrl { get; set; } = default!;
-    }
+	public class ReportAggregateOptions
+	{
+		public Uri BaseUrl { get; set; } = default!;
+	}
 }

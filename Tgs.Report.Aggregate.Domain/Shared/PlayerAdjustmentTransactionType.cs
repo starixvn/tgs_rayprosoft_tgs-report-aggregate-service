@@ -1,10 +1,9 @@
-﻿namespace Tgs.Report.Aggregate.Domain.Shared
+﻿namespace Tgs.Report.Aggregate.Domain.Shared;
+
+public enum PlayerAdjustmentTransactionType
 {
-    public enum PlayerAdjustmentTransactionType
-    {
-        CompanyAdjust = 2,
-        AgentAdjust = 5100,
-        SystemAdjust = 5200,
-        TransferAdjust = 5300
-    }
+	CompanyAdjust = 2,
+	AgentAdjust = 5100,
+	SystemAdjust = 5200,
+	TransferAdjust = 5300
 }

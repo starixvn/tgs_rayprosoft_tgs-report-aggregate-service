@@ -1,7 +1,6 @@
-﻿namespace Tgs.Report.Aggregate.Repository
+﻿namespace Tgs.Report.Aggregate.Repository;
+
+public class RedisOptions
 {
-    public class RedisOptions
-    {
-        public string ConnectionString { get; set; } = "localhost";
-    }
+	public string ConnectionString { get; set; } = "localhost";
 }
