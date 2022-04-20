@@ -3,13 +3,12 @@ using System.Threading.Tasks;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 using Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate;
 
-namespace Tgs.Report.Aggregate.Domain.Interfaces
+namespace Tgs.Report.Aggregate.Domain.Interfaces;
+
+public interface IRoundAggregateFactory
 {
-    public interface IRoundAggregateFactory
-    {
-        ValueTask<(PlayerAggregateModel[] playerAggregates, PlayerGameTypeAggregateModel[] playerAggregateByGameType)>
-            GetPlayerAggregatesAsync(
-                DateTimeOffset start,
-                DateTimeOffset end);
-    }
+	ValueTask<(PlayerAggregateModel[] playerAggregates, PlayerGameTypeAggregateModel[] playerAggregateByGameType)>
+		GetPlayerAggregatesAsync(
+			DateTimeOffset start,
+			DateTimeOffset end);
 }

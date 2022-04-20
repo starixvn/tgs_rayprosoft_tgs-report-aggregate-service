@@ -2,10 +2,9 @@
 
 using Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate;
 
-namespace Tgs.Report.Aggregate.Domain.Interfaces
+namespace Tgs.Report.Aggregate.Domain.Interfaces;
+
+public interface IPlayerGameAggregateFactory
 {
-    public interface IPlayerGameAggregateFactory
-    {
-        Task CreatePlayerGameAggregatesAsync(PlayerGameTypeAggregateModel[] request);
-    }
+	Task CreatePlayerGameAggregatesAsync(PlayerGameTypeAggregateModel[] request);
 }

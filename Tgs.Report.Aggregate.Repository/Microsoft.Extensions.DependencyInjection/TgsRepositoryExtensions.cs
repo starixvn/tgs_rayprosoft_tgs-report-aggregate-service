@@ -3,35 +3,34 @@ using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Repository;
 using Tgs.Report.Aggregate.Repository.Repositories;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection;
+
+public static class TgsRepositoryExtensions
 {
-    public static class TgsRepositoryExtensions
-    {
-        public static IServiceCollection AddTgsRepository(this IServiceCollection services, string connectionString)
-        {
-            services.AddDbContext<TgsRepository>(options =>
-            {
-                options.UseNpgsql(connectionString);
-                options.UseLazyLoadingProxies();
-            });
+	public static IServiceCollection AddTgsRepository(this IServiceCollection services, string connectionString)
+	{
+		_ = services.AddDbContext<TgsRepository>(options =>
+		  {
+			  _ = options.UseNpgsql(connectionString);
+			  _ = options.UseLazyLoadingProxies();
+		  });
 
-            services.AddScoped<ITgsRepository>(c => c.GetRequiredService<TgsRepository>());
-            services.AddTransient(typeof(ITgsService<>), typeof(TgsService<>));
+		_ = services.AddScoped<ITgsRepository>(c => c.GetRequiredService<TgsRepository>());
+		_ = services.AddTransient(typeof(ITgsService<>), typeof(TgsService<>));
 
-            return services;
-        }
+		return services;
+	}
 
-        public static IServiceCollection AddRedis(
-            this IServiceCollection service,
-            Action<RedisOptions, IServiceProvider> configure)
-        {
-            service
-                .AddOptions<RedisOptions>()
-                .Configure(configure)
-                .Services
-                .AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
+	public static IServiceCollection AddRedis(
+		this IServiceCollection service,
+		Action<RedisOptions, IServiceProvider> configure)
+	{
+		_ = service
+			.AddOptions<RedisOptions>()
+			.Configure(configure)
+			.Services
+			.AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
 
-            return service;
-        }
-    }
+		return service;
+	}
 }

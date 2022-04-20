@@ -3,22 +3,21 @@ using MediatR;
 using Tgs.Report.Aggregate.Core.Factories;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 
-namespace Microsoft.Extensions.DependencyInjection
-{
-    public static class ReportAggregateCoreExtensions
-    {
-        public static IServiceCollection AddReportAggregateCore(this IServiceCollection services)
-        {
-            services.AddMediatR(Assembly.GetExecutingAssembly());
-            services.AddTransient<IPlayerBucketFactory, PlayerBucketFactory>();
-            services.AddTransient<IPlayerGameAggregateFactory, PlayerGameAggregateFactory>();
-            services.AddTransient<IRoundAggregateFactory, RoundAggregateFactory>();
-            services.AddTransient<IRoundFactory, RoundFactory>();
-            services.AddTransient<IPlayerAggregateFactory, PlayerAggregateFactory>();
-            services.AddTransient<IBrandGameProviderAggregateFactory, BrandGameProviderAggregateFactory>();
-            services.AddTransient<IGameProviderAggregateFactory, GameProviderAggregateFactory>();
+namespace Microsoft.Extensions.DependencyInjection;
 
-            return services;
-        }
-    }
+public static class ReportAggregateCoreExtensions
+{
+	public static IServiceCollection AddReportAggregateCore(this IServiceCollection services)
+	{
+		_ = services.AddMediatR(Assembly.GetExecutingAssembly());
+		_ = services.AddTransient<IPlayerBucketFactory, PlayerBucketFactory>();
+		_ = services.AddTransient<IPlayerGameAggregateFactory, PlayerGameAggregateFactory>();
+		_ = services.AddTransient<IRoundAggregateFactory, RoundAggregateFactory>();
+		_ = services.AddTransient<IRoundFactory, RoundFactory>();
+		_ = services.AddTransient<IPlayerAggregateFactory, PlayerAggregateFactory>();
+		_ = services.AddTransient<IBrandGameProviderAggregateFactory, BrandGameProviderAggregateFactory>();
+		_ = services.AddTransient<IGameProviderAggregateFactory, GameProviderAggregateFactory>();
+
+		return services;
+	}
 }
