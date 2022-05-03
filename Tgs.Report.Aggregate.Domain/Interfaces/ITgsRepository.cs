@@ -5,40 +5,41 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Tgs.Report.Aggregate.Domain.Entities;
 
-namespace Tgs.Report.Aggregate.Domain.Interfaces
+namespace Tgs.Report.Aggregate.Domain.Interfaces;
+
+public interface ITgsRepository
 {
-    public interface ITgsRepository
-    {
-        IDbContextTransaction? CurrentTransaction { get; }
+	IDbContextTransaction? CurrentTransaction { get; }
 
-        DbSet<AdjustPlayerRecord> AdjustPlayerRecords { get; set; }
-        DbSet<PlayerAggregate> PlayerAggregates { get; set; }
+	DbSet<AdjustPlayerRecord> AdjustPlayerRecords { get; set; }
 
-        DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; }
+	DbSet<PlayerAggregate> PlayerAggregates { get; set; }
 
-        DbSet<PlayerBucket> PlayerBuckets { get; set; }
+	DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; }
 
-        DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; }
+	DbSet<PlayerBucket> PlayerBuckets { get; set; }
 
-        DbSet<Player> Players { get; set; }
+	DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; }
 
-        DbSet<RoundAggregate> RoundAggregates { get; set; }
+	DbSet<Player> Players { get; set; }
 
-        DbSet<Transaction> Transactions { get; set; }
+	DbSet<RoundAggregate> RoundAggregates { get; set; }
 
-        DbSet<VipLevel> VipLevels { get; set; }
+	DbSet<Transaction> Transactions { get; set; }
 
-        DbSet<Wallet> Wallets { get; set; }
+	DbSet<VipLevel> VipLevels { get; set; }
 
-        DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; }
+	DbSet<Wallet> Wallets { get; set; }
 
-        DbSet<GameProviderAggregate> GameProviderAggregates { get; set; }
-        DbSet<Round> Rounds { get; set; }
+	DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; }
 
-        IDbConnection GetDbConnection();
+	DbSet<GameProviderAggregate> GameProviderAggregates { get; set; }
 
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+	DbSet<Round> Rounds { get; set; }
 
-        DbSet<T> Set<T>() where T : class;
-    }
+	IDbConnection GetDbConnection();
+
+	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
+	DbSet<T> Set<T>() where T : class;
 }

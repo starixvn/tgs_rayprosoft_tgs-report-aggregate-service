@@ -109,47 +109,31 @@ pipeline {
                         println dedicated
                         println node_selector
 
-                        withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
-                            sh """
-                                 cat << EOF | yq e -P | helm template deployment/k8s/report-aggregate-service \
-                                    --set image.tag=${TAG} \
-                                    --set namespace=${kube_ns} \
-                                    --set autoscaling.enabled=${tgs_autoscaling} \
-                                    --set connectionStrings.tgs="$tgs_tgs" \
-                                    --set connectionStrings.redis="$tgs_redis" \
-                                    --set nats.urls="$tgs_nats" \
-                                    --set rabbit.url="$tgs_rabbit_url" \
-                                    --set rabbit.user="$tgs_rabbit_user" \
-                                    --set rabbit.password="$tgs_rabbit_pass" \
-                                    --set rabbit.vhost="$tgs_rabbit_vhost" \
-                                    -f -
-                                {
-                                    "nodeSelector": $node_selector,
-                                    "tolerations": [$dedicated],
-                                    "resources": $resources
-                                }
-                            """
-                            sh """
-                                 cat << EOF | yq e -P | helm template deployment/k8s/report-aggregate-service \
-                                    --set image.tag=${TAG} \
-                                    --set namespace=${kube_ns} \
-                                    --set autoscaling.enabled=${tgs_autoscaling} \
-                                    --set connectionStrings.tgs="$tgs_tgs" \
-                                    --set connectionStrings.redis="$tgs_redis" \
-                                    --set nats.urls="$tgs_nats" \
-                                    --set rabbit.url="$tgs_rabbit_url" \
-                                    --set rabbit.user="$tgs_rabbit_user" \
-                                    --set rabbit.password="$tgs_rabbit_pass" \
-                                    --set rabbit.vhost="$tgs_rabbit_vhost" \
-                                    -f - \
-                                    | kubectl -n ${kube_ns} apply -f -
-                                {
-                                    "nodeSelector": $node_selector,
-                                    "tolerations": [$dedicated],
-                                    "resources": $resources
-                                }
-                            """
-                        }
+                        sh """
+                                cat << EOF | yq e -P | helm template deployment/k8s/report-aggregate-service \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \
+                                --set autoscaling.enabled=${tgs_autoscaling} \
+                                -f -
+                            {
+                                "nodeSelector": $node_selector,
+                                "tolerations": [$dedicated],
+                                "resources": $resources
+                            }
+                        """
+                        sh """
+                                cat << EOF | yq e -P | helm template deployment/k8s/report-aggregate-service \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \
+                                --set autoscaling.enabled=${tgs_autoscaling} \
+                                -f - \
+                                | kubectl -n ${kube_ns} apply -f -
+                            {
+                                "nodeSelector": $node_selector,
+                                "tolerations": [$dedicated],
+                                "resources": $resources
+                            }
+                        """
                     }
                 }
 			}
@@ -181,19 +165,4 @@ pipeline {
             sendTelegram("<b>Failed Pipeline:</b> ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}/console\n${currentBuild.getBuildCauses()[0].shortDescription}\n")
         }
 	}
-}
-
-
-def sendTelegram(message) {
-    def encodedMessage = URLEncoder.encode(message, "UTF-8")
-
-    withCredentials([string(credentialsId: "telegramToken", variable: "TOKEN"), string(credentialsId: "telegramChatId", variable: "CHAT_ID")]) {
-
-        response = httpRequest (consoleLogResponseBody: true,
-                contentType: 'APPLICATION_JSON',
-                httpMode: 'GET',
-                url: "https://api.telegram.org/bot${TOKEN}/sendMessage?text=${encodedMessage}&chat_id=${CHAT_ID}",
-                validResponseCodes: '200')
-        return response
-    }
 }

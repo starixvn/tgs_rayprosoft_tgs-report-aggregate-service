@@ -2,9 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "report-aggregate-service.fullname" . }}
-  namespace: {{ .Values.namespace }}
   labels:
     {{- include "report-aggregate-service.labels" . | nindent 4 }}
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -49,27 +50,101 @@ spec:
                 secretKeyRef:
                   name: tgs-connections
                   key: tgs
+            - name: ConnectionStrings__RedisConfigurationString
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: redis
+            - name: ConnectionStrings__Nats
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: nats
+            - name: RabbitMQ__RabbitMQUrl
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: rabbitmq-url
+            - name: RabbitMQ__UserName
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: rabbitmq-user
+            - name: RabbitMQ__Password
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: rabbitmq-pass
+            - name: RabbitMQ__VirtualHost
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: rabbitmq-vhost
+            - name: DOTNET_DiagnosticPorts
+              value: /diag/port
           volumeMounts:
             - mountPath: /config/appsettings.json
               name: appsettings
               readOnly: true
               subPath: appsettings.json
+            - mountPath: /diag
+              name: diagvol
+            - mountPath: /dumps
+              name: dumpsvol
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health
               port: 80
-            initialDelaySeconds: 30
             periodSeconds: 5
-          readinessProbe:
-            tcpSocket:
+          startupProbe:
+            httpGet:
+              path: /health
               port: 80
-            initialDelaySeconds: 30
-            periodSeconds: 5
+            periodSeconds: 2
+            failureThreshold: 30
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        - name: monitor
+          image: mcr.microsoft.com/dotnet/monitor:6.0.0
+          args: [ "--no-auth" ]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DOTNETMONITOR_DiagnosticPort__ConnectionMode
+              value: Listen
+            - name: DOTNETMONITOR_DiagnosticPort__EndpointName
+              value: /diag/port
+            - name: DOTNETMONITOR_Storage__DumpTempFolder
+              value: /dumps
+            - name: DOTNETMONITOR_Urls
+              value: http://+:52324
+            - name: DOTNETMONITOR_Metrics__Endpoints
+              value: http://+:52325
+            - name: XDG_CONFIG_HOME
+              value: /config
+          volumeMounts:
+            - mountPath: /diag
+              name: diagvol
+            - mountPath: /dumps
+              name: dumpsvol
+            - mountPath: /config/dotnet-monitor/settings.json
+              name: appsettings
+              readOnly: true
+              subPath: monitor.settings.json
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
       volumes:
         - name: appsettings
           configMap:
             name: configmap-{{ include "report-aggregate-service.fullname" . }}
+        - name: diagvol
+          emptyDir: {}
+        - name: dumpsvol
+          emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
