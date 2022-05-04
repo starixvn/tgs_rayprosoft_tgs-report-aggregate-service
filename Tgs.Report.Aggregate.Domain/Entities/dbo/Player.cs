@@ -43,8 +43,9 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public DateTimeOffset? FirstDepositOn { get; set; }
         public string? AreaCode { get; set; }
         public DateTimeOffset? FirstPromotionOn { get; set; }
-        public DateTimeOffset? Birthday { get; set; }
         public string? Remark { get; set; }
+        public DateOnly? Birthdate { get; set; }
+        public string? Birthday { get; set; }
 
         public virtual Agent? Agent { get; set; }
         public virtual VipLevel? Vip { get; set; }
