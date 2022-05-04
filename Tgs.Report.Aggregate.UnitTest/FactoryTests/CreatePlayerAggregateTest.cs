@@ -150,7 +150,8 @@ public sealed class CreatePlayerAggregateTest
 			.With(x => x.PlayerCode, playerCode)
 			.With(x => x.BucketAmount, bucketAmount)
 			.With(x => x.CurrentBucketAmount, currentBucketAmount)
-			.With(x => x.IsFull, false));
+			.With(x => x.IsFull, false)
+            .With(x => x.PlayerCodeNavigation, new Player{}));
 		fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 		return fixture;
 	}
