@@ -1,38 +1,29 @@
 {
-  "$schema": "https://json.schemastore.org/launchsettings.json",
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:51387",
-      "sslPort": 44377
-    }
-  },
-  "profiles": {
-    "Tgs.Report.Aggregate.Service": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "https://localhost:7163;http://localhost:5163",
-      "dotnetRunMessages": true
-    },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "Docker": {
-      "commandName": "Docker",
-      "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
-      "publishAllPorts": true,
-      "useSSL": true
-    }
-  }
+	"$schema": "https://json.schemastore.org/launchsettings.json",
+	"profiles": {
+		"Tgs.Report.Aggregate.Service": {
+			"commandName": "Project",
+			"launchBrowser": true,
+			"launchUrl": "swagger",
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development",
+				"OTEL_SERVICE_NAME": "Report-Aggregate-Api(local)",
+				"NODE_IP": "otel.rpgp.cc"
+			},
+			"applicationUrl": "https://localhost:7163;http://localhost:5163",
+			"dotnetRunMessages": true
+		},
+		"Docker": {
+			"commandName": "Docker",
+			"launchBrowser": true,
+			"launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+			"publishAllPorts": true,
+			"useSSL": true,
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development",
+				"OTEL_SERVICE_NAME": "Report-Aggregate-Api(local)",
+				"NODE_IP": "otel.rpgp.cc"
+			}
+		}
+	}
 }

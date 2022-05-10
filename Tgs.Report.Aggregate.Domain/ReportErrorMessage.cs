@@ -1,4 +1,3 @@
-﻿namespace Tgs.Report.Aggregate.Domain
-{
-    public record ReportErrorMessage(string Message);
-}
+﻿namespace Tgs.Report.Aggregate.Domain;
+
+public record ReportErrorMessage(string Message);

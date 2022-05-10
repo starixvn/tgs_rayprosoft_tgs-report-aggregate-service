@@ -1,9 +1,8 @@
 ﻿using StackExchange.Redis;
 
-namespace Tgs.Report.Aggregate.Domain.Interfaces
+namespace Tgs.Report.Aggregate.Domain.Interfaces;
+
+public interface IRedisConnectionFactory
 {
-    public interface IRedisConnectionFactory
-    {
-        public IDatabase GetDataBase();
-    }
+	public IDatabase GetDataBase();
 }

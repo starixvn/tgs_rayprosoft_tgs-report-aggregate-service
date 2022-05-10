@@ -2,12 +2,11 @@
 using System.Threading.Tasks;
 using Tgs.Report.Aggregate.Domain.Models;
 
-namespace Tgs.Report.Aggregate.Domain.Interfaces
-{
-    public interface IRoundFactory
-    {
-        ValueTask<RoundAggregateModel[]> GenerateRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
+namespace Tgs.Report.Aggregate.Domain.Interfaces;
 
-        ValueTask<RoundMinutelyModel[]> GetMinuteRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
-    }
+public interface IRoundFactory
+{
+	ValueTask<RoundAggregateModel[]> GenerateRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
+
+	ValueTask<RoundMinutelyModel[]> GetMinuteRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
 }

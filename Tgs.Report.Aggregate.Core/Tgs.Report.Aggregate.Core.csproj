@@ -10,7 +10,7 @@
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Tgs.Core.Infrastructures.Utility" Version="0.0.3" />
-	  <PackageReference Include="Tgs.MessageQueue.Nats" Version="2.0.3" />
+	  <PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.5" />
   </ItemGroup>
 
   <ItemGroup>
