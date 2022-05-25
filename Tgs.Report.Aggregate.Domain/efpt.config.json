@@ -70,7 +70,7 @@
          "ObjectType": 0
       }
    ],
-   "UiHint": "LocalDB",
+   "UiHint": "tgs",
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
    "UseDbContextSplitting": true,
