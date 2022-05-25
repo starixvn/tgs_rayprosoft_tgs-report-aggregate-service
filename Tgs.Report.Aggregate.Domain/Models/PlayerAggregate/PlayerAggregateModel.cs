@@ -30,7 +30,9 @@ public record PlayerAggregateModel
 
 	public decimal SystemAdjustAmount { get; set; }
 
-	public decimal BonusAmount { get; set; }
+    public decimal BonusAdjustAmount { get; set; }
+
+    public decimal BonusAmount { get; set; }
 
 	public decimal RebateAmount { get; set; }
 
@@ -53,4 +55,6 @@ public record PlayerAggregateModel
 	public decimal NoIncludeNetProfitCompanyAdjustAmount { get; set; }
 
 	public decimal NoIncludeNetProfitAgentAdjustAmount { get; set; }
+
+    public decimal NoIncludeNetProfitBonusAdjustAmount { get; set; }
 }

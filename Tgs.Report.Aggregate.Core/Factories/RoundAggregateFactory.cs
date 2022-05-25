@@ -145,6 +145,10 @@ public class RoundAggregateFactory : IRoundAggregateFactory
                         .Where(p => p.transaction != null
                             && p.transaction.Type == (short)TransactionType.SystemAdjust)
                         .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                    BonusAdjustAmount = players
+                        .Where(p => p.transaction != null
+                            && p.transaction.Type == (short)TransactionType.BonusAdjust)
+                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
                     BonusAmount = players
                         .Where(p => p.transaction != null
                             && p.transaction.Type == (short)TransactionType.Bonus)
@@ -176,6 +180,12 @@ public class RoundAggregateFactory : IRoundAggregateFactory
                             && p.transaction.Type == (short)TransactionType.AgentAdjust
                             && p.IncludeInNetProfit == false
                             && p.AdjustType == (short)PlayerAdjustmentTransactionType.AgentAdjust)
+                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                    NoIncludeNetProfitBonusAdjustAmount = players
+                        .Where(p => p.transaction != null
+                            && p.transaction.Type == (short)TransactionType.BonusAdjust
+                            && p.IncludeInNetProfit == false
+                            && p.AdjustType == (short)PlayerAdjustmentTransactionType.BonusAdjust)
                         .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount)
                 }).ToArrayAsync();
 
@@ -267,6 +277,7 @@ public class RoundAggregateFactory : IRoundAggregateFactory
             || x.DepositAmount != 0
             || x.WithdrawalAmount != 0
             || x.CompanyAdjustAmount != 0
+            || x.BonusAdjustAmount != 0
             || x.BonusAmount != 0
             || x.RebateAmount != 0
             || x.DividendAmount != 0
@@ -278,6 +289,7 @@ public class RoundAggregateFactory : IRoundAggregateFactory
             || x.AgentAdjustAmount != 0
             || x.NoIncludeNetProfitAgentAdjustAmount != 0
             || x.NoIncludeNetProfitCompanyAdjustAmount != 0
+            || x.NoIncludeNetProfitBonusAdjustAmount != 0
             || x.WinLossAmount != 0
             || players.Contains(x.PlayerCode)).ToArray();
 
