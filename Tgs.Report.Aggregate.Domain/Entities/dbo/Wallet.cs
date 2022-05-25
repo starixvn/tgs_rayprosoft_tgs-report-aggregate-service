@@ -19,6 +19,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public decimal Balance { get; set; }
         public DateTimeOffset CreatedOn { get; set; }
         public DateTimeOffset UpdatedOn { get; set; }
+        public decimal LockedBalance { get; set; }
 
         public virtual Player PlayerCodeNavigation { get; set; } = null!;
         public virtual ICollection<Transaction> Transactions { get; set; }
