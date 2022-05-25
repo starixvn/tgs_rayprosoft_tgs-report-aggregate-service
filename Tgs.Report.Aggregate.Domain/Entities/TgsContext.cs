@@ -39,7 +39,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
             modelBuilder.HasPostgresExtension("ltree")
                 .HasPostgresExtension("pg_trgm")
                 .HasPostgresExtension("pgcrypto")
-                .HasPostgresExtension("uuid-ossp");                
+                .HasPostgresExtension("uuid-ossp");
 
             modelBuilder.ApplyConfiguration(new Configurations.AdjustPlayerRecordConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.AgentConfiguration());
