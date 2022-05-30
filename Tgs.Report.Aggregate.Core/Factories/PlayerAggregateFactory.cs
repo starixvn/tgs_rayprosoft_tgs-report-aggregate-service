@@ -23,7 +23,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 			PlayerCode = model.PlayerCode,
 			Hour = model.Hour,
 			ReportDate = model.ReportDate,
-			CreatedOn = model.CreatedOn,
+			CreatedOn = DateTimeOffset.UtcNow,
 			RegisteredCount = model.RegisteredCount,
 			FirstFundInCount = model.FirstFundInCount,
 			DepositAmount = model.DepositAmount.Truncate(2),

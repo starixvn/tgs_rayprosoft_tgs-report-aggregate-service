@@ -12,8 +12,6 @@ public record PlayerAggregateModel
 
 	public int Hour { get; set; }
 
-	public DateTimeOffset CreatedOn { get; set; }
-
 	public DateTimeOffset ReportDate { get; set; }
 
 	public int RegisteredCount { get; set; }
