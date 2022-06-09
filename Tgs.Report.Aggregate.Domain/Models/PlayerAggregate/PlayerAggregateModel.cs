@@ -12,8 +12,6 @@ public record PlayerAggregateModel
 
 	public int Hour { get; set; }
 
-	public DateTimeOffset CreatedOn { get; set; }
-
 	public DateTimeOffset ReportDate { get; set; }
 
 	public int RegisteredCount { get; set; }
@@ -30,7 +28,9 @@ public record PlayerAggregateModel
 
 	public decimal SystemAdjustAmount { get; set; }
 
-	public decimal BonusAmount { get; set; }
+    public decimal BonusAdjustAmount { get; set; }
+
+    public decimal BonusAmount { get; set; }
 
 	public decimal RebateAmount { get; set; }
 
@@ -53,4 +53,6 @@ public record PlayerAggregateModel
 	public decimal NoIncludeNetProfitCompanyAdjustAmount { get; set; }
 
 	public decimal NoIncludeNetProfitAgentAdjustAmount { get; set; }
+
+    public decimal NoIncludeNetProfitBonusAdjustAmount { get; set; }
 }

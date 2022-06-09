@@ -64,6 +64,7 @@ public enum TransactionType
 
 	SystemAdjust = 5200,
 	TransferAdjust = 5300,
+	BonusAdjust = 5400,
 
 	/// <summary>
 	///     已結算單再調整

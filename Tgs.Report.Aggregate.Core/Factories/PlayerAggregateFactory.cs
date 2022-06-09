@@ -23,7 +23,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 			PlayerCode = model.PlayerCode,
 			Hour = model.Hour,
 			ReportDate = model.ReportDate,
-			CreatedOn = model.CreatedOn,
+			CreatedOn = DateTimeOffset.UtcNow,
 			RegisteredCount = model.RegisteredCount,
 			FirstFundInCount = model.FirstFundInCount,
 			DepositAmount = model.DepositAmount.Truncate(2),
@@ -31,6 +31,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 			CompanyAdjustAmount = model.CompanyAdjustAmount.Truncate(2),
 			AgentAdjustAmount = model.AgentAdjustAmount.Truncate(2),
 			SystemAdjustAmount = model.SystemAdjustAmount.Truncate(2),
+			BonusAdjustAmount = model.BonusAdjustAmount.Truncate(2),
 			BonusAmount = model.BonusAmount.Truncate(2),
 			RebateAmount = model.RebateAmount.Truncate(2),
 			PromotionAmount = model.PromotionAmount.Truncate(2),
@@ -42,7 +43,8 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 			WinLossAmount = model.WinLossAmount.Truncate(2),
 			AllAgentRebateAmount = model.AllAgentRebateAmount.Truncate(2),
 			NoIncludeNetProfitCompanyAdjustAmount = model.NoIncludeNetProfitCompanyAdjustAmount.Truncate(2),
-			NoIncludeNetProfitAgentAdjustAmount = model.NoIncludeNetProfitAgentAdjustAmount.Truncate(2)
+			NoIncludeNetProfitAgentAdjustAmount = model.NoIncludeNetProfitAgentAdjustAmount.Truncate(2),
+			NoIncludeNetProfitBonusAdjustAmount = model.NoIncludeNetProfitBonusAdjustAmount.Truncate(2)
 		}));
 
 		return _repository.SaveChangesAsync();
