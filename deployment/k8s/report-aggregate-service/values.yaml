@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: harbor.rpgp.cc/tgs/report-aggregate-service
+  repository: pgtgs/report-aggregate-service
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
@@ -13,6 +13,7 @@ image:
 imagePullSecrets:
   - name: secret-tgs-harbor
   - name: valhalla-tgs
+  - name: dockerhub
 nameOverride: "report-aggregate-service"
 fullnameOverride: "report-aggregate-service"
 
@@ -59,7 +60,7 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 
