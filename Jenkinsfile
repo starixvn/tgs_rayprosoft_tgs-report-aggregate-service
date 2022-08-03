@@ -6,7 +6,7 @@ pipeline {
 	
 	environment {
 		BuildConfiguration="Debug"
-		ImageName ="harbor.rpgp.cc/tgs/report-aggregate-service"
+		ImageName ="pgtgs/tgs/report-aggregate-service"
 	}
 
 	stages {
