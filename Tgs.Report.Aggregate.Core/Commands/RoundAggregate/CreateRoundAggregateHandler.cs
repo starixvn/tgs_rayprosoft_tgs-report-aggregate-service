@@ -57,7 +57,13 @@ public class
 					Message = $"{theDay.Date} {start.Hour} is already existed."
 				};
 			}
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            if (await _aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Round, start, end, cancellationToken))
+            {
+                continue;
+            }
+
+			using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
 			_ = await _roundAggregateFactory.GenerateRoundAggregateAsync(start, end);
 

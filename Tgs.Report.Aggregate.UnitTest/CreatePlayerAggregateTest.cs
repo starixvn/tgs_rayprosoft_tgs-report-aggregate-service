@@ -11,6 +11,7 @@ using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 using Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate;
+using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.UnitTest;
 
@@ -58,7 +59,18 @@ public sealed class CreatePlayerAggregateTest
 					.ToArray(),
 				CreatePlayerGameTypeAggregateModelFixture()
 					.CreateMany<PlayerGameTypeAggregateModel>(1)
-					.ToArray()));
+					.ToArray(),
+                CreatePlayerBonusAggregateModelFixture()
+                    .CreateMany<PlayerBonusAggregateModel>(1)
+                    .ToArray()));
+
+        fakeAggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(Arg.Is<AggregateType>(AggregateType.Round),
+                Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), default)
+            .Returns(true);
+
+        fakeAggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(Arg.Is<AggregateType>(AggregateType.Player),
+                Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), default)
+            .Returns(false);
 
 		var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
 
@@ -119,7 +131,10 @@ public sealed class CreatePlayerAggregateTest
 					.ToArray(),
 				CreatePlayerGameTypeAggregateModelFixture()
 					.CreateMany<PlayerGameTypeAggregateModel>(1)
-					.ToArray()));
+					.ToArray(),
+                CreatePlayerBonusAggregateModelFixture()
+                    .CreateMany<PlayerBonusAggregateModel>(1)
+                    .ToArray()));
 
 		var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
 
@@ -191,7 +206,10 @@ public sealed class CreatePlayerAggregateTest
 					.ToArray(),
 				CreatePlayerGameTypeAggregateModelFixture()
 					.CreateMany<PlayerGameTypeAggregateModel>(1)
-					.ToArray()));
+					.ToArray(),
+                CreatePlayerBonusAggregateModelFixture()
+                    .CreateMany<PlayerBonusAggregateModel>(1)
+                    .ToArray()));
 
 		var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
 
@@ -246,7 +264,10 @@ public sealed class CreatePlayerAggregateTest
 					.ToArray(),
 				CreatePlayerGameTypeAggregateModelFixture()
 					.CreateMany<PlayerGameTypeAggregateModel>(1)
-					.ToArray()));
+					.ToArray(),
+                CreatePlayerBonusAggregateModelFixture()
+                    .CreateMany<PlayerBonusAggregateModel>(1)
+                    .ToArray()));
 
 		var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
 
@@ -305,4 +326,12 @@ public sealed class CreatePlayerAggregateTest
 		fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 		return fixture;
 	}
+
+    private static Fixture CreatePlayerBonusAggregateModelFixture()
+    {
+        var fixture = new Fixture();
+        fixture.Customize<PlayerBonusAggregateModel>(u => u);
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        return fixture;
+    }
 }
