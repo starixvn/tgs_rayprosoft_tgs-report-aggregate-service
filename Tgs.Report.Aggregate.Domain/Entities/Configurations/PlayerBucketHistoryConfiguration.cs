@@ -29,7 +29,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.PlayerCode)
                 .HasMaxLength(16)
                 .HasColumnName("player_code")
-                .HasDefaultValueSql("''::text");
+                .HasDefaultValueSql("''::character varying");
 
             entity.Property(e => e.RoundData)
                 .HasColumnType("jsonb")

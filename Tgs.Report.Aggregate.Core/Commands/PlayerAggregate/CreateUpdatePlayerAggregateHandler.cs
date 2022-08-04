@@ -8,6 +8,7 @@ using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate;
 
@@ -18,28 +19,25 @@ public class
 	private readonly IMessageSender _messageSender;
 	private readonly IPlayerAggregateFactory _playerAggregateFactory;
 	private readonly IPlayerGameAggregateFactory _playerGameAggregateFactory;
-	private readonly IRoundAggregateFactory _roundAggregateFactory;
+    private readonly IPlayerBonusAggregateFactory _bonusAggregateFactory;
+    private readonly IAggregateExecutionTimeFactory _aggregateExecutionTimeFactory;
 	private readonly ITgsService<Domain.Entities.PlayerAggregate> _tgsPlayerAggregateService;
-	private readonly ITgsService<Domain.Entities.RoundAggregate> _tgsRoundAggregateService;
-	private readonly ITgsService<Round> _tgsRoundsService;
 
 	public CreateUpdatePlayerAggregateHandler(
 		ITgsService<Domain.Entities.PlayerAggregate> tgsPlayerAggregateService,
 		IMessageSender messageSender,
-		IRoundAggregateFactory roundAggregateFactory,
 		IPlayerAggregateFactory playerAggregateFactory,
 		IPlayerGameAggregateFactory playerGameAggregateFactory,
-		ITgsService<Domain.Entities.RoundAggregate> tgsRoundAggregateService,
-		ITgsService<Round> tgsRoundsService)
+        IPlayerBonusAggregateFactory bonusAggregateFactory,
+        IAggregateExecutionTimeFactory aggregateExecutionTimeFactory)
 	{
 		_tgsPlayerAggregateService = tgsPlayerAggregateService;
 		_messageSender = messageSender;
-		_roundAggregateFactory = roundAggregateFactory;
 		_playerAggregateFactory = playerAggregateFactory;
 		_playerGameAggregateFactory = playerGameAggregateFactory;
-		_tgsRoundAggregateService = tgsRoundAggregateService;
-		_tgsRoundsService = tgsRoundsService;
-	}
+        _bonusAggregateFactory = bonusAggregateFactory;
+		_aggregateExecutionTimeFactory = aggregateExecutionTimeFactory;
+    }
 
 	public async Task<MessageResponse> Handle(CreateUpdatePlayerAggregateModel request,
 		CancellationToken cancellationToken)
@@ -98,19 +96,16 @@ public class
 				};
 			}
 
-			if (!await _tgsRoundAggregateService.GetQueries().AnyAsync(x =>
-					x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour, cancellationToken) &&
-				await _tgsRoundsService.GetQueries().AnyAsync(x =>
-						x.ClosedOn >= start.ToUniversalTime() && x.ClosedOn >= end.ToUniversalTime(),
-					cancellationToken))
+			if (!await _aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Round,start,end,cancellationToken) ||
+				await _aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Player, start, end, cancellationToken))
 			{
 				continue;
 			}
 
-			var (aggregates, aggregatesByGameType) =
-				await _roundAggregateFactory.GetPlayerAggregatesAsync(start, end);
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-			using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+			var (aggregates, aggregatesByGameType,aggregateBonus) =
+				await _playerAggregateFactory.GetPlayerAggregatesAsync(start, end);
 
 			if (aggregates.Length > 0)
 			{
@@ -119,8 +114,17 @@ public class
 
 			if (aggregatesByGameType.Length > 0)
 			{
+
 				await _playerGameAggregateFactory.CreatePlayerGameAggregatesAsync(aggregatesByGameType);
 			}
+
+            if (aggregateBonus.Length > 0)
+            {
+                await _bonusAggregateFactory.CreatePlayerBonusAggregatesAsync(aggregateBonus, cancellationToken);
+            }
+
+			_ = await _aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Player, start,
+                end, cancellationToken);
 
 			playerCodes = playerCodes.Union(aggregates.Select(x => x.PlayerCode)).ToArray();
 

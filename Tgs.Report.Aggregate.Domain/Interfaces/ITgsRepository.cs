@@ -37,7 +37,10 @@ public interface ITgsRepository
 
 	DbSet<Round> Rounds { get; set; }
 
-	IDbConnection GetDbConnection();
+    DbSet<PlayerBonusAggregate> PlayerBonusAggregates { get; set; }
+    DbSet<AggregateExecutionTime> AggregateExecutionTimes { get; set; }
+
+    IDbConnection GetDbConnection();
 
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

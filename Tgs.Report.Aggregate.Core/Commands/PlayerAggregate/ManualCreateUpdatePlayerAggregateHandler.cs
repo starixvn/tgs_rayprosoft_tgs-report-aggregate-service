@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate;
 
@@ -13,20 +14,24 @@ public class
 {
 	private readonly IPlayerAggregateFactory _playerAggregateFactory;
 	private readonly IPlayerGameAggregateFactory _playerGameAggregateFactory;
+    private readonly IPlayerBonusAggregateFactory _bonusAggregateFactory;
 	private readonly ITgsRepository _repository;
-	private readonly IRoundAggregateFactory _roundAggregateFactory;
+    private readonly IAggregateExecutionTimeFactory _aggregateExecutionTimeFactory;
 
 	public ManualCreateUpdatePlayerAggregateHandler(ITgsRepository repository,
-		IPlayerAggregateFactory playerAggregateFactory, IPlayerGameAggregateFactory playerGameAggregateFactory,
-		IRoundAggregateFactory roundAggregateFactory)
-	{
-		_repository = repository;
-		_playerGameAggregateFactory = playerGameAggregateFactory;
-		_playerAggregateFactory = playerAggregateFactory;
-		_roundAggregateFactory = roundAggregateFactory;
-	}
+        IPlayerAggregateFactory playerAggregateFactory,
+        IPlayerGameAggregateFactory playerGameAggregateFactory,
+        IPlayerBonusAggregateFactory bonusAggregateFactory,
+        IAggregateExecutionTimeFactory aggregateExecutionTimeFactory)
+    {
+        _repository = repository;
+        _playerGameAggregateFactory = playerGameAggregateFactory;
+        _playerAggregateFactory = playerAggregateFactory;
+        _bonusAggregateFactory = bonusAggregateFactory;
+        _aggregateExecutionTimeFactory = aggregateExecutionTimeFactory;
+    }
 
-	public async Task<MessageResponse> Handle(ManualCreateUpdatePlayerAggregateModel request,
+    public async Task<MessageResponse> Handle(ManualCreateUpdatePlayerAggregateModel request,
 		CancellationToken cancellationToken)
 	{
 		DateTimeOffset reportDate;
@@ -70,8 +75,14 @@ public class
 				{ Valid = false, Message = $"{reportDate.Date} {start.Hour} is already existed." };
 			}
 
-			var (aggregates, aggregatesByGameType) =
-				await _roundAggregateFactory.GetPlayerAggregatesAsync(start, end);
+            if (!await _aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Round, start, end, cancellationToken) ||
+                await _aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Player, start, end, cancellationToken))
+            {
+                continue;
+            }
+
+			var (aggregates, aggregatesByGameType, aggregateBonus) =
+				await _playerAggregateFactory.GetPlayerAggregatesAsync(start, end);
 
 			using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -85,6 +96,14 @@ public class
 				await _playerGameAggregateFactory.CreatePlayerGameAggregatesAsync(
 					aggregatesByGameType);
 			}
+
+            if (aggregateBonus.Length > 0)
+            {
+                await _bonusAggregateFactory.CreatePlayerBonusAggregatesAsync(aggregateBonus, cancellationToken);
+            }
+
+            _ = await _aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Player, start,
+                end, cancellationToken);
 
 			scope.Complete();
 		}

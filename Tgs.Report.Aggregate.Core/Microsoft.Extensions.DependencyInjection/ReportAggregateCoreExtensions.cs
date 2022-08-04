@@ -17,6 +17,8 @@ public static class ReportAggregateCoreExtensions
 		_ = services.AddTransient<IPlayerAggregateFactory, PlayerAggregateFactory>();
 		_ = services.AddTransient<IBrandGameProviderAggregateFactory, BrandGameProviderAggregateFactory>();
 		_ = services.AddTransient<IGameProviderAggregateFactory, GameProviderAggregateFactory>();
+        _ = services.AddTransient<IPlayerBonusAggregateFactory, PlayerBonusAggregateFactory>();
+        _ = services.AddTransient<IAggregateExecutionTimeFactory, AggregateExecutionTimeFactory>();
 
 		return services;
 	}

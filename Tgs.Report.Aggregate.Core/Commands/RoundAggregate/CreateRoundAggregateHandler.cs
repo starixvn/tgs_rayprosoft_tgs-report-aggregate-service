@@ -1,8 +1,10 @@
-﻿using MediatR;
+﻿using System.Transactions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate;
 
@@ -10,18 +12,21 @@ public class
 	CreateRoundAggregateHandler : IRequestHandler<CreateRoundAggregateRequest,
 		MessageResponse>
 {
-	private readonly IRoundFactory _roundFactory;
+	private readonly IRoundAggregateFactory _roundAggregateFactory;
 	private readonly ITgsService<Domain.Entities.RoundAggregate> _tgsRoundAggregateService;
+    private readonly IAggregateExecutionTimeFactory _aggregateExecutionTimeFactory;
 
 	public CreateRoundAggregateHandler(
-		ITgsService<Domain.Entities.RoundAggregate> tgsRoundAggregateService,
-		IRoundFactory roundFactory)
-	{
-		_roundFactory = roundFactory;
-		_tgsRoundAggregateService = tgsRoundAggregateService;
-	}
+        ITgsService<Domain.Entities.RoundAggregate> tgsRoundAggregateService,
+        IRoundAggregateFactory roundAggregateFactory,
+        IAggregateExecutionTimeFactory aggregateExecutionTimeFactory)
+    {
+        _roundAggregateFactory = roundAggregateFactory;
+        _tgsRoundAggregateService = tgsRoundAggregateService;
+        _aggregateExecutionTimeFactory = aggregateExecutionTimeFactory;
+    }
 
-	public async Task<MessageResponse> Handle(CreateRoundAggregateRequest request,
+    public async Task<MessageResponse> Handle(CreateRoundAggregateRequest request,
 		CancellationToken cancellationToken)
 	{
 		var previousHour = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddHours(-1);
@@ -52,9 +57,15 @@ public class
 					Message = $"{theDay.Date} {start.Hour} is already existed."
 				};
 			}
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-			_ = await _roundFactory.GenerateRoundAggregateAsync(start, end);
-		}
+			_ = await _roundAggregateFactory.GenerateRoundAggregateAsync(start, end);
+
+            _ = await _aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Round, start,
+                end, cancellationToken);
+
+			scope.Complete();
+        }
 
 		return new() { Valid = true };
 	}

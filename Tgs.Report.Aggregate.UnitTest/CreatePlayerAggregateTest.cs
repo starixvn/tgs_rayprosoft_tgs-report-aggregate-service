@@ -22,14 +22,15 @@ public sealed class CreatePlayerAggregateTest
 		var fakeMessageSender = Substitute.For<IMessageSender>();
 		var fakePlayerAggregateFactory = Substitute.For<IPlayerAggregateFactory>();
 		var fakePlayerGameAggregateFactory = Substitute.For<IPlayerGameAggregateFactory>();
-		var fakeRoundAggregateFactory = Substitute.For<IRoundAggregateFactory>();
+        var fakeBonusAggregateFactory = Substitute.For<IPlayerBonusAggregateFactory>();
+        var fakeAggregateExecutionTimeFactory = Substitute.For<IAggregateExecutionTimeFactory>();
 		var fakePlayerAggregateService = Substitute.For<ITgsService<PlayerAggregate>>();
 		var fakeRoundAggregateService = Substitute.For<ITgsService<RoundAggregate>>();
 		var fakeRoundService = Substitute.For<ITgsService<Round>>();
 
 		var sut = new CreateUpdatePlayerAggregateHandler(fakePlayerAggregateService, fakeMessageSender,
-			fakeRoundAggregateFactory, fakePlayerAggregateFactory, fakePlayerGameAggregateFactory,
-			fakeRoundAggregateService, fakeRoundService);
+			fakePlayerAggregateFactory, fakePlayerGameAggregateFactory, fakeBonusAggregateFactory,
+			fakeAggregateExecutionTimeFactory);
 
 		var playerAggregate = CreatePlayerAggregateFixture()
 			.CreateMany<PlayerAggregate>(0)
@@ -50,7 +51,7 @@ public sealed class CreatePlayerAggregateTest
 		_ = fakeRoundAggregateService.GetQueries().Returns(roundAggregate);
 		_ = fakeRoundService.GetQueries().Returns(round);
 
-		_ = fakeRoundAggregateFactory.GetPlayerAggregatesAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
+		_ = fakePlayerAggregateFactory.GetPlayerAggregatesAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
 			.Returns((
 				CreatePlayerAggregateModelFixture()
 					.CreateMany<PlayerAggregateModel>(1)
@@ -76,14 +77,15 @@ public sealed class CreatePlayerAggregateTest
 		var fakeMessageSender = Substitute.For<IMessageSender>();
 		var fakePlayerAggregateFactory = Substitute.For<IPlayerAggregateFactory>();
 		var fakePlayerGameAggregateFactory = Substitute.For<IPlayerGameAggregateFactory>();
-		var fakeRoundAggregateFactory = Substitute.For<IRoundAggregateFactory>();
+        var fakeBonusAggregateFactory = Substitute.For<IPlayerBonusAggregateFactory>();
+        var fakeAggregateExecutionTimeFactory = Substitute.For<IAggregateExecutionTimeFactory>();
 		var fakePlayerAggregateService = Substitute.For<ITgsService<PlayerAggregate>>();
 		var fakeRoundAggregateService = Substitute.For<ITgsService<RoundAggregate>>();
 		var fakeRoundService = Substitute.For<ITgsService<Round>>();
 
 		var sut = new CreateUpdatePlayerAggregateHandler(fakePlayerAggregateService, fakeMessageSender,
-			fakeRoundAggregateFactory, fakePlayerAggregateFactory, fakePlayerGameAggregateFactory,
-			fakeRoundAggregateService, fakeRoundService);
+			fakePlayerAggregateFactory, fakePlayerGameAggregateFactory, fakeBonusAggregateFactory,
+            fakeAggregateExecutionTimeFactory);
 
 		var playerAggregate = CreatePlayerAggregateFixture()
 			.CreateMany<PlayerAggregate>(0)
@@ -110,7 +112,7 @@ public sealed class CreatePlayerAggregateTest
 		_ = fakeRoundAggregateService.GetQueries().Returns(roundAggregate);
 		_ = fakeRoundService.GetQueries().Returns(rounds);
 
-		_ = fakeRoundAggregateFactory.GetPlayerAggregatesAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
+		_ = fakePlayerAggregateFactory.GetPlayerAggregatesAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
 			.Returns((
 				CreatePlayerAggregateModelFixture()
 					.CreateMany<PlayerAggregateModel>(1)
@@ -136,14 +138,15 @@ public sealed class CreatePlayerAggregateTest
 		var fakeMessageSender = Substitute.For<IMessageSender>();
 		var fakePlayerAggregateFactory = Substitute.For<IPlayerAggregateFactory>();
 		var fakePlayerGameAggregateFactory = Substitute.For<IPlayerGameAggregateFactory>();
-		var fakeRoundAggregateFactory = Substitute.For<IRoundAggregateFactory>();
+        var fakeBonusAggregateFactory = Substitute.For<IPlayerBonusAggregateFactory>();
+        var fakeAggregateExecutionTimeFactory = Substitute.For<IAggregateExecutionTimeFactory>();
 		var fakePlayerAggregateService = Substitute.For<ITgsService<PlayerAggregate>>();
 		var fakeRoundAggregateService = Substitute.For<ITgsService<RoundAggregate>>();
 		var fakeRoundService = Substitute.For<ITgsService<Round>>();
 
 		var sut = new CreateUpdatePlayerAggregateHandler(fakePlayerAggregateService, fakeMessageSender,
-			fakeRoundAggregateFactory, fakePlayerAggregateFactory, fakePlayerGameAggregateFactory,
-			fakeRoundAggregateService, fakeRoundService);
+			fakePlayerAggregateFactory, fakePlayerGameAggregateFactory, fakeBonusAggregateFactory,
+            fakeAggregateExecutionTimeFactory);
 
 		var previousHour = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddHours(-1);
 		var reportDate = new DateTimeOffset(previousHour.Year,
@@ -181,7 +184,7 @@ public sealed class CreatePlayerAggregateTest
 		_ = fakeRoundAggregateService.GetQueries().Returns(roundAggregate);
 		_ = fakeRoundService.GetQueries().Returns(rounds);
 
-		_ = fakeRoundAggregateFactory.GetPlayerAggregatesAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
+		_ = fakePlayerAggregateFactory.GetPlayerAggregatesAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
 			.Returns((
 				CreatePlayerAggregateModelFixture()
 					.CreateMany<PlayerAggregateModel>(1)
@@ -207,14 +210,15 @@ public sealed class CreatePlayerAggregateTest
 		var fakeMessageSender = Substitute.For<IMessageSender>();
 		var fakePlayerAggregateFactory = Substitute.For<IPlayerAggregateFactory>();
 		var fakePlayerGameAggregateFactory = Substitute.For<IPlayerGameAggregateFactory>();
-		var fakeRoundAggregateFactory = Substitute.For<IRoundAggregateFactory>();
+        var fakeBonusAggregateFactory = Substitute.For<IPlayerBonusAggregateFactory>();
+        var fakeAggregateExecutionTimeFactory = Substitute.For<IAggregateExecutionTimeFactory>();
 		var fakePlayerAggregateService = Substitute.For<ITgsService<PlayerAggregate>>();
 		var fakeRoundAggregateService = Substitute.For<ITgsService<RoundAggregate>>();
 		var fakeRoundService = Substitute.For<ITgsService<Round>>();
 
 		var sut = new CreateUpdatePlayerAggregateHandler(fakePlayerAggregateService, fakeMessageSender,
-			fakeRoundAggregateFactory, fakePlayerAggregateFactory, fakePlayerGameAggregateFactory,
-			fakeRoundAggregateService, fakeRoundService);
+			fakePlayerAggregateFactory, fakePlayerGameAggregateFactory, fakeBonusAggregateFactory,
+            fakeAggregateExecutionTimeFactory);
 
 		var playerAggregate = CreatePlayerAggregateFixture()
 			.CreateMany<PlayerAggregate>(0)
@@ -235,7 +239,7 @@ public sealed class CreatePlayerAggregateTest
 		_ = fakeRoundAggregateService.GetQueries().Returns(roundAggregate);
 		_ = fakeRoundService.GetQueries().Returns(round);
 
-		_ = fakeRoundAggregateFactory.GetPlayerAggregatesAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
+		_ = fakePlayerAggregateFactory.GetPlayerAggregatesAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
 			.Returns((
 				CreatePlayerAggregateModelFixture()
 					.CreateMany<PlayerAggregateModel>(1)
