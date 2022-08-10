@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate;
 
@@ -10,18 +11,21 @@ public class
 	ManualCreateUpdateRoundAggregateHandler : IRequestHandler<ManualCreateRoundAggregateModel,
 		MessageResponse>
 {
-	private readonly IRoundFactory _roundFactory;
+	private readonly IRoundAggregateFactory _roundAggregateFactory;
 	private readonly ITgsService<Domain.Entities.RoundAggregate> _tgsRoundAggregateService;
+    private readonly IAggregateExecutionTimeFactory _aggregateExecutionTimeFactory;
 
 	public ManualCreateUpdateRoundAggregateHandler(
-		ITgsService<Domain.Entities.RoundAggregate> tgsRoundAggregateService,
-		IRoundFactory roundFactory)
-	{
-		_roundFactory = roundFactory;
-		_tgsRoundAggregateService = tgsRoundAggregateService;
-	}
+        ITgsService<Domain.Entities.RoundAggregate> tgsRoundAggregateService,
+        IRoundAggregateFactory roundAggregateFactory,
+        IAggregateExecutionTimeFactory aggregateExecutionTimeFactory)
+    {
+        _roundAggregateFactory = roundAggregateFactory;
+        _tgsRoundAggregateService = tgsRoundAggregateService;
+        _aggregateExecutionTimeFactory = aggregateExecutionTimeFactory;
+    }
 
-	public async Task<MessageResponse> Handle(ManualCreateRoundAggregateModel request,
+    public async Task<MessageResponse> Handle(ManualCreateRoundAggregateModel request,
 		CancellationToken cancellationToken)
 	{
 		DateTimeOffset reportDate;
@@ -59,13 +63,17 @@ public class
 
 			if (await _tgsRoundAggregateService.GetQueries().AnyAsync(x =>
 					x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour, cancellationToken) ||
-				end > DateTimeOffset.Now)
+				end > DateTimeOffset.Now ||
+                await _aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Round, start, end, cancellationToken))
 			{
 				continue;
 			}
 
-			_ = await _roundFactory.GenerateRoundAggregateAsync(start, end);
-		}
+			_ = await _roundAggregateFactory.GenerateRoundAggregateAsync(start, end);
+
+            _ = await _aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Round, start,
+                end, cancellationToken);
+        }
 
 		return new() { Valid = true };
 	}
