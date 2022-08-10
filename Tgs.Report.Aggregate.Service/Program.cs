@@ -6,6 +6,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.MessageQueue;
+using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Service.MessageHandlers;
 
@@ -14,6 +15,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.ConfigureAppConfiguration((_, builder) => builder
 	.AddJsonFile("/config/appsettings.json", true)
 	.AddEnvironmentVariables());
+
+builder.Host.ConfigureServices((context, services) =>
+{
+    services.AddHostedService<PlayerAggregateBackground>();
+    services.AddSingleton<IPlayerAggregateTaskQueue>(_ =>
+    {
+        if (!int.TryParse(context.Configuration["QueueCapacity"], out var queueCapacity))
+        {
+            queueCapacity = 100;
+        }
+
+        return new PlayerAggregateTaskQueue(queueCapacity);
+    });
+});
 
 builder.Logging
 	.AddOpenTelemetry(options =>
