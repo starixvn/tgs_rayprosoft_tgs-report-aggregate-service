@@ -2,6 +2,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tgs.Report.Aggregate.Domain.Entities
 {
@@ -46,6 +47,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public string? UpdatedByUsername { get; set; }
         public DateTimeOffset CreatedOn { get; set; }
         public DateTimeOffset UpdatedOn { get; set; }
+        public LTree Path { get; set; }
 
         public virtual Agent? ParentAgent { get; set; }
         public virtual ICollection<Agent> InverseParentAgent { get; set; }

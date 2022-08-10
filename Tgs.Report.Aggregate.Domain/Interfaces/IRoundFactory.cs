@@ -6,7 +6,5 @@ namespace Tgs.Report.Aggregate.Domain.Interfaces;
 
 public interface IRoundFactory
 {
-	ValueTask<RoundAggregateModel[]> GenerateRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
-
-	ValueTask<RoundMinutelyModel[]> GetMinuteRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
+    ValueTask<RoundMinutelyModel[]> GetMinuteRoundAggregateAsync(DateTimeOffset start, DateTimeOffset end);
 }

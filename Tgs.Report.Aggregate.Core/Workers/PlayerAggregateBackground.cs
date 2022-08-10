@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Tgs.MessageQueue;
 using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
+using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.Core.Workers;
 
@@ -45,10 +46,10 @@ public class PlayerAggregateBackground : BackgroundService
                 var playerAggregateFactory = scope.ServiceProvider.GetRequiredService<IPlayerAggregateFactory>();
                 var playerGameAggregateFactory =
                     scope.ServiceProvider.GetRequiredService<IPlayerGameAggregateFactory>();
-                var roundAggregateFactory = scope.ServiceProvider.GetRequiredService<IRoundAggregateFactory>();
                 var playerAggregateService = scope.ServiceProvider.GetRequiredService<ITgsService<PlayerAggregate>>();
-                var roundAggregateService = scope.ServiceProvider.GetRequiredService<ITgsService<RoundAggregate>>();
-                var roundService = scope.ServiceProvider.GetRequiredService<ITgsService<Round>>();
+                var aggregateExecutionTimeFactory =
+                    scope.ServiceProvider.GetRequiredService<IAggregateExecutionTimeFactory>();
+                var bonusAggregateFactory = scope.ServiceProvider.GetRequiredService<IPlayerBonusAggregateFactory>();
 
                 var request =
                     await _taskQueue.DequeueAsync(stoppingToken);
@@ -62,23 +63,20 @@ public class PlayerAggregateBackground : BackgroundService
                     return;
                 }
 
-                if (!await roundAggregateService.GetQueries().AnyAsync(x =>
-                            x.ReportDate == request.ReportDate.ToUniversalTime() && x.Hour == request.Start.Hour,
-                        stoppingToken) &&
-                    await roundService.GetQueries().AnyAsync(x =>
-                            x.ClosedOn >= request.Start.ToUniversalTime() &&
-                            x.ClosedOn >= request.End.ToUniversalTime(),
-                        stoppingToken))
+                if (!await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Round, request.Start,
+                        request.End, stoppingToken) ||
+                    await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Player, request.Start,
+                        request.End, stoppingToken))
                 {
-                    continue;
+                    return;
                 }
-
-                var (aggregates, aggregatesByGameType) =
-                    await roundAggregateFactory.GetPlayerAggregatesAsync(request.Start, request.End);
 
                 using var transactionScope = new TransactionScope(TransactionScopeOption.Required,
                     new TransactionOptions
                         { Timeout = TimeSpan.FromMinutes(5) }, TransactionScopeAsyncFlowOption.Enabled);
+
+                var (aggregates, aggregatesByGameType, aggregateBonus) =
+                    await playerAggregateFactory.GetPlayerAggregatesAsync(request.Start, request.End);
 
                 if (aggregates.Length > 0)
                 {
@@ -89,6 +87,14 @@ public class PlayerAggregateBackground : BackgroundService
                 {
                     await playerGameAggregateFactory.CreatePlayerGameAggregatesAsync(aggregatesByGameType);
                 }
+
+                if (aggregateBonus.Length > 0)
+                {
+                    await bonusAggregateFactory.CreatePlayerBonusAggregatesAsync(aggregateBonus, stoppingToken);
+                }
+
+                _ = await aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Player, request.Start,
+                    request.End, stoppingToken);
 
                 transactionScope.Complete();
 

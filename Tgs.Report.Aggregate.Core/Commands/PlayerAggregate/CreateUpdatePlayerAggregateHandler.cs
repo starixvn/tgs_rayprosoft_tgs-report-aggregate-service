@@ -4,6 +4,7 @@ using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate;
 

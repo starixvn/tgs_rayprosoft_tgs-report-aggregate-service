@@ -36,5 +36,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public decimal NoIncludeNetProfitCompanyAdjustAmount { get; set; }
         public decimal BonusAdjustAmount { get; set; }
         public decimal NoIncludeNetProfitBonusAdjustAmount { get; set; }
+        public decimal DepositHandlingFee { get; set; }
+        public decimal WithdrawHandlingFee { get; set; }
     }
 }

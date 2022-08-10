@@ -14,27 +14,7 @@
    "SelectedToBeGenerated": 0,
    "Tables": [
       {
-         "Name": "dbo.wallets",
-         "ObjectType": 0
-      },
-      {
-         "Name": "dbo.agents",
-         "ObjectType": 0
-      },
-      {
-         "Name": "dbo.transactions",
-         "ObjectType": 0
-      },
-      {
-         "Name": "dbo.vip_levels",
-         "ObjectType": 0
-      },
-      {
          "Name": "dbo.player_buckets",
-         "ObjectType": 0
-      },
-      {
-         "Name": "dbo.adjust_player_records",
          "ObjectType": 0
       },
       {
@@ -42,11 +22,35 @@
          "ObjectType": 0
       },
       {
+         "Name": "dbo.transactions",
+         "ObjectType": 0
+      },
+      {
          "Name": "dbo.player_bucket_histories",
          "ObjectType": 0
       },
       {
-         "Name": "bet.rounds",
+         "Name": "dbo.adjust_player_records",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dbo.vip_levels",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dbo.agents",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dbo.wallets",
+         "ObjectType": 0
+      },
+      {
+         "Name": "report.aggregate_execution_time",
+         "ObjectType": 0
+      },
+      {
+         "Name": "report.round_aggregates",
          "ObjectType": 0
       },
       {
@@ -54,11 +58,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "report.player_game_rebate_aggregates",
-         "ObjectType": 0
-      },
-      {
-         "Name": "report.round_aggregates",
+         "Name": "report.player_bonus_aggregates",
          "ObjectType": 0
       },
       {
@@ -67,6 +67,14 @@
       },
       {
          "Name": "report.brand_game_provider_aggregates",
+         "ObjectType": 0
+      },
+      {
+         "Name": "report.player_game_rebate_aggregates",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bet.rounds",
          "ObjectType": 0
       }
    ],

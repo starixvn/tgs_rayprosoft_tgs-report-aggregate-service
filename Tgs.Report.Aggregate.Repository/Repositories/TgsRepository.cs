@@ -34,6 +34,8 @@ public class TgsRepository : DbContext, ITgsRepository
 	public DbSet<GameProviderAggregate> GameProviderAggregates { get; set; } = default!;
 
 	public DbSet<Round> Rounds { get; set; } = default!;
+    public DbSet<PlayerBonusAggregate> PlayerBonusAggregates { get; set; } = null!;
+    public DbSet<AggregateExecutionTime> AggregateExecutionTimes { get; set; } = null!;
 
 	public IDbContextTransaction? CurrentTransaction =>
 		Database.CurrentTransaction;
@@ -69,5 +71,7 @@ public class TgsRepository : DbContext, ITgsRepository
 		_ = modelBuilder.ApplyConfiguration(new VipLevelConfiguration());
 		_ = modelBuilder.ApplyConfiguration(new WalletConfiguration());
 		_ = modelBuilder.ApplyConfiguration(new RoundConfiguration());
+        _ = modelBuilder.ApplyConfiguration(new PlayerBonusAggregateConfiguration());
+        _ = modelBuilder.ApplyConfiguration(new AggregateExecutionTimeConfiguration());
 	}
 }
