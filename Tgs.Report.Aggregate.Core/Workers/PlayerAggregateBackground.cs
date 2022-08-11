@@ -47,6 +47,7 @@ public class PlayerAggregateBackground : BackgroundService
                 var playerGameAggregateFactory =
                     scope.ServiceProvider.GetRequiredService<IPlayerGameAggregateFactory>();
                 var playerAggregateService = scope.ServiceProvider.GetRequiredService<ITgsService<PlayerAggregate>>();
+                var playerBonusAggregateService = scope.ServiceProvider.GetRequiredService<ITgsService<PlayerBonusAggregate>>();
                 var aggregateExecutionTimeFactory =
                     scope.ServiceProvider.GetRequiredService<IAggregateExecutionTimeFactory>();
                 var bonusAggregateFactory = scope.ServiceProvider.GetRequiredService<IPlayerBonusAggregateFactory>();
@@ -54,21 +55,30 @@ public class PlayerAggregateBackground : BackgroundService
                 var request =
                     await _taskQueue.DequeueAsync(stoppingToken);
 
-                if (await playerAggregateService.GetQueries().AnyAsync(x =>
-                            x.ReportDate == request.ReportDate.ToUniversalTime() && x.Hour == request.Start.Hour,
-                        stoppingToken))
+                var havePlayerAggregateRecordIsExisted = await playerAggregateService.GetQueries().AnyAsync(x =>
+                        x.ReportDate == request.ReportDate.ToUniversalTime() && x.Hour == request.Start.Hour,
+                    stoppingToken);
+
+                var playerBonusAggregateRecordIsExisted = await playerBonusAggregateService.GetQueries().AnyAsync(x =>
+                        x.ReportDate == request.ReportDate.ToUniversalTime() && x.Hour == request.Start.Hour,
+                    stoppingToken);
+
+                if (havePlayerAggregateRecordIsExisted || playerBonusAggregateRecordIsExisted)
                 {
                     _logger.LogWarning($"{request.ReportDate.Date} {request.Start.Hour} is already existed.");
 
-                    return;
+                    continue;
                 }
+                
+                var executionTimeIsExisted = await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(
+                    AggregateType.Player, request.Start,
+                    request.End, stoppingToken);
 
-                if (!await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Round, request.Start,
-                        request.End, stoppingToken) ||
-                    await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Player, request.Start,
-                        request.End, stoppingToken))
+                if (executionTimeIsExisted)
                 {
-                    return;
+                    _logger.LogWarning($"{request.ReportDate.Date} {request.Start.Hour} is already executed.");
+
+                    continue;
                 }
 
                 using var transactionScope = new TransactionScope(TransactionScopeOption.Required,
