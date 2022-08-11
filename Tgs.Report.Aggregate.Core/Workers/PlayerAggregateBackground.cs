@@ -59,7 +59,7 @@ public class PlayerAggregateBackground : BackgroundService
                 {
                     _logger.LogWarning($"{request.ReportDate.Date} {request.Start.Hour} is already existed.");
 
-                    return;
+                    continue;
                 }
 
                 if (!await roundAggregateService.GetQueries().AnyAsync(x =>
