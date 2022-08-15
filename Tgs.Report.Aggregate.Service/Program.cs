@@ -18,16 +18,13 @@ builder.Host.ConfigureAppConfiguration((_, builder) => builder
 
 builder.Host.ConfigureServices((context, services) =>
 {
-    services.AddHostedService<PlayerAggregateBackground>();
-    services.AddSingleton<IPlayerAggregateTaskQueue>(_ =>
-    {
-        if (!int.TryParse(context.Configuration["QueueCapacity"], out var queueCapacity))
-        {
-            queueCapacity = 100;
-        }
-
-        return new PlayerAggregateTaskQueue(queueCapacity);
-    });
+    services
+        .AddHostedService<PlayerAggregateBackground>()
+        .AddHostedService<GameProviderAggregateBackground>()
+        .AddHostedService<BrandGameProviderAggregateBackground>()
+        .AddSingleton<IPlayerAggregateTaskQueue>(_ => new PlayerAggregateTaskQueue(100))
+        .AddSingleton<IGameProviderAggregateTaskQueue>(_ => new GameProviderAggregateTaskQueue(100))
+        .AddSingleton<IBrandGameProviderAggregateTaskQueue>(_ => new BrandGameProviderAggregateTaskQueue(100));
 });
 
 builder.Logging
