@@ -10,7 +10,7 @@
 				"OTEL_SERVICE_NAME": "Report-Aggregate-Api(local)",
 				"NODE_IP": "otel.rpgp.cc"
 			},
-			"applicationUrl": "https://localhost:7163;http://localhost:5163",
+			"applicationUrl": "https://localhost:7234;http://localhost:5234",
 			"dotnetRunMessages": true
 		},
 		"Docker": {
