@@ -21,10 +21,12 @@ namespace Tgs.Report.Aggregate.Domain.Entities
 
         public virtual DbSet<AdjustPlayerRecord> AdjustPlayerRecords { get; set; } = null!;
         public virtual DbSet<Agent> Agents { get; set; } = null!;
+        public virtual DbSet<AggregateExecutionTime> AggregateExecutionTimes { get; set; } = null!;
         public virtual DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; } = null!;
         public virtual DbSet<GameProviderAggregate> GameProviderAggregates { get; set; } = null!;
         public virtual DbSet<Player> Players { get; set; } = null!;
         public virtual DbSet<PlayerAggregate> PlayerAggregates { get; set; } = null!;
+        public virtual DbSet<PlayerBonusAggregate> PlayerBonusAggregates { get; set; } = null!;
         public virtual DbSet<PlayerBucket> PlayerBuckets { get; set; } = null!;
         public virtual DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; } = null!;
         public virtual DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; } = null!;
@@ -38,15 +40,16 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         {
             modelBuilder.HasPostgresExtension("ltree")
                 .HasPostgresExtension("pg_trgm")
-                .HasPostgresExtension("pgcrypto")
                 .HasPostgresExtension("uuid-ossp");
 
             modelBuilder.ApplyConfiguration(new Configurations.AdjustPlayerRecordConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.AgentConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.AggregateExecutionTimeConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.BrandGameProviderAggregateConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.GameProviderAggregateConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerAggregateConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.PlayerBonusAggregateConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketHistoryConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerGameRebateAggregateConfiguration());

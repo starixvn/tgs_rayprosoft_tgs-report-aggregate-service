@@ -5,192 +5,185 @@ using AutoFixture;
 using MockQueryable.Moq;
 using NSubstitute;
 using NUnit.Framework;
-using Tgs.MessageQueue;
 using Tgs.Report.Aggregate.Core.Commands.PlayerAggregate;
 using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
-using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
-using Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate;
 
 namespace Tgs.Report.Aggregate.UnitTest;
 
 public sealed class CreatePlayerAggregateTest
 {
-	[Test]
-	public async Task Can_Create_Player_Aggregate()
-	{
-		var fakePlayerAggregateTaskQueue = Substitute.For<IPlayerAggregateTaskQueue>();
-		var fakePlayerAggregateService = Substitute.For<ITgsService<PlayerAggregate>>();
-
-		var sut = new CreateUpdatePlayerAggregateHandler(fakePlayerAggregateTaskQueue, fakePlayerAggregateService);
-
-		var playerAggregate = CreatePlayerAggregateFixture()
-			.CreateMany<PlayerAggregate>(0)
-			.AsQueryable()
-			.BuildMock();
-
-		var roundAggregate = CreateRoundAggregateFixture()
-			.CreateMany<RoundAggregate>(0)
-			.AsQueryable()
-			.BuildMock();
-
-		var round = CreateRoundFixture()
-			.CreateMany<Round>(0)
-			.AsQueryable()
-			.BuildMock();
-
-		_ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
-
-		var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
-
-		Assert.IsTrue(response.Valid);
-	}
-
-	[Test]
-	public async Task No_Create_Player_Aggregate_When_Round_Aggregate_Was_Generated()
-	{
+    [Test]
+    public async Task Can_Create_Player_Aggregate()
+    {
         var fakePlayerAggregateTaskQueue = Substitute.For<IPlayerAggregateTaskQueue>();
         var fakePlayerAggregateService = Substitute.For<ITgsService<PlayerAggregate>>();
 
         var sut = new CreateUpdatePlayerAggregateHandler(fakePlayerAggregateTaskQueue, fakePlayerAggregateService);
 
-		var playerAggregate = CreatePlayerAggregateFixture()
-			.CreateMany<PlayerAggregate>(0)
-			.AsQueryable()
-			.BuildMock();
+        var playerAggregate = CreatePlayerAggregateFixture()
+            .CreateMany<PlayerAggregate>(0)
+            .AsQueryable()
+            .BuildMock();
 
-		var roundAggregate = CreateRoundAggregateFixture()
-			.CreateMany<RoundAggregate>(0)
-			.AsQueryable()
-			.BuildMock();
+        var roundAggregate = CreateRoundAggregateFixture()
+            .CreateMany<RoundAggregate>(0)
+            .AsQueryable()
+            .BuildMock();
 
-		var rounds = CreateRoundFixture()
-			.CreateMany<Round>(DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour + 1)
-			.AsQueryable()
-			.BuildMock();
+        var round = CreateRoundFixture()
+            .CreateMany<Round>(0)
+            .AsQueryable()
+            .BuildMock();
 
-		foreach (var round in rounds.Select((value, index) => new { value, index }))
-		{
-			round.value.ClosedOn = new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month,
-				DateTimeOffset.Now.Day, round.index, 0, 0, new(8, 0, 0));
-		}
+        _ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
 
-		_ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
+        var response = await sut.Handle(new(), default);
 
-		var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
+        Assert.IsTrue(response.Valid);
+    }
 
-		Assert.IsTrue(response.Valid);
-	}
-
-	[Test]
-	public async Task Can_Not_Create_Player_Aggregate_When_Player_Aggregate_Was_Generated()
-	{
+    [Test]
+    public async Task No_Create_Player_Aggregate_When_Round_Aggregate_Was_Generated()
+    {
         var fakePlayerAggregateTaskQueue = Substitute.For<IPlayerAggregateTaskQueue>();
         var fakePlayerAggregateService = Substitute.For<ITgsService<PlayerAggregate>>();
 
         var sut = new CreateUpdatePlayerAggregateHandler(fakePlayerAggregateTaskQueue, fakePlayerAggregateService);
 
-		var previousHour = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddHours(-1);
-		var reportDate = new DateTimeOffset(previousHour.Year,
-			previousHour.Month,
-			previousHour.Day,
-			0,
-			0,
-			0,
-			previousHour.Offset);
-		var hourArray = Enumerable.Range(0, previousHour.Hour + 1);
+        var playerAggregate = CreatePlayerAggregateFixture()
+            .CreateMany<PlayerAggregate>(0)
+            .AsQueryable()
+            .BuildMock();
 
-		var playerAggregate = hourArray
-			.SelectMany(x => CreatePlayerAggregateWithDateFixture(reportDate, x)
-				.CreateMany<PlayerAggregate>(1))
-			.AsQueryable()
-			.BuildMock();
+        var roundAggregate = CreateRoundAggregateFixture()
+            .CreateMany<RoundAggregate>(0)
+            .AsQueryable()
+            .BuildMock();
 
-		var roundAggregate = CreateRoundAggregateFixture()
-			.CreateMany<RoundAggregate>(0)
-			.AsQueryable()
-			.BuildMock();
+        var rounds = CreateRoundFixture()
+            .CreateMany<Round>(DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour + 1)
+            .AsQueryable()
+            .BuildMock();
 
-		var rounds = CreateRoundFixture()
-			.CreateMany<Round>(DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour + 1)
-			.AsQueryable()
-			.BuildMock();
+        foreach (var round in rounds.Select((value, index) => new { value, index }))
+            round.value.ClosedOn = new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month,
+                DateTimeOffset.Now.Day, round.index, 0, 0, new(8, 0, 0));
 
-		foreach (var round in rounds.Select((value, index) => new { value, index }))
-		{
-			round.value.ClosedOn = new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month,
-				DateTimeOffset.Now.Day, round.index, 0, 0, new(8, 0, 0));
-		}
+        _ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
 
-		_ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
+        var response = await sut.Handle(new(), default);
 
-		var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
+        Assert.IsTrue(response.Valid);
+    }
 
-		Assert.IsFalse(response.Valid);
-	}
-
-	[Test]
-	public async Task Can_publish_Vip_Aggregate()
-	{
+    [Test]
+    public async Task Can_Not_Create_Player_Aggregate_When_Player_Aggregate_Was_Generated()
+    {
         var fakePlayerAggregateTaskQueue = Substitute.For<IPlayerAggregateTaskQueue>();
         var fakePlayerAggregateService = Substitute.For<ITgsService<PlayerAggregate>>();
 
         var sut = new CreateUpdatePlayerAggregateHandler(fakePlayerAggregateTaskQueue, fakePlayerAggregateService);
 
-		var playerAggregate = CreatePlayerAggregateFixture()
-			.CreateMany<PlayerAggregate>(0)
-			.AsQueryable()
-			.BuildMock();
+        var previousHour = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddHours(-1);
+        var reportDate = new DateTimeOffset(previousHour.Year,
+            previousHour.Month,
+            previousHour.Day,
+            0,
+            0,
+            0,
+            previousHour.Offset);
+        var hourArray = Enumerable.Range(0, previousHour.Hour + 1);
 
-		var roundAggregate = CreateRoundAggregateFixture()
-			.CreateMany<RoundAggregate>(0)
-			.AsQueryable()
-			.BuildMock();
+        var playerAggregate = hourArray
+            .SelectMany(x => CreatePlayerAggregateWithDateFixture(reportDate, x)
+                .CreateMany<PlayerAggregate>(1))
+            .AsQueryable()
+            .BuildMock();
 
-		var round = CreateRoundFixture()
-			.CreateMany<Round>(1)
-			.AsQueryable()
-			.BuildMock();
+        var roundAggregate = CreateRoundAggregateFixture()
+            .CreateMany<RoundAggregate>(0)
+            .AsQueryable()
+            .BuildMock();
 
-		_ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
+        var rounds = CreateRoundFixture()
+            .CreateMany<Round>(DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour + 1)
+            .AsQueryable()
+            .BuildMock();
 
-		var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
+        foreach (var round in rounds.Select((value, index) => new { value, index }))
+            round.value.ClosedOn = new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month,
+                DateTimeOffset.Now.Day, round.index, 0, 0, new(8, 0, 0));
 
-		Assert.IsTrue(response.Valid);
-	}
+        _ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
 
-	private static Fixture CreateRoundAggregateFixture()
-	{
-		var fixture = new Fixture();
-		fixture.Customize<RoundAggregate>(u => u);
-		fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-		return fixture;
-	}
+        var response = await sut.Handle(new(), default);
 
-	private static Fixture CreateRoundFixture()
-	{
-		var fixture = new Fixture();
-		fixture.Customize<Round>(u => u);
-		fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-		return fixture;
-	}
+        Assert.IsFalse(response.Valid);
+    }
 
-	private static Fixture CreatePlayerAggregateFixture()
-	{
-		var fixture = new Fixture();
-		fixture.Customize<PlayerAggregate>(u => u);
-		fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-		return fixture;
-	}
+    [Test]
+    public async Task Can_publish_Vip_Aggregate()
+    {
+        var fakePlayerAggregateTaskQueue = Substitute.For<IPlayerAggregateTaskQueue>();
+        var fakePlayerAggregateService = Substitute.For<ITgsService<PlayerAggregate>>();
 
-	private static Fixture CreatePlayerAggregateWithDateFixture(DateTimeOffset? reportDate, int? hour)
-	{
-		var fixture = new Fixture();
-		fixture.Customize<PlayerAggregate>(u => u
-			.With(x => x.ReportDate, reportDate)
-			.With(x => x.Hour, hour));
-		fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-		return fixture;
-	}
+        var sut = new CreateUpdatePlayerAggregateHandler(fakePlayerAggregateTaskQueue, fakePlayerAggregateService);
+
+        var playerAggregate = CreatePlayerAggregateFixture()
+            .CreateMany<PlayerAggregate>(0)
+            .AsQueryable()
+            .BuildMock();
+
+        var roundAggregate = CreateRoundAggregateFixture()
+            .CreateMany<RoundAggregate>(0)
+            .AsQueryable()
+            .BuildMock();
+
+        var round = CreateRoundFixture()
+            .CreateMany<Round>(1)
+            .AsQueryable()
+            .BuildMock();
+
+        _ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
+
+        var response = await sut.Handle(new(), default);
+
+        Assert.IsTrue(response.Valid);
+    }
+
+    private static Fixture CreateRoundAggregateFixture()
+    {
+        var fixture = new Fixture();
+        fixture.Customize<RoundAggregate>(u => u);
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        return fixture;
+    }
+
+    private static Fixture CreateRoundFixture()
+    {
+        var fixture = new Fixture();
+        fixture.Customize<Round>(u => u);
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        return fixture;
+    }
+
+    private static Fixture CreatePlayerAggregateFixture()
+    {
+        var fixture = new Fixture();
+        fixture.Customize<PlayerAggregate>(u => u);
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        return fixture;
+    }
+
+    private static Fixture CreatePlayerAggregateWithDateFixture(DateTimeOffset? reportDate, int? hour)
+    {
+        var fixture = new Fixture();
+        fixture.Customize<PlayerAggregate>(u => u
+            .With(x => x.ReportDate, reportDate)
+            .With(x => x.Hour, hour));
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        return fixture;
+    }
 }
