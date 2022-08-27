@@ -81,12 +81,12 @@ public class PlayerAggregateBackground : BackgroundService
                     continue;
                 }
 
+                var (aggregates, aggregatesByGameType, aggregateBonus) =
+                    await playerAggregateFactory.GetPlayerAggregatesAsync(request.Start, request.End);
+
                 using var transactionScope = new TransactionScope(TransactionScopeOption.Required,
                     new TransactionOptions
                         { Timeout = TimeSpan.FromMinutes(20) }, TransactionScopeAsyncFlowOption.Enabled);
-
-                var (aggregates, aggregatesByGameType, aggregateBonus) =
-                    await playerAggregateFactory.GetPlayerAggregatesAsync(request.Start, request.End);
 
                 if (aggregates.Length > 0)
                 {
