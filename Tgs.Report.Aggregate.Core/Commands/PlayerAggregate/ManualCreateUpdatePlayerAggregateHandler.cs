@@ -84,7 +84,9 @@ public class
 			var (aggregates, aggregatesByGameType, aggregateBonus) =
 				await _playerAggregateFactory.GetPlayerAggregatesAsync(start, end);
 
-			using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            using var scope = new TransactionScope(TransactionScopeOption.Required,
+                new TransactionOptions
+                    { Timeout = TimeSpan.FromMinutes(20) }, TransactionScopeAsyncFlowOption.Enabled);
 
 			if (aggregates.Length > 0)
 			{
