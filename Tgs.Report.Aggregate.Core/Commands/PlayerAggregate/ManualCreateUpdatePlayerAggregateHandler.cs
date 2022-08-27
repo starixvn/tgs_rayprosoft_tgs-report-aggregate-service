@@ -1,6 +1,7 @@
 ﻿using System.Transactions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
@@ -12,22 +13,16 @@ public class
 	ManualCreateUpdatePlayerAggregateHandler : IRequestHandler<ManualCreateUpdatePlayerAggregateModel,
 		MessageResponse>
 {
-	private readonly IPlayerAggregateFactory _playerAggregateFactory;
-	private readonly IPlayerGameAggregateFactory _playerGameAggregateFactory;
-    private readonly IPlayerBonusAggregateFactory _bonusAggregateFactory;
+    private readonly IPlayerAggregateTaskQueue _taskQueue;
 	private readonly ITgsRepository _repository;
     private readonly IAggregateExecutionTimeFactory _aggregateExecutionTimeFactory;
 
 	public ManualCreateUpdatePlayerAggregateHandler(ITgsRepository repository,
-        IPlayerAggregateFactory playerAggregateFactory,
-        IPlayerGameAggregateFactory playerGameAggregateFactory,
-        IPlayerBonusAggregateFactory bonusAggregateFactory,
+        IPlayerAggregateTaskQueue taskQueue,
         IAggregateExecutionTimeFactory aggregateExecutionTimeFactory)
     {
         _repository = repository;
-        _playerGameAggregateFactory = playerGameAggregateFactory;
-        _playerAggregateFactory = playerAggregateFactory;
-        _bonusAggregateFactory = bonusAggregateFactory;
+        _taskQueue = taskQueue;
         _aggregateExecutionTimeFactory = aggregateExecutionTimeFactory;
     }
 
@@ -81,33 +76,7 @@ public class
                 continue;
             }
 
-			var (aggregates, aggregatesByGameType, aggregateBonus) =
-				await _playerAggregateFactory.GetPlayerAggregatesAsync(start, end);
-
-            using var scope = new TransactionScope(TransactionScopeOption.Required,
-                new TransactionOptions
-                    { Timeout = TimeSpan.FromMinutes(20) }, TransactionScopeAsyncFlowOption.Enabled);
-
-			if (aggregates.Length > 0)
-			{
-				await _playerAggregateFactory.CreatePlayerAggregatesAsync(aggregates);
-			}
-
-			if (aggregatesByGameType.Length > 0)
-			{
-				await _playerGameAggregateFactory.CreatePlayerGameAggregatesAsync(
-					aggregatesByGameType);
-			}
-
-            if (aggregateBonus.Length > 0)
-            {
-                await _bonusAggregateFactory.CreatePlayerBonusAggregatesAsync(aggregateBonus, cancellationToken);
-            }
-
-            _ = await _aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Player, start,
-                end, cancellationToken);
-
-			scope.Complete();
+            await _taskQueue.QueuePlayerAggregateAsync(new(reportDate, start, end));
 		}
 
 		return new() { Valid = true };
