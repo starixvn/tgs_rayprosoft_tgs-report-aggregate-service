@@ -83,7 +83,7 @@ public class PlayerAggregateBackground : BackgroundService
 
                 using var transactionScope = new TransactionScope(TransactionScopeOption.Required,
                     new TransactionOptions
-                        { Timeout = TimeSpan.FromMinutes(5) }, TransactionScopeAsyncFlowOption.Enabled);
+                        { Timeout = TimeSpan.FromMinutes(20) }, TransactionScopeAsyncFlowOption.Enabled);
 
                 var (aggregates, aggregatesByGameType, aggregateBonus) =
                     await playerAggregateFactory.GetPlayerAggregatesAsync(request.Start, request.End);
