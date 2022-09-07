@@ -37,7 +37,11 @@ public sealed class CreateRoundAggregateTest
 
 		var response = await sut.Handle(new CreateRoundAggregateRequest(), default);
 
-		_ = await fakeRoundAggregateFactory.Received(DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour)
+        var count = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour == 0
+            ? 24
+            : DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour;
+
+		_ = await fakeRoundAggregateFactory.Received(count)
 			.GenerateRoundAggregateAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>());
 
 		Assert.IsTrue(response.Valid);
