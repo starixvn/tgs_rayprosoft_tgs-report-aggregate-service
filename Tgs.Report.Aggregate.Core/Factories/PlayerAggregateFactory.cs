@@ -85,6 +85,39 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
             .Where(x => x.ReportDate == reportDate.ToUniversalTime()
                 && x.Hour == start.Hour
                 && x.Minute == start.Minute)
+            .Join(
+                _repository.Players.Include(x => x.Vip),
+                r => r.PlayerCode,
+                p => p.PlayerCode,
+                (r, p) => new
+                {
+                    r,
+                    p.Vip
+                })
+            .Select(x => new PlayerGameTypeAggregateModel
+            {
+                BrandId = x.r.BrandId,
+                AgentId = x.r.AgentId,
+                PlayerCode = x.r.PlayerCode,
+                VipLevel = x.Vip.Level,
+                GameProviderId = x.r.GameProviderId,
+                GameId = x.r.GameId,
+                GameType = (GameType)x.r.GameType,
+                Hour = start.Hour,
+                VipSportsRebatePercentage = x.Vip.SportsRebatePercentage,
+                VipVirtualSportsRebatePercentage = x.Vip.VirtualSportsRebatePercentage,
+                VipLiveDealerRebatePercentage = x.Vip.LiveDealerRebatePercentage,
+                VipCardGameRebatePercentage = x.Vip.CardGameRebatePercentage,
+                VipLotteryRebatePercentage = x.Vip.LotteryRebatePercentage,
+                VipSlotRebatePercentage = x.Vip.SlotRebatePercentage,
+                BetAmount = x.r.BetAmount,
+                OriginalTurnover = x.r.OriginalTurnover,
+                Turnover = x.r.Turnover,
+                ValidBetAmount = x.r.ValidBetAmount,
+                WinLoss = x.r.WinLoss,
+                CreatedOn = DateTimeOffset.UtcNow,
+                ReportDate = reportDate.ToUniversalTime()
+            })
             .ToArrayAsync();
 
         var playerTotals = await _playerRepository.GetQueries().Include(x => x.Agent)
@@ -318,59 +351,55 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
             }).ToArray();
 
         var playerAggregateByGameType = roundAggregates
-            .GroupJoin(
-                _repository.Players.Include(x => x.Vip),
-                r => r.PlayerCode,
-                p => p.PlayerCode,
-                (r, p) => new
-                {
-                    r,
-                    p = p.DefaultIfEmpty()
-                })
-            .SelectMany(
-                x => x.p.Select(player => player),
-                (x, player) => new
-                {
-                    x.r,
-                    player?.Vip
-                })
             .GroupBy(
                 x => new
                 {
-                    x.r.BrandId,
-                    x.r.AgentId,
-                    x.r.PlayerCode,
-                    x.r.GameProviderId,
-                    x.r.GameId,
-                    x.r.GameType,
-                    x.Vip
+                    x.BrandId,
+                    x.AgentId,
+                    x.PlayerCode,
+                    x.GameProviderId,
+                    x.GameId,
+                    x.GameType,
+                    x.VipLevel,
+                    x.VipSportsRebatePercentage,
+                    x.VipVirtualSportsRebatePercentage,
+                    x.VipLiveDealerRebatePercentage,
+                    x.VipCardGameRebatePercentage,
+                    x.VipLotteryRebatePercentage,
+                    x.VipSlotRebatePercentage
                 },
                 (x, aggregate) => new PlayerGameTypeAggregateModel
                 {
                     BrandId = x.BrandId,
                     AgentId = x.AgentId,
                     PlayerCode = x.PlayerCode,
-                    VipLevel = x.Vip?.Level,
+                    VipLevel = x.VipLevel,
                     GameProviderId = x.GameProviderId,
                     GameId = x.GameId,
                     GameType = (GameType)x.GameType,
                     Hour = start.Hour,
-                    VipSportsRebatePercentage = x.Vip?.SportsRebatePercentage ?? 0M,
-                    VipVirtualSportsRebatePercentage = x.Vip?.VirtualSportsRebatePercentage ?? 0M,
-                    VipLiveDealerRebatePercentage = x.Vip?.LiveDealerRebatePercentage ?? 0M,
-                    VipCardGameRebatePercentage = x.Vip?.CardGameRebatePercentage ?? 0M,
-                    VipLotteryRebatePercentage = x.Vip?.LotteryRebatePercentage ?? 0M,
-                    VipSlotRebatePercentage = x.Vip?.SlotRebatePercentage ?? 0M,
-                    BetAmount = aggregate.Sum(a => a.r.BetAmount),
-                    ValidBetAmount = aggregate.Sum(a => a.r.ValidBetAmount),
-                    OriginalTurnover = aggregate.Sum(a => a.r.OriginalTurnover),
-                    Turnover = aggregate.Sum(a => a.r.Turnover),
-                    WinLoss = aggregate.Sum(a => a.r.WinLoss),
-                    VipRebateAmount = x.Vip == null
-                        ? 0M
-                        : GetPlayerRebateAmountByGameType(x.Vip,
-                            x.GameType,
-                            aggregate!.Select(a => a.r)),
+                    VipSportsRebatePercentage = x.VipSportsRebatePercentage,
+                    VipVirtualSportsRebatePercentage = x.VipVirtualSportsRebatePercentage,
+                    VipLiveDealerRebatePercentage = x.VipLiveDealerRebatePercentage,
+                    VipCardGameRebatePercentage = x.VipCardGameRebatePercentage,
+                    VipLotteryRebatePercentage = x.VipLotteryRebatePercentage,
+                    VipSlotRebatePercentage = x.VipSlotRebatePercentage,
+                    BetAmount = aggregate.Sum(a => a.BetAmount),
+                    ValidBetAmount = aggregate.Sum(a => a.ValidBetAmount),
+                    OriginalTurnover = aggregate.Sum(a => a.OriginalTurnover),
+                    Turnover = aggregate.Sum(a => a.Turnover),
+                    WinLoss = aggregate.Sum(a => a.WinLoss),
+                    VipRebateAmount = GetPlayerRebateAmountByGameType(new VipLevel
+                        {
+                            SportsRebatePercentage = x.VipSportsRebatePercentage,
+                            VirtualSportsRebatePercentage = x.VipVirtualSportsRebatePercentage,
+                            LiveDealerRebatePercentage = x.VipLiveDealerRebatePercentage,
+                            CardGameRebatePercentage = x.VipCardGameRebatePercentage,
+                            LotteryRebatePercentage = x.VipLotteryRebatePercentage,
+                            SlotRebatePercentage = x.VipSlotRebatePercentage
+                        },
+                            (short)x.GameType,
+                            aggregate!.Select(a => ((short)a.GameType,a.Turnover))),
                     CreatedOn = DateTimeOffset.UtcNow,
                     ReportDate = reportDate.ToUniversalTime()
                 }).ToArray();
@@ -404,7 +433,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 
     private static decimal GetPlayerRebateAmountByGameType(
         VipLevel vip, short type,
-        IEnumerable<RoundAggregate> roundAggregates)
+        IEnumerable<(short GameType,decimal Turnover)> roundAggregates)
     {
         return (GameType)type switch
         {
