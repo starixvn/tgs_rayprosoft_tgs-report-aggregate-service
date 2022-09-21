@@ -70,11 +70,11 @@ public class PlayerAggregateBackground : BackgroundService
                     continue;
                 }
 
-                var executionTimeIsNotExisted = await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(
+                var roundExecutionTimeIsExisted = await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(
                     AggregateType.Round, request.Start,
                     request.End, stoppingToken);
 
-                if (executionTimeIsNotExisted)
+                if (!roundExecutionTimeIsExisted)
                 {
                     _logger.LogWarning($"round aggregate is no existed.  {request.ReportDate.Date} {request.Start.Hour}");
 
