@@ -55,4 +55,9 @@ public record PlayerAggregateModel
 	public decimal NoIncludeNetProfitAgentAdjustAmount { get; set; }
 
     public decimal NoIncludeNetProfitBonusAdjustAmount { get; set; }
-}
+
+    public decimal? AgentDividendPercentage { get; set; }
+
+    public decimal? ChiefAgentDividendPercentage { get; set; }
+
+    public string? AgentDividendPercentageTreeData { get; set; }}
