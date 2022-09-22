@@ -299,9 +299,9 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
             NoIncludeNetProfitCompanyAdjustAmount = x.NoIncludeNetProfitCompanyAdjustAmount,
             NoIncludeNetProfitAgentAdjustAmount = x.NoIncludeNetProfitAgentAdjustAmount,
             NoIncludeNetProfitBonusAdjustAmount = x.NoIncludeNetProfitBonusAdjustAmount,
-            AgentDividendPercentage = x.DividendPercentage,
+            AgentDividendPercentage = x.DividendPercentage ?? 0M,
             AgentDividendPercentageTreeData = GenerateAgentDividendPercentages(x.Path,agents),
-            ChiefAgentDividendPercentage = x.ChiefAgentId == null ? null :
+            ChiefAgentDividendPercentage = x.ChiefAgentId == null ? 0M :
                 agents.FirstOrDefault(c => c.Id == Guid.Parse(x.ChiefAgentId))?.DividendPercentage
         }).ToArray();
 
@@ -310,13 +310,6 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
             var playerRoundAggregates = roundAggregates
                 .Where(r => r.PlayerCode == player.PlayerCode)
                 .ToArray();
-
-            var playerRoundAggregate = playerRoundAggregates.FirstOrDefault();
-
-            if (playerRoundAggregate != null)
-            {
-                player.AgentId = playerRoundAggregate.AgentId;
-            }
 
             player.BetAmount = playerRoundAggregates.Sum(r => r.BetAmount);
             player.OriginalTurnover = playerRoundAggregates.Sum(r => r.OriginalTurnover);
