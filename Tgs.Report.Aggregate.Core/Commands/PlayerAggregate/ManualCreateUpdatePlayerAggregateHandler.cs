@@ -63,20 +63,7 @@ public class
 			var end = new DateTimeOffset(result.Year, result.Month, result.Day, doHour,
 				0, 0, result.Offset).AddHours(1);
 
-			if (await _repository.PlayerAggregates.AnyAsync(x =>
-					x.ReportDate == reportDate.ToUniversalTime() && x.Hour == start.Hour, cancellationToken))
-			{
-				return new MessageResponse
-				{ Valid = false, Message = $"{reportDate.Date} {start.Hour} is already existed." };
-			}
-
-            if (!await _aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Round, start, end, cancellationToken) ||
-                await _aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Player, start, end, cancellationToken))
-            {
-                continue;
-            }
-
-            await _taskQueue.QueuePlayerAggregateAsync(new(reportDate, start, end));
+			await _taskQueue.QueuePlayerAggregateAsync(new(reportDate, start, end));
 		}
 
 		return new() { Valid = true };

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Tgs.Report.Aggregate.Domain.Entities;
 
 #nullable disable
@@ -19,7 +20,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.ToTable("player_bonus_aggregates", "report");
 
-            entity.HasIndex(e => new { e.ReportDate, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_bonus_aggregates_multiple_keys");
+            entity.HasIndex(e => new { e.ReportDate, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_bonus_aggregates_multiple_keys")
+                .HasSortOrder(new[] { SortOrder.Descending, SortOrder.Ascending, SortOrder.Ascending, SortOrder.Ascending });
 
             entity.Property(e => e.PlayerCode)
                 .HasMaxLength(16)
