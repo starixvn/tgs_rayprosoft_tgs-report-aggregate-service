@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Tgs.Report.Aggregate.Core.Extensions;
 using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
@@ -11,6 +11,29 @@ namespace Tgs.Report.Aggregate.Core.Factories;
 
 public class PlayerAggregateFactory : IPlayerAggregateFactory
 {
+    private static readonly short[] TransactionTypes =
+    {
+        (short)TransactionType.Deposit,
+        (short)TransactionType.Deposited,
+        (short)TransactionType.Withdrawal,
+        (short)TransactionType.WithdrawCommit,
+        (short)TransactionType.CompanyAdjust,
+        (short)TransactionType.AgentAdjust,
+        (short)TransactionType.SystemAdjust,
+        (short)TransactionType.BonusAdjust,
+        (short)TransactionType.Bonus,
+        (short)TransactionType.Rebate,
+        (short)TransactionType.Dividend,
+        (short)TransactionType.Promotion,
+        (short)TransactionType.DividendAllAgentRebate,
+        (short)TransactionType.CompanyAdjust,
+        (short)TransactionType.AgentAdjust,
+        (short)TransactionType.BonusAdjust,
+        (short)TransactionType.PromotionVipLevelUpgrade,
+        (short)TransactionType.PromotionVipLevelSeason,
+        (short)TransactionType.PromotionVipLevelBirthday
+    };
+
     private readonly ITgsService<AdjustPlayerRecord> _adjustPlayerRecordRepository;
     private readonly ITgsService<Player> _playerRepository;
     private readonly ITgsRepository _repository;
@@ -68,7 +91,8 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
     }
 
     public async
-        ValueTask<(PlayerAggregateModel[] playerAggregate, PlayerGameTypeAggregateModel[] playerAggregateByGameType, PlayerBonusAggregateModel[] playerBonusAggregate)>
+        ValueTask<(PlayerAggregateModel[] playerAggregate, PlayerGameTypeAggregateModel[] playerAggregateByGameType,
+            PlayerBonusAggregateModel[] playerBonusAggregate)>
         GetPlayerAggregatesAsync(
             DateTimeOffset start,
             DateTimeOffset end)
@@ -90,15 +114,17 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                 && x.Hour == start.Hour
                 && x.Minute == start.Minute)
             .Join(
-                _repository.Players.Include(x => x.Vip),
+                _repository.Players.Include(x => x.Agent)
+                    .Include(x => x.Vip),
                 r => r.PlayerCode,
                 p => p.PlayerCode,
                 (r, p) => new
                 {
                     r,
-                    p.Vip
+                    p.Vip,
+                    p.Agent
                 })
-            .Select(x => new PlayerGameTypeAggregateModel
+            .Select(x => new AggregateModel
             {
                 BrandId = x.r.BrandId,
                 AgentId = x.r.AgentId,
@@ -107,6 +133,9 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                 GameProviderId = x.r.GameProviderId,
                 GameId = x.r.GameId,
                 GameType = (GameType)x.r.GameType,
+                AgentDividendPercentage = x.Agent == null ? null : x.Agent.DividendPercentage,
+                Path = x.Agent == null ? (LTree?)null : x.Agent.Path,
+                ChiefAgentId = x.Agent == null ? (LTree?)null : x.Agent.Path.Subpath(0, 1),
                 Hour = start.Hour,
                 VipSportsRebatePercentage = x.Vip == null ? 0M : x.Vip.SportsRebatePercentage,
                 VipVirtualSportsRebatePercentage = x.Vip == null ? 0M : x.Vip.VirtualSportsRebatePercentage,
@@ -118,205 +147,199 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                 OriginalTurnover = x.r.OriginalTurnover,
                 Turnover = x.r.Turnover,
                 ValidBetAmount = x.r.ValidBetAmount,
-                WinLoss = x.r.WinLoss,
-                CreatedOn = DateTimeOffset.UtcNow,
+                WinLossAmount = x.r.WinLoss,
                 ReportDate = reportDate.ToUniversalTime()
             })
             .ToArrayAsync();
 
-        var playerTotals = await _playerRepository.GetQueries().Include(x => x.Agent)
-            .GroupJoin(
-                _transactionRepository.GetQueries().Where(x => x.RecordedOn >= utcStart && x.RecordedOn < utcEnd),
+        var playerTotals = await _transactionRepository.GetQueries()
+            .Where(x => x.RecordedOn >= utcStart && x.RecordedOn < utcEnd)
+            .Where(x => TransactionTypes.Contains(x.Type))
+            .Join(_playerRepository.GetQueries().Include(x => x.Agent),
+                t => t.PlayerCode,
                 p => p.PlayerCode,
-                t => t.Wallet.PlayerCode,
-                (p, t) => new
+                (t, p) => new
                 {
-                    p,
-                    transaction = t
-                })
-            .SelectMany(
-                x => x.transaction.DefaultIfEmpty(),
-                (x, transaction) => new
-                {
-                    x.p,
-                    transaction
+                    Transaction = t,
+                    Player = p
                 })
             .GroupJoin(
                 _adjustPlayerRecordRepository.GetQueries()
                     .Where(x => x.CreatedOn >= utcStart),
-                group => group.transaction!.Id,
+                t => t.Transaction.Id,
                 adjust => adjust.TransactionId,
-                (group, adjust) => new
+                (t, adjust) => new
                 {
-                    group.p,
-                    group.transaction,
-                    group.transaction!.Wallet,
-                    group.transaction.Amount,
+                    t.Transaction,
+                    t.Player,
                     adjust
                 })
             .SelectMany(
                 x => x.adjust.DefaultIfEmpty(),
                 (x, adjust) => new
                 {
-                    x.p,
-                    x.transaction,
-                    x.Wallet,
-                    x.Amount,
+                    x.Transaction,
+                    x.Player,
                     AdjustType = adjust == null ? 0 : adjust.Type,
                     IncludeInNetProfit = adjust == null || adjust.IncludeInNetProfit
                 })
             .GroupBy(
                 x => new
                 {
-                    x.p.BrandId,
-                    x.p.AgentId,
-                    DividendPercentage = x.p.Agent == null ? (decimal?)null : x.p.Agent.DividendPercentage,
-                    Path = x.p.Agent == null ? (LTree?)null : x.p.Agent.Path,
-                    x.p.PlayerCode
+                    x.Transaction.BrandId,
+                    x.Player.AgentId,
+                    DividendPercentage = x.Player.Agent == null ? (decimal?)null : x.Player.Agent.DividendPercentage,
+                    Path = x.Player.Agent == null ? (LTree?)null : x.Player.Agent.Path,
+                    x.Player.PlayerCode
                 },
-                (x, players) => new
+                (x, players) => new AggregateModel
                 {
                     BrandId = x.BrandId,
                     Hour = start.Hour,
                     ReportDate = reportDate.ToUniversalTime(),
                     AgentId = x.AgentId,
                     PlayerCode = x.PlayerCode,
-                    DividendPercentage = x.DividendPercentage,
-                    x.Path,
+                    AgentDividendPercentage = x.DividendPercentage,
+                    Path = x.Path,
                     ChiefAgentId = x.Path == null ? (LTree?)null : x.Path.Value.Subpath(0, 1),
-                    RegisteredCount = players.Count(p => p.p.RegisteredOn >= utcStart
-                        && p.p.RegisteredOn < utcEnd) > 0
-                        ? 1
-                        : 0,
-                    FirstFundInCount = players.Count(p => p.p.FirstDepositOn >= utcStart
-                        && p.p.FirstDepositOn < utcEnd) > 0
-                        ? 1
-                        : 0,
                     DepositAmount = players
-                        .Where(p => p.transaction != null
-                            && new[] { (short)TransactionType.Deposit, (short)TransactionType.Deposited }.Contains(
-                                p.transaction.Type))
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => new[] { (short)TransactionType.Deposit, (short)TransactionType.Deposited }.Contains(
+                            p.Transaction.Type))
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     WithdrawalAmount = players
-                        .Where(p => p.transaction != null
-                            && new[] { (short)TransactionType.Withdrawal, (short)TransactionType.WithdrawCommit }
-                                .Contains(p.transaction.Type))
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => new[] { (short)TransactionType.Withdrawal, (short)TransactionType.WithdrawCommit }
+                            .Contains(p.Transaction.Type))
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     CompanyAdjustAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.CompanyAdjust)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.CompanyAdjust)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     AgentAdjustAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.AgentAdjust)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.AgentAdjust)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     SystemAdjustAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.SystemAdjust)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.SystemAdjust)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     BonusAdjustAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.BonusAdjust)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.BonusAdjust)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     BonusAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.Bonus)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.Bonus)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     RebateAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.Rebate)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.Rebate)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     DividendAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.Dividend)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.Dividend)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     PromotionAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.Promotion)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.Promotion)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     AllAgentRebateAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.DividendAllAgentRebate)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.DividendAllAgentRebate)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     NoIncludeNetProfitCompanyAdjustAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.CompanyAdjust
+                        .Where(p => p.Transaction.Type == (short)TransactionType.CompanyAdjust
                             && p.IncludeInNetProfit == false
                             && p.AdjustType == (short)PlayerAdjustmentTransactionType.CompanyAdjust)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     NoIncludeNetProfitAgentAdjustAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.AgentAdjust
+                        .Where(p => p.Transaction.Type == (short)TransactionType.AgentAdjust
                             && p.IncludeInNetProfit == false
                             && p.AdjustType == (short)PlayerAdjustmentTransactionType.AgentAdjust)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     NoIncludeNetProfitBonusAdjustAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.BonusAdjust
+                        .Where(p => p.Transaction.Type == (short)TransactionType.BonusAdjust
                             && p.IncludeInNetProfit == false
                             && p.AdjustType == (short)PlayerAdjustmentTransactionType.BonusAdjust)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     UpgradeAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.PromotionVipLevelUpgrade)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.PromotionVipLevelUpgrade)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     SeasonAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.PromotionVipLevelSeason)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount),
+                        .Where(p => p.Transaction.Type == (short)TransactionType.PromotionVipLevelSeason)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount),
                     BirthdayAmount = players
-                        .Where(p => p.transaction != null
-                            && p.transaction.Type == (short)TransactionType.PromotionVipLevelBirthday)
-                        .Sum(t => t.transaction!.Amount + t.transaction!.LockAmount)
+                        .Where(p => p.Transaction.Type == (short)TransactionType.PromotionVipLevelBirthday)
+                        .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount)
                 }).ToArrayAsync();
 
-        var brands = playerTotals.Select(x => x.BrandId).Distinct();
+        var playerRegisters = await _playerRepository.GetQueries()
+            .Include(x => x.Agent)
+            .Include(x => x.Vip)
+            .Where(x => (x.RegisteredOn >= utcStart && x.RegisteredOn < utcEnd) || (x.FirstDepositOn >= utcStart
+                && x.FirstDepositOn < utcEnd))
+            .Select(x => new AggregateModel
+            {
+                BrandId = x.BrandId,
+                Hour = start.Hour,
+                ReportDate = reportDate.ToUniversalTime(),
+                AgentId = x.AgentId,
+                PlayerCode = x.PlayerCode,
+                AgentDividendPercentage = x.Agent == null ? null : x.Agent.DividendPercentage,
+                Path = x.Agent == null ? (LTree?)null : x.Agent.Path,
+                ChiefAgentId = x.Agent == null ? (LTree?)null : x.Agent.Path.Subpath(0, 1),
+                RegisteredCount = x.RegisteredOn != null ? 1 : 0,
+                FirstFundInCount = x.FirstDepositOn != null ? 1 : 0
+            })
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        var playerData = roundAggregates.Concat(playerTotals).Concat(playerRegisters).ToArray();
+
+        var brands = playerData.Select(x => x.BrandId).Distinct();
 
         var agents = await _repository.Agents
             .Where(x => brands.Contains(x.BrandId))
+            .Select(x => new AgentDividendPercentageModel
+            {
+                AgentId = x.Id,
+                ParentAgentId = x.ParentAgentId,
+                DividendPercentage = x.DividendPercentage
+            })
             .ToArrayAsync().ConfigureAwait(false);
 
-        var playerAggregate = playerTotals.Select(x => new PlayerAggregateModel
-        {
-            BrandId = x.BrandId,
-            Hour = x.Hour,
-            ReportDate = x.ReportDate,
-            AgentId = x.AgentId,
-            PlayerCode = x.PlayerCode,
-            RegisteredCount = x.RegisteredCount,
-            FirstFundInCount = x.FirstFundInCount,
-            DepositAmount = x.DepositAmount,
-            WithdrawalAmount = x.WithdrawalAmount,
-            CompanyAdjustAmount = x.CompanyAdjustAmount,
-            AgentAdjustAmount = x.AgentAdjustAmount,
-            SystemAdjustAmount = x.SystemAdjustAmount,
-            BonusAdjustAmount = x.BonusAdjustAmount,
-            BonusAmount = x.BonusAmount,
-            RebateAmount = x.RebateAmount,
-            DividendAmount = x.DividendAmount,
-            PromotionAmount = x.PromotionAmount,
-            AllAgentRebateAmount = x.AllAgentRebateAmount,
-            NoIncludeNetProfitCompanyAdjustAmount = x.NoIncludeNetProfitCompanyAdjustAmount,
-            NoIncludeNetProfitAgentAdjustAmount = x.NoIncludeNetProfitAgentAdjustAmount,
-            NoIncludeNetProfitBonusAdjustAmount = x.NoIncludeNetProfitBonusAdjustAmount,
-            AgentDividendPercentage = x.DividendPercentage ?? 0M,
-            AgentDividendPercentageTreeData = GenerateAgentDividendPercentages(x.Path,agents),
-            ChiefAgentDividendPercentage = x.ChiefAgentId == null ? 0M :
-                agents.FirstOrDefault(c => c.Id == Guid.Parse(x.ChiefAgentId))?.DividendPercentage
-        }).ToArray();
-
-        foreach (var player in playerAggregate)
-        {
-            var playerRoundAggregates = roundAggregates
-                .Where(r => r.PlayerCode == player.PlayerCode)
-                .ToArray();
-
-            player.BetAmount = playerRoundAggregates.Sum(r => r.BetAmount);
-            player.OriginalTurnover = playerRoundAggregates.Sum(r => r.OriginalTurnover);
-            player.ValidBetAmount = playerRoundAggregates.Sum(r => r.ValidBetAmount);
-            player.Turnover = playerRoundAggregates.Sum(r => r.Turnover);
-            player.WinLossAmount = playerRoundAggregates.Sum(r => r.WinLoss);
-        }
+        var playerAggregate = playerData
+            .GroupBy(x => new
+            {
+                x.BrandId,
+                x.AgentId,
+                x.AgentDividendPercentage,
+                x.ChiefAgentId,
+                x.Path,
+                x.PlayerCode
+            }, (x, list) => new PlayerAggregateModel
+            {
+                BrandId = x.BrandId,
+                Hour = start.Hour,
+                ReportDate = reportDate.ToUniversalTime(),
+                AgentId = x.AgentId,
+                PlayerCode = x.PlayerCode,
+                RegisteredCount = list.Sum(l => l.RegisteredCount),
+                FirstFundInCount = list.Sum(l => l.FirstFundInCount),
+                DepositAmount = list.Sum(l => l.DepositAmount),
+                WithdrawalAmount = list.Sum(l => l.WithdrawalAmount),
+                CompanyAdjustAmount = list.Sum(l => l.CompanyAdjustAmount),
+                AgentAdjustAmount = list.Sum(l => l.AgentAdjustAmount),
+                SystemAdjustAmount = list.Sum(l => l.SystemAdjustAmount),
+                BonusAdjustAmount = list.Sum(l => l.BonusAdjustAmount),
+                BonusAmount = list.Sum(l => l.BonusAmount),
+                RebateAmount = list.Sum(l => l.RebateAmount),
+                DividendAmount = list.Sum(l => l.DividendAmount),
+                PromotionAmount = list.Sum(l => l.PromotionAmount),
+                AllAgentRebateAmount = list.Sum(l => l.AllAgentRebateAmount),
+                NoIncludeNetProfitCompanyAdjustAmount = list.Sum(l => l.NoIncludeNetProfitCompanyAdjustAmount),
+                NoIncludeNetProfitAgentAdjustAmount = list.Sum(l => l.NoIncludeNetProfitAgentAdjustAmount),
+                NoIncludeNetProfitBonusAdjustAmount = list.Sum(l => l.NoIncludeNetProfitBonusAdjustAmount),
+                BetAmount = list.Sum(l => l.BetAmount),
+                OriginalTurnover = list.Sum(l => l.OriginalTurnover),
+                Turnover = list.Sum(l => l.Turnover),
+                WinLossAmount = list.Sum(l => l.WinLossAmount),
+                AgentDividendPercentage = x.AgentDividendPercentage ?? 0M,
+                AgentDividendPercentageTreeData = GenerateAgentDividendPercentages(x.Path, agents),
+                ChiefAgentDividendPercentage = x.ChiefAgentId == null
+                    ? 0M
+                    : agents.FirstOrDefault(c => c.AgentId == Guid.Parse(x.ChiefAgentId))?.DividendPercentage
+            }).ToArray();
 
         var playerBonuses = playerTotals
             .Where(x =>
@@ -366,7 +389,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                     VipLevel = x.VipLevel,
                     GameProviderId = x.GameProviderId,
                     GameId = x.GameId,
-                    GameType = (GameType)x.GameType,
+                    GameType = x.GameType,
                     Hour = start.Hour,
                     VipSportsRebatePercentage = x.VipSportsRebatePercentage,
                     VipVirtualSportsRebatePercentage = x.VipVirtualSportsRebatePercentage,
@@ -378,8 +401,8 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                     ValidBetAmount = aggregate.Sum(a => a.ValidBetAmount),
                     OriginalTurnover = aggregate.Sum(a => a.OriginalTurnover),
                     Turnover = aggregate.Sum(a => a.Turnover),
-                    WinLoss = aggregate.Sum(a => a.WinLoss),
-                    VipRebateAmount = GetPlayerRebateAmountByGameType(new VipLevel
+                    WinLoss = aggregate.Sum(a => a.WinLossAmount),
+                    VipRebateAmount = GetPlayerRebateAmountByGameType(new()
                         {
                             SportsRebatePercentage = x.VipSportsRebatePercentage,
                             VirtualSportsRebatePercentage = x.VipVirtualSportsRebatePercentage,
@@ -388,42 +411,18 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                             LotteryRebatePercentage = x.VipLotteryRebatePercentage,
                             SlotRebatePercentage = x.VipSlotRebatePercentage
                         },
-                            (short)x.GameType,
-                            aggregate!.Select(a => ((short)a.GameType,a.Turnover))),
+                        (short)x.GameType,
+                        aggregate.Select(a => ((short)a.GameType, a.Turnover))),
                     CreatedOn = DateTimeOffset.UtcNow,
                     ReportDate = reportDate.ToUniversalTime()
                 }).ToArray();
 
-        var players = playerAggregateByGameType.Select(x => x.PlayerCode);
-
-        playerAggregate = playerAggregate.Where(x => x.RegisteredCount != 0
-            || x.FirstFundInCount != 0
-            || x.DepositAmount != 0
-            || x.WithdrawalAmount != 0
-            || x.CompanyAdjustAmount != 0
-            || x.BonusAdjustAmount != 0
-            || x.BonusAmount != 0
-            || x.RebateAmount != 0
-            || x.DividendAmount != 0
-            || x.PromotionAmount != 0
-            || x.BetAmount != 0
-            || x.OriginalTurnover != 0
-            || x.ValidBetAmount != 0
-            || x.Turnover != 0
-            || x.AgentAdjustAmount != 0
-            || x.NoIncludeNetProfitAgentAdjustAmount != 0
-            || x.NoIncludeNetProfitCompanyAdjustAmount != 0
-            || x.NoIncludeNetProfitBonusAdjustAmount != 0
-            || x.WinLossAmount != 0
-            || players.Contains(x.PlayerCode)).ToArray();
-
         return (playerAggregate, playerAggregateByGameType, playerBonuses);
     }
 
-
     private static decimal GetPlayerRebateAmountByGameType(
         VipLevel vip, short type,
-        IEnumerable<(short GameType,decimal Turnover)> roundAggregates)
+        IEnumerable<(short GameType, decimal Turnover)> roundAggregates)
     {
         return (GameType)type switch
         {
@@ -453,7 +452,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
         };
     }
 
-    private static string? GenerateAgentDividendPercentages(LTree? agentPath, Agent[] agents)
+    private static string? GenerateAgentDividendPercentages(LTree? agentPath, AgentDividendPercentageModel[] agents)
     {
         if (agentPath is null)
         {
@@ -461,11 +460,11 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
         }
 
         var agentIds = agentPath.ToString()!.Split(".").Select(Guid.Parse);
-        var agentTree = agents.Where(x => agentIds.Contains(x.Id)).Select(x => new AgentDividendPercentageData
+        var agentTree = agents.Where(x => agentIds.Contains(x.AgentId)).Select(x => new AgentDividendPercentageData
         {
-            AgentId = x.Id,
+            AgentId = x.AgentId,
             ParentAgentId = x.ParentAgentId,
-            DividendPercentage = x.DividendPercentage,
+            DividendPercentage = x.DividendPercentage
         });
         return JsonSerializer.Serialize(agentTree);
     }
