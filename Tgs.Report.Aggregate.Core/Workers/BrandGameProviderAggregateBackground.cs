@@ -53,7 +53,7 @@ public class BrandGameProviderAggregateBackground : BackgroundService
                 var start = request.StartDate.ToOffset(new(8, 0, 0));
                 var end = DateGenerator.GetFirstDayOfMonth(start.AddMonths(1));
 
-                await brandGameProviderFactory.RemoveBrandGameProviderAggregateAsync(request.BrandId, start, end);
+                _ = await brandGameProviderFactory.RemoveBrandGameProviderAggregateAsync(request.BrandId, start, end);
 
                 await brandGameProviderFactory.GenerateBrandGameProviderAggregateAsync(request.BrandId,
                     start.ToUniversalTime(), end.ToUniversalTime(), request.AuditLogId).ConfigureAwait(false);
