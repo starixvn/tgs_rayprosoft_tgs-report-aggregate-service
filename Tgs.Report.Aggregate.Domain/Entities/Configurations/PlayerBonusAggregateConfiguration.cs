@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Tgs.Report.Aggregate.Domain.Entities;
 
 #nullable disable

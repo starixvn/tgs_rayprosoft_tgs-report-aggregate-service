@@ -19,8 +19,8 @@ public class AggregateExecutionTimeFactory : IAggregateExecutionTimeFactory
 		_ = await _repository.AggregateExecutionTimes.AddAsync(new()
 		{
 			AggregateType = (short)type,
-			From = from.ToUniversalTime(),
-			To = to.ToUniversalTime()
+			From = from.UtcDateTime,
+			To = to.UtcDateTime
 		}, cancellationToken);
 
 		return await _repository.SaveChangesAsync(cancellationToken);

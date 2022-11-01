@@ -18,7 +18,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public decimal WinLoss { get; set; }
         public decimal SettleAmount { get; set; }
         public decimal Commission { get; set; }
-        public DateTimeOffset ReportDate { get; set; }
-        public DateTimeOffset CreatedOn { get; set; }
+        public DateTime ReportDate { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

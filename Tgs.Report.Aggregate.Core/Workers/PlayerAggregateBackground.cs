@@ -32,10 +32,10 @@ public class PlayerAggregateBackground : BackgroundService
 		_logger.LogInformation(
 			"Player Aggregate queued hosted service is running.");
 
-		await BackgroundProcessing(stoppingToken);
+		await BackgroundProcessingAsync(stoppingToken);
 	}
 
-	private async Task BackgroundProcessing(CancellationToken stoppingToken)
+	private async Task BackgroundProcessingAsync(CancellationToken stoppingToken)
 	{
 		while (!stoppingToken.IsCancellationRequested)
 			try

@@ -8,7 +8,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
     public partial class AggregateExecutionTime
     {
         public short AggregateType { get; set; }
-        public DateTimeOffset From { get; set; }
-        public DateTimeOffset To { get; set; }
+        public DateTime From { get; set; }
+        public DateTime To { get; set; }
     }
 }

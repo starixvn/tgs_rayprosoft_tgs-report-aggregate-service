@@ -27,8 +27,6 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public virtual DbSet<Player> Players { get; set; } = null!;
         public virtual DbSet<PlayerAggregate> PlayerAggregates { get; set; } = null!;
         public virtual DbSet<PlayerBonusAggregate> PlayerBonusAggregates { get; set; } = null!;
-        public virtual DbSet<PlayerBucket> PlayerBuckets { get; set; } = null!;
-        public virtual DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; } = null!;
         public virtual DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; } = null!;
         public virtual DbSet<Round> Rounds { get; set; } = null!;
         public virtual DbSet<RoundAggregate> RoundAggregates { get; set; } = null!;
@@ -39,8 +37,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasPostgresExtension("ltree")
-                .HasPostgresExtension("pg_trgm")
-                .HasPostgresExtension("uuid-ossp");
+                .HasPostgresExtension("pg_trgm");
 
             modelBuilder.ApplyConfiguration(new Configurations.AdjustPlayerRecordConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.AgentConfiguration());
@@ -50,8 +47,6 @@ namespace Tgs.Report.Aggregate.Domain.Entities
             modelBuilder.ApplyConfiguration(new Configurations.PlayerConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerAggregateConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBonusAggregateConfiguration());
-            modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketConfiguration());
-            modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketHistoryConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerGameRebateAggregateConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.RoundConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.RoundAggregateConfiguration());

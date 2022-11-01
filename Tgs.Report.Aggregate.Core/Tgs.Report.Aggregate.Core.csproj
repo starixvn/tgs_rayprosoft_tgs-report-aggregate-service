@@ -9,8 +9,13 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.48">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Tgs.Core.Infrastructures.Utility" Version="0.0.3" />
 	  <PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.5" />
+	  <PackageReference Include="Tgs.PlayerBucket.Client" Version="0.0.3" />
   </ItemGroup>
 
   <ItemGroup>
