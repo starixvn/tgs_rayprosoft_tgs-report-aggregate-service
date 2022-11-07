@@ -13,20 +13,18 @@ public class
 	ManualCreateUpdatePlayerAggregateHandler : IRequestHandler<ManualCreateUpdatePlayerAggregateModel,
 		MessageResponse>
 {
-    private readonly IPlayerAggregateTaskQueue _taskQueue;
+	private readonly IPlayerAggregateTaskQueue _taskQueue;
 	private readonly ITgsRepository _repository;
-    private readonly IAggregateExecutionTimeFactory _aggregateExecutionTimeFactory;
 
-	public ManualCreateUpdatePlayerAggregateHandler(ITgsRepository repository,
-        IPlayerAggregateTaskQueue taskQueue,
-        IAggregateExecutionTimeFactory aggregateExecutionTimeFactory)
-    {
-        _repository = repository;
-        _taskQueue = taskQueue;
-        _aggregateExecutionTimeFactory = aggregateExecutionTimeFactory;
-    }
+	public ManualCreateUpdatePlayerAggregateHandler(
+		ITgsRepository repository,
+		IPlayerAggregateTaskQueue taskQueue)
+	{
+		_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+		_taskQueue = taskQueue ?? throw new ArgumentNullException(nameof(taskQueue));
+	}
 
-    public async Task<MessageResponse> Handle(ManualCreateUpdatePlayerAggregateModel request,
+	public async Task<MessageResponse> Handle(ManualCreateUpdatePlayerAggregateModel request,
 		CancellationToken cancellationToken)
 	{
 		DateTimeOffset reportDate;

@@ -17,8 +17,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public string CurrencyCode { get; set; } = null!;
         public string ExternalCurrencyCode { get; set; } = null!;
         public decimal Balance { get; set; }
-        public DateTimeOffset CreatedOn { get; set; }
-        public DateTimeOffset UpdatedOn { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public DateTime UpdatedOn { get; set; }
         public decimal LockedBalance { get; set; }
 
         public virtual Player PlayerCodeNavigation { get; set; } = null!;

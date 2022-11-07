@@ -10,43 +10,41 @@ namespace Tgs.Report.Aggregate.Domain.Interfaces;
 
 public interface ITgsRepository
 {
-    IDbContextTransaction? CurrentTransaction { get; }
+	IDbContextTransaction? CurrentTransaction { get; }
 
-    DbSet<AdjustPlayerRecord> AdjustPlayerRecords { get; set; }
+	DbSet<AdjustPlayerRecord> AdjustPlayerRecords { get; set; }
 
-    DbSet<PlayerAggregate> PlayerAggregates { get; set; }
+	DbSet<PlayerAggregate> PlayerAggregates { get; set; }
 
-    DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; }
+	DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; }
 
-    DbSet<PlayerBucket> PlayerBuckets { get; set; }
+	DbSet<Player> Players { get; set; }
 
-    DbSet<PlayerGameRebateAggregate> PlayerGameRebateAggregates { get; set; }
+	DbSet<RoundAggregate> RoundAggregates { get; set; }
 
-    DbSet<Player> Players { get; set; }
+	DbSet<Transaction> Transactions { get; set; }
 
-    DbSet<RoundAggregate> RoundAggregates { get; set; }
+	DbSet<VipLevel> VipLevels { get; set; }
 
-    DbSet<Transaction> Transactions { get; set; }
+	DbSet<Wallet> Wallets { get; set; }
 
-    DbSet<VipLevel> VipLevels { get; set; }
+	DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; }
 
-    DbSet<Wallet> Wallets { get; set; }
+	DbSet<GameProviderAggregate> GameProviderAggregates { get; set; }
 
-    DbSet<BrandGameProviderAggregate> BrandGameProviderAggregates { get; set; }
+	DbSet<Round> Rounds { get; set; }
 
-    DbSet<GameProviderAggregate> GameProviderAggregates { get; set; }
+	DbSet<PlayerBonusAggregate> PlayerBonusAggregates { get; set; }
 
-    DbSet<Round> Rounds { get; set; }
+	DbSet<AggregateExecutionTime> AggregateExecutionTimes { get; set; }
 
-    DbSet<PlayerBonusAggregate> PlayerBonusAggregates { get; set; }
-    DbSet<AggregateExecutionTime> AggregateExecutionTimes { get; set; }
-    DbSet<Agent> Agents { get; set; }
+	DbSet<Agent> Agents { get; set; }
 
-    IDbConnection GetDbConnection();
+	IDbConnection GetDbConnection();
 
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
-    DbSet<T> Set<T>() where T : class;
+	DbSet<T> Set<T>() where T : class;
 
-    ChangeTracker GetChangeTracker();
+	ChangeTracker GetChangeTracker();
 }
