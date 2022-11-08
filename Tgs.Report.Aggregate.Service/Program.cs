@@ -6,6 +6,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.MessageQueue;
+using Tgs.PlayerBucket.Clients.DependencyInjection;
 using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Service.MessageHandlers;
@@ -80,7 +81,7 @@ builder.Services
 
 		options.ConnectionString = config.GetConnectionString("RedisConfigurationString");
 	})
-	.AddTgsLog();
+    .AddPlayerBucketClient();
 
 builder.Services
 	.AddMessageQueue()
