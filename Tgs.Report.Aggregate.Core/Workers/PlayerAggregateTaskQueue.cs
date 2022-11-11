@@ -1,7 +1,7 @@
 ﻿using System.Threading.Channels;
 
-namespace Tgs.Report.Aggregate.Core.Workers
-{
+namespace Tgs.Report.Aggregate.Core.Workers;
+
     public interface IPlayerAggregateTaskQueue
     {
         ValueTask QueuePlayerAggregateAsync(
@@ -45,4 +45,3 @@ namespace Tgs.Report.Aggregate.Core.Workers
             return workItem;
         }
     }
-}

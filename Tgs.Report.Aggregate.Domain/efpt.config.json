@@ -8,13 +8,22 @@
    "ModelNamespace": "Entities",
    "OutputContextPath": null,
    "OutputPath": "Entities",
+   "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "Tgs.Report.Aggregate.Domain",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 0,
    "SelectedToBeGenerated": 0,
    "Tables": [
       {
-         "Name": "dbo.player_buckets",
+         "Name": "bet.rounds",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dbo.adjust_player_records",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dbo.agents",
          "ObjectType": 0
       },
       {
@@ -26,19 +35,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "dbo.player_bucket_histories",
-         "ObjectType": 0
-      },
-      {
-         "Name": "dbo.adjust_player_records",
-         "ObjectType": 0
-      },
-      {
          "Name": "dbo.vip_levels",
-         "ObjectType": 0
-      },
-      {
-         "Name": "dbo.agents",
          "ObjectType": 0
       },
       {
@@ -50,7 +47,11 @@
          "ObjectType": 0
       },
       {
-         "Name": "report.round_aggregates",
+         "Name": "report.brand_game_provider_aggregates",
+         "ObjectType": 0
+      },
+      {
+         "Name": "report.game_provider_aggregates",
          "ObjectType": 0
       },
       {
@@ -62,23 +63,15 @@
          "ObjectType": 0
       },
       {
-         "Name": "report.game_provider_aggregates",
-         "ObjectType": 0
-      },
-      {
-         "Name": "report.brand_game_provider_aggregates",
-         "ObjectType": 0
-      },
-      {
          "Name": "report.player_game_rebate_aggregates",
          "ObjectType": 0
       },
       {
-         "Name": "bet.rounds",
+         "Name": "report.round_aggregates",
          "ObjectType": 0
       }
    ],
-   "UiHint": "tgs",
+   "UiHint": "tgs-local",
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
    "UseDbContextSplitting": true,
@@ -95,5 +88,6 @@
    "UseNodaTime": false,
    "UseNullableReferences": true,
    "UseSchemaFolders": true,
-   "UseSpatial": true
+   "UseSpatial": true,
+   "UseT4": false
 }

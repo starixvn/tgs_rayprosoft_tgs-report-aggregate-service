@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 using OpenTelemetry.Exporter;
@@ -6,6 +6,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.MessageQueue;
+using Tgs.PlayerBucket.Clients.DependencyInjection;
 using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Service.MessageHandlers;
@@ -16,16 +17,13 @@ builder.Host.ConfigureAppConfiguration((_, builder) => builder
 	.AddJsonFile("/config/appsettings.json", true)
 	.AddEnvironmentVariables());
 
-builder.Host.ConfigureServices((context, services) =>
-{
-    services
-        .AddHostedService<PlayerAggregateBackground>()
-        .AddHostedService<GameProviderAggregateBackground>()
-        .AddHostedService<BrandGameProviderAggregateBackground>()
-        .AddSingleton<IPlayerAggregateTaskQueue>(_ => new PlayerAggregateTaskQueue(100))
-        .AddSingleton<IGameProviderAggregateTaskQueue>(_ => new GameProviderAggregateTaskQueue(100))
-        .AddSingleton<IBrandGameProviderAggregateTaskQueue>(_ => new BrandGameProviderAggregateTaskQueue(100));
-});
+builder.Host.ConfigureServices((context, services) => services
+	.AddHostedService<PlayerAggregateBackground>()
+	.AddHostedService<GameProviderAggregateBackground>()
+	.AddHostedService<BrandGameProviderAggregateBackground>()
+	.AddSingleton<IPlayerAggregateTaskQueue>(_ => new PlayerAggregateTaskQueue(100))
+	.AddSingleton<IGameProviderAggregateTaskQueue>(_ => new GameProviderAggregateTaskQueue(100))
+	.AddSingleton<IBrandGameProviderAggregateTaskQueue>(_ => new BrandGameProviderAggregateTaskQueue(100)));
 
 builder.Logging
 	.AddOpenTelemetry(options =>
@@ -83,7 +81,7 @@ builder.Services
 
 		options.ConnectionString = config.GetConnectionString("RedisConfigurationString");
 	})
-	.AddTgsLog();
+    .AddPlayerBucketClient();
 
 builder.Services
 	.AddMessageQueue()
