@@ -1,31 +1,30 @@
-﻿using System.Transactions;
-using MediatR;
+﻿using MediatR;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+using Tgs.Service.PlayerBuckets;
 
 namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate;
 
-public class
-	ManualFillPlayerBucketMinutelyHandler : IRequestHandler<ManualFillPlayerBucketMinutelyRequest,
-		MessageResponse>
+public class ManualFillPlayerBucketMinutelyHandler : IRequestHandler<ManualFillPlayerBucketMinutelyRequest, MessageResponse>
 {
-	private readonly IPlayerBucketFactory _playerBucketRepository;
 	private readonly IRoundFactory _roundService;
+	private readonly IPlayerBucketClient _playerBucketClient;
 
-	public ManualFillPlayerBucketMinutelyHandler(IRoundFactory roundService,
-		IPlayerBucketFactory playerBucketRepository)
+	public ManualFillPlayerBucketMinutelyHandler(
+		IRoundFactory roundService,
+		IPlayerBucketClient playerBucketClient)
 	{
-		_roundService = roundService;
-		_playerBucketRepository = playerBucketRepository;
+		_roundService = roundService ?? throw new ArgumentNullException(nameof(roundService));
+		_playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
 	}
 
 	public async Task<MessageResponse> Handle(ManualFillPlayerBucketMinutelyRequest request,
 		CancellationToken cancellationToken)
 	{
-		if (!string.IsNullOrEmpty(request.Date) &&
-			DateTimeOffset.TryParse($"{request.Date} {request.Hour}:{request.FromMinute} +08:00", out var result) &&
-			DateTimeOffset.TryParse($"{request.Date} {request.Hour}:{request.ToMinute} +08:00", out _))
+		if (!string.IsNullOrEmpty(request.Date)
+			&& DateTimeOffset.TryParse($"{request.Date} {request.Hour}:{request.FromMinute} +08:00", out var result)
+			&& DateTimeOffset.TryParse($"{request.Date} {request.Hour}:{request.ToMinute} +08:00", out _))
 		{
 			var start = new DateTimeOffset(result.Year, result.Month, result.Day,
 				result.Hour,
@@ -35,16 +34,17 @@ public class
 				result.Hour,
 				request.ToMinute, 0, result.Offset).AddMinutes(1);
 
-			using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
 			var models = await _roundService.GetMinuteRoundAggregateAsync(start, end);
 
 			if (models.Length > 0 && request.FillPlayerBucket)
 			{
-				await _playerBucketRepository.FillInBucketAsync(start, end, models);
+				_ = await Task.WhenAll(models.Select(model => Task.Run(() => _playerBucketClient.FillInBucketAsync(
+					model.PlayerCode,
+					model.Turnover,
+					FillType.Game,
+					model.RoundId.ToString(),
+					cancellationToken)))).ConfigureAwait(false);
 			}
-
-			scope.Complete();
 
 			return new() { Valid = true };
 		}

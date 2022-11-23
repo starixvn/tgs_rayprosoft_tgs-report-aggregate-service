@@ -63,35 +63,4 @@ public static class QueryableExtensions
 
 		return source;
 	}
-
-	public static async Task<IEnumerable<T>> Where<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
-	{
-		var results = new ConcurrentQueue<T>();
-		var tasks = source.Select(async x =>
-		{
-			if (await predicate(x))
-			{
-				results.Enqueue(x);
-			}
-		});
-		await Task.WhenAll(tasks);
-
-		return results;
-	}
-
-	public static async Task<IEnumerable<T>> Where<T>(this IEnumerable<T> source,
-		Func<T, ValueTask<bool>> predicate)
-	{
-		var results = new ConcurrentQueue<T>();
-		var tasks = source.Select(async x =>
-		{
-			if (await predicate(x))
-			{
-				results.Enqueue(x);
-			}
-		});
-		await Task.WhenAll(tasks);
-
-		return results;
-	}
 }

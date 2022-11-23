@@ -23,15 +23,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.HasIndex(e => new { e.ClosedOn, e.BrandId }, "ix_rounds_closed_on_brand_id");
 
-            entity.HasIndex(e => e.CreatedOn, "ix_rounds_created_on")
-                .HasMethod("brin");
-
-            entity.HasIndex(e => e.ExternalClosedOn, "ix_rounds_external_closed_on")
-                .HasMethod("brin");
-
             entity.HasIndex(e => new { e.ExternalClosedOn, e.GameProviderId }, "ix_rounds_external_closed_on_game_provider_id");
-
-            entity.HasIndex(e => new { e.ExternalRoundId, e.PlayerCode, e.GameProviderId, e.GameId }, "ix_rounds_external_round_id_composite");
 
             entity.HasIndex(e => e.GameId, "ix_rounds_game_id");
 

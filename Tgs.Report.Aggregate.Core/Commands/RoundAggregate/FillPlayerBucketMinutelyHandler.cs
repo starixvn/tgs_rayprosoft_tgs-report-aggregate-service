@@ -2,21 +2,21 @@
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+using Tgs.Service.PlayerBuckets;
 
 namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate;
 
-public class
-	FillPlayerBucketMinutelyHandler : IRequestHandler<FillPlayerBucketMinutelyRequest,
-		MessageResponse>
+public class FillPlayerBucketMinutelyHandler : IRequestHandler<FillPlayerBucketMinutelyRequest, MessageResponse>
 {
-	private readonly IPlayerBucketFactory _playerBucketFactory;
+	private readonly IPlayerBucketClient _playerBucketClient;
 	private readonly IRoundFactory _roundFactory;
 
-	public FillPlayerBucketMinutelyHandler(IPlayerBucketFactory playerBucketFactory,
+	public FillPlayerBucketMinutelyHandler(
+		IPlayerBucketClient playerBucketClient,
 		IRoundFactory roundFactory)
 	{
-		_roundFactory = roundFactory;
-		_playerBucketFactory = playerBucketFactory;
+		_playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+		_roundFactory = roundFactory ?? throw new ArgumentNullException(nameof(roundFactory));
 	}
 
 	public async Task<MessageResponse> Handle(FillPlayerBucketMinutelyRequest request,
@@ -34,10 +34,12 @@ public class
 
 		var models = await _roundFactory.GetMinuteRoundAggregateAsync(start, end);
 
-		if (models.Length > 0)
-		{
-			await _playerBucketFactory.FillInBucketAsync(start, end, models);
-		}
+		await Task.WhenAll(models.Select(model => Task.Run(async () => await _playerBucketClient.FillInBucketAsync(
+			model.PlayerCode,
+			model.Turnover,
+			FillType.Game,
+			model.RoundId.ToString(),
+			cancellationToken).ConfigureAwait(false)))).ConfigureAwait(false);
 
 		return new() { Valid = true };
 	}
