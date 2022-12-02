@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
+using Polly;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
@@ -10,16 +12,19 @@ public class FillPlayerBucketMinutelyHandler : IRequestHandler<FillPlayerBucketM
 {
 	private readonly IPlayerBucketClient _playerBucketClient;
 	private readonly IRoundFactory _roundFactory;
+    private readonly ILogger<FillPlayerBucketMinutelyHandler> _logger;
 
-	public FillPlayerBucketMinutelyHandler(
+    public FillPlayerBucketMinutelyHandler(
 		IPlayerBucketClient playerBucketClient,
-		IRoundFactory roundFactory)
+		IRoundFactory roundFactory,
+        ILogger<FillPlayerBucketMinutelyHandler> logger)
 	{
 		_playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
 		_roundFactory = roundFactory ?? throw new ArgumentNullException(nameof(roundFactory));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
-	public async Task<MessageResponse> Handle(FillPlayerBucketMinutelyRequest request,
+    public async Task<MessageResponse> Handle(FillPlayerBucketMinutelyRequest request,
 		CancellationToken cancellationToken)
 	{
 		var previousMinute = request.StartDate.ToOffset(new(8, 0, 0));
@@ -34,12 +39,28 @@ public class FillPlayerBucketMinutelyHandler : IRequestHandler<FillPlayerBucketM
 
 		var models = await _roundFactory.GetMinuteRoundAggregateAsync(start, end);
 
-		await Task.WhenAll(models.Select(model => Task.Run(async () => await _playerBucketClient.FillInBucketAsync(
-			model.PlayerCode,
-			model.Turnover,
-			FillType.Game,
-			model.RoundId.ToString(),
-			cancellationToken).ConfigureAwait(false)))).ConfigureAwait(false);
+		await Task.WhenAll(models.Select(model => Task.Run(async () =>
+        {
+            await Policy.Handle<Exception>()
+                .RetryAsync(
+                    1,
+                    (exception, retryCount) => _logger.LogError(
+                        "PlayerCode:{model.PlayerCode} Turnover:{model.Turnover} retryCount:{retryCount} Exception:{exception}",
+                        model.PlayerCode,
+                        model.Turnover,
+                        retryCount,
+                        exception))
+                .ExecuteAsync(
+                    async () =>
+                    {
+                        await _playerBucketClient.FillInBucketAsync(
+                            model.PlayerCode,
+                            model.Turnover,
+                            FillType.Game,
+                            model.RoundId.ToString(),
+                            cancellationToken).ConfigureAwait(false);
+                    });
+        }, cancellationToken))).ConfigureAwait(false);
 
 		return new() { Valid = true };
 	}
