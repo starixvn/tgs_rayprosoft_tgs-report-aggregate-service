@@ -39,28 +39,25 @@ public class FillPlayerBucketMinutelyHandler : IRequestHandler<FillPlayerBucketM
 
 		var models = await _roundFactory.GetMinuteRoundAggregateAsync(start, end);
 
-		await Task.WhenAll(models.Select(model => Task.Run(async () =>
-        {
-            await Policy.Handle<Exception>()
-                .RetryAsync(
-                    1,
-                    (exception, retryCount) => _logger.LogError(
-                        "PlayerCode:{model.PlayerCode} Turnover:{model.Turnover} retryCount:{retryCount} Exception:{exception}",
-                        model.PlayerCode,
-                        model.Turnover,
-                        retryCount,
-                        exception))
-                .ExecuteAsync(
-                    async () =>
-                    {
-                        await _playerBucketClient.FillInBucketAsync(
+        await Task.WhenAll(models.Select(model => Task.Run(async () =>
+                await Policy.Handle<Exception>()
+                    .RetryAsync(
+                        1,
+                        (exception, retryCount) => _logger.LogError(
+                            "PlayerCode:{model.PlayerCode} Turnover:{model.Turnover} retryCount:{retryCount} Exception:{exception}",
                             model.PlayerCode,
                             model.Turnover,
-                            FillType.Game,
-                            model.RoundId.ToString(),
-                            cancellationToken).ConfigureAwait(false);
-                    });
-        }, cancellationToken))).ConfigureAwait(false);
+                            retryCount,
+                            exception))
+                    .ExecuteAsync(
+                        async () =>
+                            await _playerBucketClient.FillInBucketAsync(
+                                model.PlayerCode,
+                                model.Turnover,
+                                FillType.Game,
+                                model.RoundId.ToString(),
+                                cancellationToken).ConfigureAwait(false)), cancellationToken)))
+            .ConfigureAwait(false);
 
 		return new() { Valid = true };
 	}
