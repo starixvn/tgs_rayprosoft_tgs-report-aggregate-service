@@ -81,7 +81,9 @@ builder.Services
 
 		options.ConnectionString = config.GetConnectionString("RedisConfigurationString");
 	})
-    .AddPlayerBucketClient();
+    .AddPlayerBucketClient(httpClientBuilder => httpClientBuilder
+        .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
+            builder.Configuration.GetValue<Uri>("ReportAggregate:PlayerBucketBaseUrl")));
 
 builder.Services
 	.AddMessageQueue()

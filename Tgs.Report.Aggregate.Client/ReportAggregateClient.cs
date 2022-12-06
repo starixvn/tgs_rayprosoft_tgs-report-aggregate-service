@@ -27,7 +27,7 @@ namespace Tgs.Report.Aggregate.Client
 			_ = response.EnsureSuccessStatusCode();
 
 			return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-				new() { PropertyNameCaseInsensitive = true })!;
+				new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 		}
 
 		public async ValueTask<MessageResponse> CreateRoundAggregateAsync(
@@ -42,7 +42,7 @@ namespace Tgs.Report.Aggregate.Client
 			_ = response.EnsureSuccessStatusCode();
 
 			return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-				new() { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 		}
 
 		public async ValueTask<MessageResponse> FillPlayerBucketMinutelyAsync(
@@ -57,7 +57,7 @@ namespace Tgs.Report.Aggregate.Client
 			_ = response.EnsureSuccessStatusCode();
 
 			return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-				new() { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 		}
 
 		public async ValueTask<MessageResponse> ManualCreatePlayerAggregateAsync(
@@ -72,7 +72,7 @@ namespace Tgs.Report.Aggregate.Client
 			_ = response.EnsureSuccessStatusCode();
 
 			return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-				new() { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 		}
 
 		public async ValueTask<MessageResponse> ManualCreateRoundAggregateAsync(
@@ -87,7 +87,7 @@ namespace Tgs.Report.Aggregate.Client
 			_ = response.EnsureSuccessStatusCode();
 
 			return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-				new() { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 		}
 
 		public async ValueTask<MessageResponse> ManualFillPlayerBucketMinutelyAsync(
@@ -103,7 +103,7 @@ namespace Tgs.Report.Aggregate.Client
 			_ = response.EnsureSuccessStatusCode();
 
 			return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-				new() { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 		}
 
 		public async ValueTask<MessageResponse> RemoveBrandGameProviderAggregateAsync(
