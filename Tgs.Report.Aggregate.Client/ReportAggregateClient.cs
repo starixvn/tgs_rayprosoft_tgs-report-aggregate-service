@@ -9,7 +9,7 @@ namespace Tgs.Report.Aggregate.Client
     public class ReportAggregateClient : IReportAggregateClient
     {
         private readonly HttpClient _client;
-        private readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        private readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
         public ReportAggregateClient(HttpClient client)
         {
@@ -28,7 +28,7 @@ namespace Tgs.Report.Aggregate.Client
             _ = response.EnsureSuccessStatusCode();
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-                jsonSerializerOptions)!;
+                _jsonSerializerOptions)!;
         }
 
         public async ValueTask<MessageResponse> CreateRoundAggregateAsync(
@@ -43,7 +43,7 @@ namespace Tgs.Report.Aggregate.Client
             _ = response.EnsureSuccessStatusCode();
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-                jsonSerializerOptions)!;
+                _jsonSerializerOptions)!;
         }
 
         public async ValueTask<MessageResponse> FillPlayerBucketMinutelyAsync(
@@ -58,7 +58,7 @@ namespace Tgs.Report.Aggregate.Client
             _ = response.EnsureSuccessStatusCode();
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-                jsonSerializerOptions)!;
+                _jsonSerializerOptions)!;
         }
 
         public async ValueTask<MessageResponse> ManualCreatePlayerAggregateAsync(
@@ -73,7 +73,7 @@ namespace Tgs.Report.Aggregate.Client
             _ = response.EnsureSuccessStatusCode();
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-                jsonSerializerOptions)!;
+                _jsonSerializerOptions)!;
         }
 
         public async ValueTask<MessageResponse> ManualCreateRoundAggregateAsync(
@@ -88,7 +88,7 @@ namespace Tgs.Report.Aggregate.Client
             _ = response.EnsureSuccessStatusCode();
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-                jsonSerializerOptions)!;
+                _jsonSerializerOptions)!;
         }
 
         public async ValueTask<MessageResponse> ManualFillPlayerBucketMinutelyAsync(
@@ -104,7 +104,7 @@ namespace Tgs.Report.Aggregate.Client
             _ = response.EnsureSuccessStatusCode();
 
             return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
-                jsonSerializerOptions)!;
+                _jsonSerializerOptions)!;
         }
 
         public async ValueTask<MessageResponse> RemoveBrandGameProviderAggregateAsync(
@@ -119,7 +119,7 @@ namespace Tgs.Report.Aggregate.Client
 
             return JsonSerializer.Deserialize<MessageResponse>(
                 await response.Content.ReadAsStringAsync(),
-                jsonSerializerOptions)!;
+                _jsonSerializerOptions)!;
         }
 
         public async ValueTask<MessageResponse> RemoveGameProviderAggregateAsync(
@@ -134,7 +134,7 @@ namespace Tgs.Report.Aggregate.Client
 
             return JsonSerializer.Deserialize<MessageResponse>(
                 await response.Content.ReadAsStringAsync(),
-                jsonSerializerOptions)!;
+                _jsonSerializerOptions)!;
         }
     }
 }
