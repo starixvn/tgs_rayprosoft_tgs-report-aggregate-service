@@ -5,4 +5,7 @@ metadata:
 data:
   appsettings.json: |
     {
+      "ReportAggregate": {
+        "PlayerBucketBaseUrl": "http://tgs-playerbucket-service"
+      }
     }
