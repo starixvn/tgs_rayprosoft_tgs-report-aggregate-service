@@ -280,8 +280,8 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 				AgentDividendPercentage = x.Agent == null ? null : x.Agent.DividendPercentage,
 				Path = x.Agent == null ? (LTree?)null : x.Agent.Path,
 				ChiefAgentId = x.Agent == null ? (LTree?)null : x.Agent.Path.Subpath(0, 1),
-				RegisteredCount = x.RegisteredOn != null ? 1 : 0,
-				FirstFundInCount = x.FirstDepositOn != null ? 1 : 0
+				RegisteredCount = x.RegisteredOn != null && x.RegisteredOn >= utcStart && x.RegisteredOn < utcEnd ? 1 : 0,
+				FirstFundInCount = x.FirstDepositOn != null && x.FirstDepositOn >= utcStart && x.FirstDepositOn < utcEnd ? 1 : 0
 			})
 			.ToArrayAsync()
 			.ConfigureAwait(false);
