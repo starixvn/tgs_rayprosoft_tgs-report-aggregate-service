@@ -40,6 +40,8 @@ public class FillPlayerBucketBackground : BackgroundService
 
                 var request = await _taskQueue.DequeueAsync(stoppingToken);
 
+                _logger.LogInformation("Fill player bucket execute start time {request.StartTime}.", request.StartTime);
+
                 await Policy.Handle<Exception>()
                     .RetryAsync(
                         3,
