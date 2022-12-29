@@ -3,4 +3,5 @@
     public record FillPlayerBucketQueueModel(
         Guid RoundId,
         string PlayerCode,
-        decimal Turnover);
+        decimal Turnover,
+        DateTimeOffset StartTime);
