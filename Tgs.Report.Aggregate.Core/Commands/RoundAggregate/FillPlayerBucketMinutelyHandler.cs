@@ -44,7 +44,7 @@ public class FillPlayerBucketMinutelyHandler : IRequestHandler<FillPlayerBucketM
                 model.RoundId, 
                 model.PlayerCode,
                 model.Turnover,
-                DateTime.UtcNow));
+                start));
         }
 
         return new() { Valid = true };
