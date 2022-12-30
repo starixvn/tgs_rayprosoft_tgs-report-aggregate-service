@@ -1,0 +1,44 @@
+﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
+using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
+using Tgs.Report.Aggregate.Core.Commands.RoundAggregate;
+using Tgs.Report.Aggregate.Core.Workers;
+using Tgs.Report.Aggregate.Domain.Interfaces;
+using Tgs.Report.Aggregate.Domain.Models;
+using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+
+namespace Tgs.Report.Aggregate.UnitTest;
+
+public sealed class FillPlayerBucketTest
+{
+    [Test]
+    public async Task Fill_Player_Bucket_Enqueue()
+    {
+        var fakeFillPlayerBucketTaskQueue = Substitute.For<IFillPlayerBucketTaskQueue>();
+        var fakeRoundFactory = Substitute.For<IRoundFactory>();
+        var fakeLogger = Substitute.For<ILogger<FillPlayerBucketMinutelyHandler>>();
+
+        var sut = new FillPlayerBucketMinutelyHandler(fakeFillPlayerBucketTaskQueue, fakeRoundFactory, fakeLogger);
+
+        var models = new RoundMinutelyModel[]
+        {
+            new RoundMinutelyModel
+            {
+                RoundId = Guid.NewGuid(),
+                PlayerCode = "playerCode",
+                Turnover = 100M
+            }
+        };
+
+        _ = fakeRoundFactory.GetMinuteRoundAggregateAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>()).Returns(models);
+
+        var request = new FillPlayerBucketMinutelyRequest(DateTimeOffset.UtcNow);
+
+        _ = await sut.Handle(request, default);
+
+        await fakeFillPlayerBucketTaskQueue.Received(1).QueueFillPlayerBucketAsync(
+            Arg.Any<FillPlayerBucketQueueModel>());
+    }
+}

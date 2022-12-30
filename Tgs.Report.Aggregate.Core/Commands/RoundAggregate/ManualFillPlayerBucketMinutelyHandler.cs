@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
@@ -9,14 +10,14 @@ namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate;
 public class ManualFillPlayerBucketMinutelyHandler : IRequestHandler<ManualFillPlayerBucketMinutelyRequest, MessageResponse>
 {
 	private readonly IRoundFactory _roundService;
-	private readonly IPlayerBucketClient _playerBucketClient;
+    private readonly IFillPlayerBucketTaskQueue _taskQueue;
 
-	public ManualFillPlayerBucketMinutelyHandler(
+    public ManualFillPlayerBucketMinutelyHandler(
 		IRoundFactory roundService,
-		IPlayerBucketClient playerBucketClient)
+        IFillPlayerBucketTaskQueue taskQueue)
 	{
 		_roundService = roundService ?? throw new ArgumentNullException(nameof(roundService));
-		_playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+        _taskQueue = taskQueue ?? throw new ArgumentNullException(nameof(taskQueue));
 	}
 
 	public async Task<MessageResponse> Handle(ManualFillPlayerBucketMinutelyRequest request,
@@ -38,15 +39,17 @@ public class ManualFillPlayerBucketMinutelyHandler : IRequestHandler<ManualFillP
 
 			if (models.Length > 0 && request.FillPlayerBucket)
 			{
-				_ = await Task.WhenAll(models.Select(model => Task.Run(() => _playerBucketClient.FillInBucketAsync(
-					model.PlayerCode,
-					model.Turnover,
-					FillType.Game,
-					model.RoundId.ToString(),
-					cancellationToken)))).ConfigureAwait(false);
+                foreach (var model in models)
+                {
+                    await _taskQueue.QueueFillPlayerBucketAsync(new FillPlayerBucketQueueModel(
+                        model.RoundId,
+                        model.PlayerCode,
+                        model.Turnover,
+                        start));
+                }
 			}
 
-			return new() { Valid = true };
+            return new() { Valid = true };
 		}
 
 		return new MessageResponse { Valid = false, Message = "Date is invalid." };
