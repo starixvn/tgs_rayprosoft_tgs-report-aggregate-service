@@ -23,6 +23,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.HasIndex(e => new { e.ReportDate, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_aggregates_multiple_keys");
 
+            entity.HasIndex(e => new { e.ReportDateTime, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_aggregates_new_multiple_keys");
+
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.AgentAdjustAmount)
@@ -116,6 +118,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.RegisteredCount).HasColumnName("registered_count");
 
             entity.Property(e => e.ReportDate).HasColumnName("report_date");
+
+            entity.Property(e => e.ReportDateTime).HasColumnName("report_date_time");
 
             entity.Property(e => e.SystemAdjustAmount)
                 .HasPrecision(18, 6)
