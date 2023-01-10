@@ -52,8 +52,7 @@ public class PlayerAggregateBackground : BackgroundService
 					scope.ServiceProvider.GetRequiredService<IAggregateExecutionTimeFactory>();
 				var bonusAggregateFactory = scope.ServiceProvider.GetRequiredService<IPlayerBonusAggregateFactory>();
 
-				var request =
-					await _taskQueue.DequeueAsync(stoppingToken);
+				var request = await _taskQueue.DequeueAsync(stoppingToken);
 
 				var havePlayerAggregateRecordIsExisted = await playerAggregateService.GetQueries().AnyAsync(x =>
 						x.ReportDate == request.ReportDate.ToUniversalTime() && x.Hour == request.Start.Hour,

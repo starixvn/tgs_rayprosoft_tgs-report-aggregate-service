@@ -28,6 +28,7 @@ public class PlayerGameAggregateFactory : IPlayerGameAggregateFactory
 			GameType = (short)model.GameType,
 			Hour = model.Hour,
 			ReportDate = model.ReportDate.UtcDateTime,
+            ReportDateTime = model.ReportDateTime.UtcDateTime,
 			CreatedOn = model.CreatedOn.UtcDateTime,
 			BetAmount = model.BetAmount.Truncate(2),
 			ValidBetAmount = model.ValidBetAmount.Truncate(2),

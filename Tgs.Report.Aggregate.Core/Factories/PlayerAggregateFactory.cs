@@ -60,6 +60,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 			PlayerCode = model.PlayerCode,
 			Hour = model.Hour,
 			ReportDate = model.ReportDate.UtcDateTime,
+			ReportDateTime = model.ReportDateTime.UtcDateTime,
 			CreatedOn = DateTime.UtcNow,
 			RegisteredCount = model.RegisteredCount,
 			FirstFundInCount = model.FirstFundInCount,
@@ -314,6 +315,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 				BrandId = x.BrandId,
 				Hour = start.Hour,
 				ReportDate = reportDate.ToUniversalTime(),
+				ReportDateTime = utcStart,
 				AgentId = x.AgentId,
 				PlayerCode = x.PlayerCode,
 				RegisteredCount = list.Sum(l => l.RegisteredCount),
@@ -358,7 +360,8 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 				PlayerCode = x.PlayerCode,
 				Hour = start.Hour,
 				ReportDate = x.ReportDate,
-				RebateAmount = x.RebateAmount,
+                ReportDateTime = utcStart,
+                RebateAmount = x.RebateAmount,
 				PromotionAmount = x.PromotionAmount,
 				UpgradeAmount = x.UpgradeAmount,
 				SeasonAmount = x.SeasonAmount,
@@ -416,8 +419,9 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 						(short)x.GameType,
 						aggregate.Select(a => ((short)a.GameType, a.Turnover))),
 					CreatedOn = DateTimeOffset.UtcNow,
-					ReportDate = reportDate.ToUniversalTime()
-				}).ToArray();
+					ReportDate = reportDate.UtcDateTime,
+                    ReportDateTime = utcStart,
+                }).ToArray();
 
 		return (playerAggregate, playerAggregateByGameType, playerBonuses);
 	}

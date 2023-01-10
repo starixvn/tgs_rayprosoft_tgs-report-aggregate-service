@@ -24,6 +24,7 @@ public class PlayerBonusAggregateFactory : IPlayerBonusAggregateFactory
 			PlayerCode = model.PlayerCode,
 			Hour = model.Hour,
 			ReportDate = model.ReportDate.UtcDateTime,
+            ReportDateTime = model.ReportDateTime.UtcDateTime,
 			CreatedOn = DateTime.UtcNow,
 			RebateAmount = model.RebateAmount.Truncate(2),
 			PromotionAmount = model.PromotionAmount.Truncate(2),
