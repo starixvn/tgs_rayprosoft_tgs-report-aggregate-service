@@ -23,8 +23,6 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.HasIndex(e => new { e.ReportDate, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_aggregates_multiple_keys");
 
-            entity.HasIndex(e => new { e.ReportDateTime, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_aggregates_new_multiple_keys");
-
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.AgentAdjustAmount)

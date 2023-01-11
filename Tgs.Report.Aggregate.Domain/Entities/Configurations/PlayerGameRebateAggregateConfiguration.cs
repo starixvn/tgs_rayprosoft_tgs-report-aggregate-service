@@ -18,9 +18,6 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.HasIndex(e => new { e.ReportDate, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_game_rebate_aggregates_multiple_keys");
 
-            entity.HasIndex(e => new { e.ReportDateTime, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_game_rebate_aggregates_new_multiple_keys")
-                .HasSortOrder(new[] { SortOrder.Descending, SortOrder.Ascending, SortOrder.Ascending, SortOrder.Ascending });
-
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.AgentId).HasColumnName("agent_id");
