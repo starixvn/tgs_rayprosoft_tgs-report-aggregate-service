@@ -7,32 +7,32 @@ namespace Tgs.Report.Aggregate.Core.Factories;
 
 public class PlayerBonusAggregateFactory : IPlayerBonusAggregateFactory
 {
-	private readonly ITgsRepository _repository;
+    private readonly ITgsRepository _repository;
 
-	public PlayerBonusAggregateFactory(ITgsRepository repository)
-	{
-		_repository = repository;
-	}
+    public PlayerBonusAggregateFactory(ITgsRepository repository)
+    {
+        _repository = repository;
+    }
 
-	public async ValueTask<int> CreatePlayerBonusAggregatesAsync(
-		PlayerBonusAggregateModel[] aggregate, CancellationToken cancellationToken)
-	{
-		_ = _repository.PlayerBonusAggregates.AddRangeAsync(aggregate.Select(model => new PlayerBonusAggregate
-		{
-			BrandId = model.BrandId,
-			AgentId = model.AgentId,
-			PlayerCode = model.PlayerCode,
-			Hour = model.Hour,
-			ReportDate = model.ReportDate.UtcDateTime,
+    public async ValueTask<int> CreatePlayerBonusAggregatesAsync(
+        PlayerBonusAggregateModel[] aggregate, CancellationToken cancellationToken)
+    {
+        _ = _repository.PlayerBonusAggregates.AddRangeAsync(aggregate.Select(model => new PlayerBonusAggregate
+        {
+            BrandId = model.BrandId,
+            AgentId = model.AgentId,
+            PlayerCode = model.PlayerCode,
+            Hour = model.Hour,
+            ReportDate = model.ReportDate.UtcDateTime,
             ReportDateTime = model.ReportDateTime.UtcDateTime,
-			CreatedOn = DateTime.UtcNow,
-			RebateAmount = model.RebateAmount.Truncate(2),
-			PromotionAmount = model.PromotionAmount.Truncate(2),
-			UpgradeAmount = model.UpgradeAmount.Truncate(2),
-			SeasonAmount = model.SeasonAmount.Truncate(2),
-			BirthdayAmount = model.BirthdayAmount.Truncate(2)
-		}), cancellationToken).ConfigureAwait(false);
+            CreatedOn = DateTime.UtcNow,
+            RebateAmount = model.RebateAmount.Truncate(2),
+            PromotionAmount = model.PromotionAmount.Truncate(2),
+            UpgradeAmount = model.UpgradeAmount.Truncate(2),
+            SeasonAmount = model.SeasonAmount.Truncate(2),
+            BirthdayAmount = model.BirthdayAmount.Truncate(2)
+        }), cancellationToken).ConfigureAwait(false);
 
-		return await _repository.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-	}
+        return await _repository.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
 }
