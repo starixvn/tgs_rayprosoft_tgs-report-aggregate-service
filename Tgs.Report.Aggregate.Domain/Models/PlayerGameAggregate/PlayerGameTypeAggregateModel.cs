@@ -48,4 +48,6 @@ public record PlayerGameTypeAggregateModel
     public DateTimeOffset CreatedOn { get; set; }
 
     public DateTimeOffset ReportDate { get; set; }
+
+    public DateTimeOffset ReportDateTime { get; set; }
 }
