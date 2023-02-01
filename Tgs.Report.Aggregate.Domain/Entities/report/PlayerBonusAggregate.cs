@@ -19,5 +19,6 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public decimal UpgradeAmount { get; set; }
         public decimal SeasonAmount { get; set; }
         public decimal BirthdayAmount { get; set; }
+        public DateTime? ReportDateTime { get; set; }
     }
 }

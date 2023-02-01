@@ -41,5 +41,6 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public decimal? AgentDividendPercentage { get; set; }
         public string? AgentDividendPercentageTreeData { get; set; }
         public decimal? ChiefAgentDividendPercentage { get; set; }
+        public DateTime? ReportDateTime { get; set; }
     }
 }
