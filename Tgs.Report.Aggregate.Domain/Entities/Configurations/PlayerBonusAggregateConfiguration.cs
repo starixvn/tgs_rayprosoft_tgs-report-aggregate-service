@@ -50,6 +50,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
                 .HasPrecision(18, 6)
                 .HasColumnName("rebate_amount");
 
+            entity.Property(e => e.ReportDateTime).HasColumnName("report_date_time");
+
             entity.Property(e => e.SeasonAmount)
                 .HasPrecision(18, 6)
                 .HasColumnName("season_amount");

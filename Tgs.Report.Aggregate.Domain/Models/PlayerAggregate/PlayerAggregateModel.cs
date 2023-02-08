@@ -14,6 +14,8 @@ public record PlayerAggregateModel
 
     public DateTimeOffset ReportDate { get; set; }
 
+    public DateTimeOffset ReportDateTime { get; set; }
+
     public int RegisteredCount { get; set; }
 
     public int FirstFundInCount { get; set; }
