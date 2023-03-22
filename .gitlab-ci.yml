@@ -1,12 +1,4 @@
-include:
-  - project: rayprosoft/tgs-ci-scripts
-    ref: main
-    file: GitLab/Templates/gitlab-job-templates.yml
-
 variables:
-  ImageName: pgtgs/report-aggregate-service
-  TgsSettingKey: report-aggregate-service
-  HelmTemplateFolderName: report-aggregate-service
   BuildCacheKey: Tgs.Report.Aggregate.$CI_PIPELINE_IID
 
 stages:
