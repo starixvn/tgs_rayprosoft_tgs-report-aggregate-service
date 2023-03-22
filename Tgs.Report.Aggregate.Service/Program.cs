@@ -54,7 +54,8 @@ builder.Services
 	});
 
 builder.Services
-	.AddOpenTelemetryTracing(builder => builder
+    .AddOpenTelemetry()
+	.WithTracing(builder => builder
 		.SetResourceBuilder(ResourceBuilder.CreateDefault()
 			.AddEnvironmentVariableDetector())
 		.AddSource("Tgs.*")
@@ -64,6 +65,7 @@ builder.Services
 		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
 		.AddProfileViewExporter()
 		.AddOtlpExporter())
+    .Services
 	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
 		httpContext => !httpContext.Request.Path.HasValue
 			|| !httpContext.Request.Path.StartsWithSegments("/swagger")
