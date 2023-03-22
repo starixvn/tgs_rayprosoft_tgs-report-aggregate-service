@@ -15,7 +15,7 @@ build-code:
     - release
     - main
   cache:
-    key: $BuildCacheKey
+    key: Tgs.Report.Aggregate.$CI_PIPELINE_IID
     untracked: true
 
 unit-test:
