@@ -7,8 +7,6 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG BuildConfiguration=Release
-RUN --mount=type=secret,id=nuget,dst=/pat cp /pat ~/.nuget/NuGet/NuGet.Config
-RUN dotnet nuget remove source 'Microsoft Visual Studio Offline Packages' || true
 WORKDIR /src
 COPY ["nuget.config", "."]
 COPY ["Tgs.Report.Aggregate.Service/Tgs.Report.Aggregate.Service.csproj", "Tgs.Report.Aggregate.Service/"]
