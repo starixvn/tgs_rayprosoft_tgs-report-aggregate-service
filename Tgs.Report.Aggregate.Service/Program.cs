@@ -65,6 +65,7 @@ builder.Services
 		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
 		.AddProfileViewExporter()
 		.AddOtlpExporter())
+    .WithMetrics()
     .Services
 	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
 		httpContext => !httpContext.Request.Path.HasValue
