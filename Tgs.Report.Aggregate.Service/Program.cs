@@ -13,7 +13,7 @@ using Tgs.Report.Aggregate.Service.MessageHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.ConfigureAppConfiguration((_, builder) => builder
+builder.Host.ConfigureAppConfiguration((_, b) => b
 	.AddJsonFile("/config/appsettings.json", true)
 	.AddEnvironmentVariables());
 
@@ -35,8 +35,8 @@ builder.Logging
 		_ = options.AddFluentdForwardExporter(fluentOptions =>
 		{
 			var nodeIp = builder.Configuration.GetValue<string>("NODE_IP");
-			fluentOptions.Host = nodeIp;
-			fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME");
+			fluentOptions.Host = nodeIp!;
+			fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME")!;
 			fluentOptions.UseMessagePack();
 		});
 	});
@@ -54,7 +54,8 @@ builder.Services
 	});
 
 builder.Services
-	.AddOpenTelemetryTracing(builder => builder
+    .AddOpenTelemetry()
+	.WithTracing(builder => builder
 		.SetResourceBuilder(ResourceBuilder.CreateDefault()
 			.AddEnvironmentVariableDetector())
 		.AddSource("Tgs.*")
@@ -64,6 +65,7 @@ builder.Services
 		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
 		.AddProfileViewExporter()
 		.AddOtlpExporter())
+    .Services
 	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
 		httpContext => !httpContext.Request.Path.HasValue
 			|| !httpContext.Request.Path.StartsWithSegments("/swagger")
@@ -75,13 +77,13 @@ builder.Services
 builder.Services.AddProfileViewer();
 
 builder.Services
-	.AddTgsRepository(builder.Configuration.GetConnectionString("Tgs"))
+	.AddTgsRepository(builder.Configuration.GetConnectionString("Tgs")!)
 	.AddReportAggregateCore()
 	.AddRedis((options, sp) =>
 	{
 		var config = sp.GetRequiredService<IConfiguration>();
 
-		options.ConnectionString = config.GetConnectionString("RedisConfigurationString");
+		options.ConnectionString = config.GetConnectionString("RedisConfigurationString")!;
 	})
     .AddPlayerBucketClient(httpClientBuilder => httpClientBuilder
         .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
@@ -96,7 +98,7 @@ builder.Services
 			{
 				var configuration = sp.GetRequiredService<IConfiguration>();
 
-				options.Url = configuration.GetConnectionString("Nats");
+				options.Url = configuration.GetConnectionString("Nats")!;
 			});
 		_ = natsConfig.AddHandler<BrandGameProviderAggregateMessageHandler>("tgs.report.aggregate.brand.game.provider",
 			"tgs.report.aggregate");
