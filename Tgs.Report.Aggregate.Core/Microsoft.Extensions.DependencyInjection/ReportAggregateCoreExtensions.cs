@@ -9,7 +9,7 @@ public static class ReportAggregateCoreExtensions
 {
 	public static IServiceCollection AddReportAggregateCore(this IServiceCollection services)
 	{
-		_ = services.AddMediatR(Assembly.GetExecutingAssembly());
+        services.AddMediatR(r => r.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 		_ = services.AddTransient<IPlayerGameAggregateFactory, PlayerGameAggregateFactory>();
 		_ = services.AddTransient<IRoundAggregateFactory, RoundAggregateFactory>();
 		_ = services.AddTransient<IRoundFactory, RoundFactory>();

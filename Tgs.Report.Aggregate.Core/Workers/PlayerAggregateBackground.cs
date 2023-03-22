@@ -130,7 +130,7 @@ public class PlayerAggregateBackground : BackgroundService
 				var sendForVipLevelUpCalculation = new
 				{
 					ReportOn = request.ReportDate,
-					PlayerCodes = aggregates.Select(x => x.PlayerCode).ToArray()
+					PlayerCodes = aggregates.Where(x => x.BetAmount > 0).Select(x => x.PlayerCode).ToArray()
 				};
 
 				await messageSender.PublishAsync("tgs.viplevel.aggregate.server",

@@ -58,6 +58,7 @@ public class FillPlayerBucketBackground : BackgroundService
                                 request.Turnover,
                                 FillType.Game,
                                 request.RoundId.ToString(),
+                                $"fill player bucket. {request.StartTime}",
                                 stoppingToken).ConfigureAwait(false));
             }
             catch (Exception ex)
