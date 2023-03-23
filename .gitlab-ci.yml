@@ -8,7 +8,7 @@ stages:
 build-code:
   stage: build
   script:
-    - dotnet build -c $BuildConfiguration
+    - dotnet build -c Debug
   only:
     - merge_requests
     - develop
