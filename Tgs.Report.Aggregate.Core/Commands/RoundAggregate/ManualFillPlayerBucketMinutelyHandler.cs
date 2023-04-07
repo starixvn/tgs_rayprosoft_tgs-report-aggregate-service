@@ -44,7 +44,7 @@ public class ManualFillPlayerBucketMinutelyHandler : IRequestHandler<ManualFillP
                     await _taskQueue.QueueFillPlayerBucketAsync(new FillPlayerBucketQueueModel(
                         model.RoundId,
                         model.PlayerCode,
-                        model.Turnover,
+                        model.Turnover * model.EffectiveBettingPercentage / 100.0M,
                         start));
                 }
 			}
