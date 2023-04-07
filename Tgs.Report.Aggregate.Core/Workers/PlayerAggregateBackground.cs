@@ -64,7 +64,7 @@ public class PlayerAggregateBackground : BackgroundService
 
 				if (havePlayerAggregateRecordIsExisted || playerBonusAggregateRecordIsExisted)
 				{
-					_logger.LogWarning(
+					_logger.LogInformation(
 						"{request.ReportDate.Date} {request.Start.Hour} is already existed.",
 						request.ReportDate.Date,
 						request.Start.Hour);
