@@ -150,7 +150,7 @@ app.UseExceptionHandler(new ExceptionHandlerOptions
 
 			await messageSender.PublishAsync("report.error",
 					Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ReportErrorMessage(
-						$"{app.Environment}.report.aggregate: {exceptionFeature.Error.Message}"))))
+						$"{app.Environment.ApplicationName}.report.aggregate: {exceptionFeature.Error.StackTrace}"))))
 				.ConfigureAwait(false);
 
 			await context.Response.WriteAsJsonAsync(new MessageResponse
