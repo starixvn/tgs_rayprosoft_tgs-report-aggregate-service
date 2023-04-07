@@ -1,5 +1,7 @@
-﻿using MediatR;
+﻿using Castle.Core.Logging;
+using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
@@ -37,6 +39,8 @@ public class FillPlayerBucketMinutelyHandler : IRequestHandler<FillPlayerBucketM
 			previousMinute.Minute, 0, previousMinute.Offset).AddMinutes(1);
 
 		var models = await _roundFactory.GetMinuteRoundAggregateAsync(start, end);
+
+        _logger.LogDebug("player rounds :{models}", string.Join(", ",models.Select(x => new { x.RoundId, x.PlayerCode })));
 
         foreach (var model in models)
         {
