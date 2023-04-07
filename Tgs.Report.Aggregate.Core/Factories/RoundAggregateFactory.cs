@@ -18,7 +18,7 @@ public class RoundAggregateFactory : IRoundAggregateFactory
     public async ValueTask<RoundAggregateModel[]> GenerateRoundAggregateAsync(DateTimeOffset start,
         DateTimeOffset end)
     {
-        const string spName = "dbo.report_generate_round_aggregates";
+        const string spName = "select * from dbo.report_generate_round_aggregates(@_from,@_to,@_report_date,@_created_on,@_hour,@_minute)";
         var conn = _repository.GetDbConnection();
         var transaction = _repository.CurrentTransaction?.GetDbTransaction();
         var result = await conn.QueryAsync<RoundAggregateModel>(spName,
@@ -33,7 +33,7 @@ public class RoundAggregateFactory : IRoundAggregateFactory
                 { "_created_on", DateTimeOffset.UtcNow },
                 { "_hour", start.Hour },
                 { "_minute", start.Minute }
-            }, commandType: CommandType.StoredProcedure, transaction: transaction);
+            }, transaction: transaction);
 
         return result.ToArray();
     }
