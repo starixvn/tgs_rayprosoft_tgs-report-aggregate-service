@@ -3,12 +3,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tgs.Report.Aggregate.Domain.Entities
+namespace Tgs.Report.Aggregate.Domain.Entities;
+
+public partial class AggregateExecutionTime
 {
-    public partial class AggregateExecutionTime
-    {
-        public short AggregateType { get; set; }
-        public DateTime From { get; set; }
-        public DateTime To { get; set; }
-    }
+    public short AggregateType { get; set; }
+
+    public DateTime From { get; set; }
+
+    public DateTime To { get; set; }
 }
