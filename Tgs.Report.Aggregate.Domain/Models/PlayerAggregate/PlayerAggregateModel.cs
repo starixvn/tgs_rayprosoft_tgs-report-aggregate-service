@@ -63,4 +63,6 @@ public record PlayerAggregateModel
     public decimal? ChiefAgentDividendPercentage { get; set; }
 
     public string? AgentDividendPercentageTreeData { get; set; }
+
+    public int RoundCount { get; set; }
 }

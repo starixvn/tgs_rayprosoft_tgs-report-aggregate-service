@@ -18,6 +18,10 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
 
             entity.HasIndex(e => new { e.ReportDate, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_game_rebate_aggregates_multiple_keys");
 
+            entity.HasIndex(e => new { e.ReportDateTime, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_game_rebate_aggregates_new_multiple_keys")
+                .HasNullSortOrder(new[] { NullSortOrder.NullsLast, NullSortOrder.NullsLast, NullSortOrder.NullsLast, NullSortOrder.NullsLast })
+                .HasSortOrder(new[] { SortOrder.Descending, SortOrder.Ascending, SortOrder.Ascending, SortOrder.Ascending });
+
             entity.Property(e => e.Id).HasColumnName("id");
 
             entity.Property(e => e.AgentId).HasColumnName("agent_id");
@@ -51,6 +55,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.ReportDate).HasColumnName("report_date");
 
             entity.Property(e => e.ReportDateTime).HasColumnName("report_date_time");
+
+            entity.Property(e => e.RoundCount).HasColumnName("round_count");
 
             entity.Property(e => e.Turnover)
                 .HasPrecision(18, 6)

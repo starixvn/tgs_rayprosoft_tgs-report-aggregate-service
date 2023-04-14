@@ -23,5 +23,6 @@ namespace Tgs.Report.Aggregate.Domain.Entities
         public DateTime CreatedOn { get; set; }
         public int GameId { get; set; }
         public decimal OriginalTurnover { get; set; }
+        public int RoundCount { get; set; }
     }
 }
