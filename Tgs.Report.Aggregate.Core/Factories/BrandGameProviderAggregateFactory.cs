@@ -17,7 +17,7 @@ public class BrandGameProviderAggregateFactory : IBrandGameProviderAggregateFact
 	public async ValueTask GenerateBrandGameProviderAggregateAsync(Guid brandId, DateTimeOffset start,
 		DateTimeOffset end, int auditLogId)
 	{
-		const string spName = "dbo.report_generate_brand_game_provider_aggregate_by_closed_on";
+		const string spName = "select * from dbo.report_generate_brand_game_provider_aggregate_by_closed_on(@_from,@_to,@_brand_id,@_audit_log_id,@_created_on)";
 		var conn = _repository.GetDbConnection();
 		var transaction = _repository.CurrentTransaction?.GetDbTransaction();
 		_ = await conn.ExecuteAsync(
@@ -30,7 +30,6 @@ public class BrandGameProviderAggregateFactory : IBrandGameProviderAggregateFact
 				{ "_audit_log_id", auditLogId },
 				{ "_created_on", DateTimeOffset.UtcNow }
 			},
-			commandType: CommandType.StoredProcedure,
 			transaction: transaction).ConfigureAwait(false);
 	}
 

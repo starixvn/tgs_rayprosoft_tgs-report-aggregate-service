@@ -1,37 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>6e0b56f7-2fd7-4871-a0da-8008c6e68806</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<GlobalNugetConfig>$(UserProfile)\AppData\Roaming\NuGet\NuGet.Config</GlobalNugetConfig>
-		<GlobalNugetConfig Condition="'$(UserProfile)'==''">$(HOME)/.nuget/NuGet/NuGet.Config</GlobalNugetConfig>
-		<DockerfileBuildArguments>--build-arg "BuildConfiguration=$(Configuration)" --secret id=nuget,src="$(GlobalNugetConfig)"</DockerfileBuildArguments>
+		<DockerfileBuildArguments>--build-arg "BuildConfiguration=$(Configuration)"</DockerfileBuildArguments>
 		<DockerfileTag Condition="$(DockerfileTag) == ''">tgs-report-aggregate-service</DockerfileTag>
 
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FluentdForward.OpenTelemetry.MessagePack" Version="0.1.3" />
-		<PackageReference Include="MediatR" Version="10.0.1" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
-		<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.48">
+		<PackageReference Include="FluentdForward.OpenTelemetry.MessagePack" Version="0.2.0" />
+		<PackageReference Include="MediatR" Version="12.0.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.5.22">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
-		<PackageReference Include="OpenTelemetry" Version="1.2.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+		<PackageReference Include="OpenTelemetry" Version="1.4.0" />
 		<PackageReference Include="OpenTelemetry.Contrib.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta2" />
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.2.0" />
-		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9.2" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.4.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.2" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.2" />
 		<PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.2.1" />
 		<PackageReference Include="Tgs.Logging" Version="0.0.19" />
-		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.6" />
-		<PackageReference Include="Tgs.MessageQueue.RabbitMQ" Version="2.1.3" />
+		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.3.0" />
+		<PackageReference Include="Tgs.MessageQueue.RabbitMQ" Version="2.3.1" />
 	</ItemGroup>
 
 	<ItemGroup>
