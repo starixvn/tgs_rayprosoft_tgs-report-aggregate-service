@@ -45,6 +45,9 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.BetAmount)
             .HasPrecision(18, 6)
             .HasColumnName("bet_amount");
+            entity.Property(e => e.BirthdayAmount)
+            .HasPrecision(18, 6)
+            .HasColumnName("birthday_amount");
             entity.Property(e => e.BonusAdjustAmount)
             .HasPrecision(18, 6)
             .HasColumnName("bonus_adjust_amount");
@@ -96,12 +99,18 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.ReportDate).HasColumnName("report_date");
             entity.Property(e => e.ReportDateTime).HasColumnName("report_date_time");
             entity.Property(e => e.RoundCount).HasColumnName("round_count");
+            entity.Property(e => e.SeasonAmount)
+            .HasPrecision(18, 6)
+            .HasColumnName("season_amount");
             entity.Property(e => e.SystemAdjustAmount)
             .HasPrecision(18, 6)
             .HasColumnName("system_adjust_amount");
             entity.Property(e => e.Turnover)
             .HasPrecision(18, 6)
             .HasColumnName("turnover");
+            entity.Property(e => e.UpgradeAmount)
+            .HasPrecision(18, 6)
+            .HasColumnName("upgrade_amount");
             entity.Property(e => e.ValidBetAmount)
             .HasPrecision(18, 6)
             .HasColumnName("valid_bet_amount");

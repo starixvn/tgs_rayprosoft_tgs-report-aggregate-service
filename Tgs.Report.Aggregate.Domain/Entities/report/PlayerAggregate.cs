@@ -78,4 +78,10 @@ public partial class PlayerAggregate
     public DateTime? ReportDateTime { get; set; }
 
     public int RoundCount { get; set; }
+
+    public decimal BirthdayAmount { get; set; }
+
+    public decimal SeasonAmount { get; set; }
+
+    public decimal UpgradeAmount { get; set; }
 }

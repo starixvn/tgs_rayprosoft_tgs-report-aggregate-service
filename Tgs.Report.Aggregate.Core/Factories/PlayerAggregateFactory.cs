@@ -86,7 +86,10 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
             AgentDividendPercentage = model.AgentDividendPercentage,
             ChiefAgentDividendPercentage = model.ChiefAgentDividendPercentage,
             AgentDividendPercentageTreeData = model.AgentDividendPercentageTreeData,
-            RoundCount = model.RoundCount
+            RoundCount = model.RoundCount,
+            SeasonAmount = model.SeasonAmount,
+            UpgradeAmount = model.UpgradeAmount,
+            BirthdayAmount = model.BirthdayAmount
         }));
 
         return _repository.SaveChangesAsync();
@@ -349,7 +352,10 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                 ChiefAgentDividendPercentage = x.ChiefAgentId == null
                     ? 0M
                     : agents.FirstOrDefault(c => c.AgentId == Guid.Parse(x.ChiefAgentId))?.DividendPercentage,
-                RoundCount = list.Sum(l => l.RoundCount)
+                RoundCount = list.Sum(l => l.RoundCount),
+                SeasonAmount = list.Sum(l => l.SeasonAmount),
+                UpgradeAmount = list.Sum(l => l.UpgradeAmount),
+                BirthdayAmount = list.Sum(l => l.BirthdayAmount)
             }).ToArray();
 
         var playerBonuses = playerTotals
