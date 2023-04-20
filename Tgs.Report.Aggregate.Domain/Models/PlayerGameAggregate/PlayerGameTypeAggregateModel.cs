@@ -50,4 +50,6 @@ public record PlayerGameTypeAggregateModel
     public DateTimeOffset ReportDate { get; set; }
 
     public DateTimeOffset ReportDateTime { get; set; }
+
+    public int RoundCount { get; set; }
 }

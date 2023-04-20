@@ -89,4 +89,6 @@ public record AggregateModel
     public decimal VipVirtualSportsRebatePercentage { get; set; }
 
     public decimal VipLotteryRebatePercentage { get; set; }
+
+    public int RoundCount { get; set; }
 }
