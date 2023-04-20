@@ -64,28 +64,32 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
             CreatedOn = DateTime.UtcNow,
             RegisteredCount = model.RegisteredCount,
             FirstFundInCount = model.FirstFundInCount,
-            DepositAmount = model.DepositAmount.Truncate(2),
-            WithdrawalAmount = model.WithdrawalAmount.Truncate(2),
-            CompanyAdjustAmount = model.CompanyAdjustAmount.Truncate(2),
-            AgentAdjustAmount = model.AgentAdjustAmount.Truncate(2),
-            SystemAdjustAmount = model.SystemAdjustAmount.Truncate(2),
-            BonusAdjustAmount = model.BonusAdjustAmount.Truncate(2),
-            BonusAmount = model.BonusAmount.Truncate(2),
-            RebateAmount = model.RebateAmount.Truncate(2),
-            PromotionAmount = model.PromotionAmount.Truncate(2),
-            DividendAmount = model.DividendAmount.Truncate(2),
-            BetAmount = model.BetAmount.Truncate(2),
-            ValidBetAmount = model.ValidBetAmount.Truncate(2),
-            OriginalTurnover = model.OriginalTurnover.Truncate(2),
-            Turnover = model.Turnover.Truncate(2),
-            WinLossAmount = model.WinLossAmount.Truncate(2),
-            AllAgentRebateAmount = model.AllAgentRebateAmount.Truncate(2),
-            NoIncludeNetProfitCompanyAdjustAmount = model.NoIncludeNetProfitCompanyAdjustAmount.Truncate(2),
-            NoIncludeNetProfitAgentAdjustAmount = model.NoIncludeNetProfitAgentAdjustAmount.Truncate(2),
-            NoIncludeNetProfitBonusAdjustAmount = model.NoIncludeNetProfitBonusAdjustAmount.Truncate(2),
+            DepositAmount = model.DepositAmount,
+            WithdrawalAmount = model.WithdrawalAmount,
+            CompanyAdjustAmount = model.CompanyAdjustAmount,
+            AgentAdjustAmount = model.AgentAdjustAmount,
+            SystemAdjustAmount = model.SystemAdjustAmount,
+            BonusAdjustAmount = model.BonusAdjustAmount,
+            BonusAmount = model.BonusAmount,
+            RebateAmount = model.RebateAmount,
+            PromotionAmount = model.PromotionAmount,
+            DividendAmount = model.DividendAmount,
+            BetAmount = model.BetAmount,
+            ValidBetAmount = model.ValidBetAmount,
+            OriginalTurnover = model.OriginalTurnover,
+            Turnover = model.Turnover,
+            WinLossAmount = model.WinLossAmount,
+            AllAgentRebateAmount = model.AllAgentRebateAmount,
+            NoIncludeNetProfitCompanyAdjustAmount = model.NoIncludeNetProfitCompanyAdjustAmount,
+            NoIncludeNetProfitAgentAdjustAmount = model.NoIncludeNetProfitAgentAdjustAmount,
+            NoIncludeNetProfitBonusAdjustAmount = model.NoIncludeNetProfitBonusAdjustAmount,
             AgentDividendPercentage = model.AgentDividendPercentage,
             ChiefAgentDividendPercentage = model.ChiefAgentDividendPercentage,
-            AgentDividendPercentageTreeData = model.AgentDividendPercentageTreeData
+            AgentDividendPercentageTreeData = model.AgentDividendPercentageTreeData,
+            RoundCount = model.RoundCount,
+            SeasonAmount = model.SeasonAmount,
+            UpgradeAmount = model.UpgradeAmount,
+            BirthdayAmount = model.BirthdayAmount
         }));
 
         return _repository.SaveChangesAsync();
@@ -149,6 +153,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                 Turnover = x.r.Turnover,
                 ValidBetAmount = x.r.ValidBetAmount,
                 WinLossAmount = x.r.WinLoss,
+                RoundCount = x.r.RoundCount,
                 ReportDate = reportDate.ToUniversalTime()
             })
             .ToArrayAsync();
@@ -346,7 +351,11 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                 AgentDividendPercentageTreeData = GenerateAgentDividendPercentages(x.Path, agents),
                 ChiefAgentDividendPercentage = x.ChiefAgentId == null
                     ? 0M
-                    : agents.FirstOrDefault(c => c.AgentId == Guid.Parse(x.ChiefAgentId))?.DividendPercentage
+                    : agents.FirstOrDefault(c => c.AgentId == Guid.Parse(x.ChiefAgentId))?.DividendPercentage,
+                RoundCount = list.Sum(l => l.RoundCount),
+                SeasonAmount = list.Sum(l => l.SeasonAmount),
+                UpgradeAmount = list.Sum(l => l.UpgradeAmount),
+                BirthdayAmount = list.Sum(l => l.BirthdayAmount)
             }).ToArray();
 
         var playerBonuses = playerTotals
@@ -425,6 +434,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                     CreatedOn = DateTimeOffset.UtcNow,
                     ReportDate = reportDate.UtcDateTime,
                     ReportDateTime = utcStart,
+                    RoundCount = aggregate.Sum(a => a.RoundCount)
                 }).ToArray();
 
         return (playerAggregate, playerAggregateByGameType, playerBonuses);

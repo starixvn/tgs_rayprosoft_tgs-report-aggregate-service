@@ -30,18 +30,19 @@ public class PlayerGameAggregateFactory : IPlayerGameAggregateFactory
             ReportDate = model.ReportDate.UtcDateTime,
             ReportDateTime = model.ReportDateTime.UtcDateTime,
             CreatedOn = model.CreatedOn.UtcDateTime,
-            BetAmount = model.BetAmount.Truncate(2),
-            ValidBetAmount = model.ValidBetAmount.Truncate(2),
-            OriginalTurnover = model.OriginalTurnover.Truncate(2),
-            Turnover = model.Turnover.Truncate(2),
-            WinLoss = model.WinLoss.Truncate(2),
-            VipRebateAmount = model.VipRebateAmount.Truncate(2),
+            BetAmount = model.BetAmount,
+            ValidBetAmount = model.ValidBetAmount,
+            OriginalTurnover = model.OriginalTurnover,
+            Turnover = model.Turnover,
+            WinLoss = model.WinLoss,
+            VipRebateAmount = model.VipRebateAmount,
             VipLiveDealerRebatePercentage = model.VipLiveDealerRebatePercentage,
             VipSlotRebatePercentage = model.VipSlotRebatePercentage,
             VipCardGameRebatePercentage = model.VipCardGameRebatePercentage,
             VipSportsRebatePercentage = model.VipSportsRebatePercentage,
             VipVirtualSportsRebatePercentage = model.VipVirtualSportsRebatePercentage,
-            VipLotteryRebatePercentage = model.VipLotteryRebatePercentage
+            VipLotteryRebatePercentage = model.VipLotteryRebatePercentage,
+            RoundCount = model.RoundCount,
         }));
 
         return _repository.SaveChangesAsync();
