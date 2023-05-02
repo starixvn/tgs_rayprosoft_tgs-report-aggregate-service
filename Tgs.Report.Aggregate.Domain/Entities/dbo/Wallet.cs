@@ -3,25 +3,27 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tgs.Report.Aggregate.Domain.Entities
+namespace Tgs.Report.Aggregate.Domain.Entities;
+
+public partial class Wallet
 {
-    public partial class Wallet
-    {
-        public Wallet()
-        {
-            Transactions = new HashSet<Transaction>();
-        }
+    public Guid Id { get; set; }
 
-        public Guid Id { get; set; }
-        public string PlayerCode { get; set; } = null!;
-        public string CurrencyCode { get; set; } = null!;
-        public string ExternalCurrencyCode { get; set; } = null!;
-        public decimal Balance { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public DateTime UpdatedOn { get; set; }
-        public decimal LockedBalance { get; set; }
+    public string PlayerCode { get; set; } = null!;
 
-        public virtual Player PlayerCodeNavigation { get; set; } = null!;
-        public virtual ICollection<Transaction> Transactions { get; set; }
-    }
+    public string CurrencyCode { get; set; } = null!;
+
+    public string ExternalCurrencyCode { get; set; } = null!;
+
+    public decimal Balance { get; set; }
+
+    public DateTime CreatedOn { get; set; }
+
+    public DateTime UpdatedOn { get; set; }
+
+    public decimal LockedBalance { get; set; }
+
+    public virtual Player PlayerCodeNavigation { get; set; } = null!;
+
+    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

@@ -4,53 +4,81 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace Tgs.Report.Aggregate.Domain.Entities
+namespace Tgs.Report.Aggregate.Domain.Entities;
+
+public partial class Agent
 {
-    public partial class Agent
-    {
-        public Agent()
-        {
-            InverseParentAgent = new HashSet<Agent>();
-            Players = new HashSet<Player>();
-        }
+    public Guid Id { get; set; }
 
-        public Guid Id { get; set; }
-        public string Username { get; set; } = null!;
-        public string? RealName { get; set; }
-        public byte[] Password { get; set; } = null!;
-        public byte[] Salt { get; set; } = null!;
-        public byte[] WithdrawPassword { get; set; } = null!;
-        public byte[] WithdrawSalt { get; set; } = null!;
-        public short Status { get; set; }
-        public int AgentStatus { get; set; }
-        public int LevelType { get; set; }
-        public short Type { get; set; }
-        public string InvitationCode { get; set; } = null!;
-        public Guid BrandId { get; set; }
-        public Guid? ParentAgentId { get; set; }
-        public DateTime RegisteredOn { get; set; }
-        public Guid DefaultWalletId { get; set; }
-        public decimal CommissionPercentage { get; set; }
-        public decimal DividendPercentage { get; set; }
-        public decimal LiveDealerRebatePercentage { get; set; }
-        public decimal SlotRebatePercentage { get; set; }
-        public decimal LotteryRebatePercentage { get; set; }
-        public decimal CardGameRebatePercentage { get; set; }
-        public decimal SportsRebatePercentage { get; set; }
-        public decimal VirtualSportsRebatePercentage { get; set; }
-        public string? Remarks { get; set; }
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
-        public string? Qq { get; set; }
-        public string? Wechat { get; set; }
-        public string? CreatedByUsername { get; set; }
-        public string? UpdatedByUsername { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public DateTime UpdatedOn { get; set; }
-        public LTree Path { get; set; }
+    public string Username { get; set; } = null!;
 
-        public virtual Agent? ParentAgent { get; set; }
-        public virtual ICollection<Agent> InverseParentAgent { get; set; }
-        public virtual ICollection<Player> Players { get; set; }
-    }
+    public string? RealName { get; set; }
+
+    public byte[] Password { get; set; } = null!;
+
+    public byte[] Salt { get; set; } = null!;
+
+    public byte[] WithdrawPassword { get; set; } = null!;
+
+    public byte[] WithdrawSalt { get; set; } = null!;
+
+    public short Status { get; set; }
+
+    public int AgentStatus { get; set; }
+
+    public int LevelType { get; set; }
+
+    public short Type { get; set; }
+
+    public string InvitationCode { get; set; } = null!;
+
+    public Guid BrandId { get; set; }
+
+    public Guid? ParentAgentId { get; set; }
+
+    public DateTime RegisteredOn { get; set; }
+
+    public Guid DefaultWalletId { get; set; }
+
+    public decimal CommissionPercentage { get; set; }
+
+    public decimal DividendPercentage { get; set; }
+
+    public decimal LiveDealerRebatePercentage { get; set; }
+
+    public decimal SlotRebatePercentage { get; set; }
+
+    public decimal LotteryRebatePercentage { get; set; }
+
+    public decimal CardGameRebatePercentage { get; set; }
+
+    public decimal SportsRebatePercentage { get; set; }
+
+    public decimal VirtualSportsRebatePercentage { get; set; }
+
+    public string? Remarks { get; set; }
+
+    public string? Email { get; set; }
+
+    public string? Phone { get; set; }
+
+    public string? Qq { get; set; }
+
+    public string? Wechat { get; set; }
+
+    public string? CreatedByUsername { get; set; }
+
+    public string? UpdatedByUsername { get; set; }
+
+    public DateTime CreatedOn { get; set; }
+
+    public DateTime UpdatedOn { get; set; }
+
+    public LTree Path { get; set; }
+
+    public virtual ICollection<Agent> InverseParentAgent { get; set; } = new List<Agent>();
+
+    public virtual Agent? ParentAgent { get; set; }
+
+    public virtual ICollection<Player> Players { get; set; } = new List<Player>();
 }

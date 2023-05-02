@@ -26,11 +26,11 @@ public class PlayerBonusAggregateFactory : IPlayerBonusAggregateFactory
             ReportDate = model.ReportDate.UtcDateTime,
             ReportDateTime = model.ReportDateTime.UtcDateTime,
             CreatedOn = DateTime.UtcNow,
-            RebateAmount = model.RebateAmount.Truncate(2),
-            PromotionAmount = model.PromotionAmount.Truncate(2),
-            UpgradeAmount = model.UpgradeAmount.Truncate(2),
-            SeasonAmount = model.SeasonAmount.Truncate(2),
-            BirthdayAmount = model.BirthdayAmount.Truncate(2)
+            RebateAmount = model.RebateAmount,
+            PromotionAmount = model.PromotionAmount,
+            UpgradeAmount = model.UpgradeAmount,
+            SeasonAmount = model.SeasonAmount,
+            BirthdayAmount = model.BirthdayAmount
         }), cancellationToken).ConfigureAwait(false);
 
         return await _repository.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
