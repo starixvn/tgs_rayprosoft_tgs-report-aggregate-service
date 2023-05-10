@@ -5,12 +5,6 @@ metadata:
 data:
   appsettings.json: |
     {
-      "Logging": {
-        "LogLevel": {
-          "Default": "Debug",
-          "Microsoft.AspNetCore": "Warning"
-        }
-      },
       "ReportAggregate": {
         "PlayerBucketBaseUrl": "http://tgs-playerbucket-service"
       }
