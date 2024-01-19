@@ -5,19 +5,14 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Tgs.MessageQueue;
-using Tgs.PlayerBucket.Clients.DependencyInjection;
 using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Service.MessageHandlers;
+using Valhalla.MessageQueue;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.ConfigureAppConfiguration((_, b) => b
-	.AddJsonFile("/config/appsettings.json", true)
-	.AddEnvironmentVariables());
-
-builder.Host.ConfigureServices((context, services) => services
+builder.Services
 	.AddHostedService<PlayerAggregateBackground>()
 	.AddHostedService<GameProviderAggregateBackground>()
 	.AddHostedService<BrandGameProviderAggregateBackground>()
@@ -25,7 +20,7 @@ builder.Host.ConfigureServices((context, services) => services
     .AddSingleton<IPlayerAggregateTaskQueue>(_ => new PlayerAggregateTaskQueue(100))
 	.AddSingleton<IGameProviderAggregateTaskQueue>(_ => new GameProviderAggregateTaskQueue(100))
 	.AddSingleton<IBrandGameProviderAggregateTaskQueue>(_ => new BrandGameProviderAggregateTaskQueue(100))
-    .AddSingleton<IFillPlayerBucketTaskQueue, FillPlayerBucketTaskQueue>());
+    .AddSingleton<IFillPlayerBucketTaskQueue, FillPlayerBucketTaskQueue>();
 
 builder.Logging
 	.AddOpenTelemetry(options =>
@@ -43,14 +38,14 @@ builder.Logging
 
 builder.Services
 	.AddOptions<OtlpExporterOptions>()
-	.Configure<IConfiguration>((options, conifg) =>
+	.Configure<IConfiguration>((options, config) =>
 	{
-		var nodeIp = conifg.GetValue<string>("NODE_IP");
+		var nodeIp = config.GetValue<string>("NODE_IP");
 
 		if (!string.IsNullOrWhiteSpace(nodeIp))
 			options.Endpoint = new Uri($"http://{nodeIp}:4317");
 
-		conifg.GetSection("Opentelemetry:Tracing").Bind(options);
+        config.GetSection("OpenTelemetry:Tracing").Bind(options);
 	});
 
 builder.Services
@@ -67,7 +62,7 @@ builder.Services
 		.AddOtlpExporter())
     .WithMetrics()
     .Services
-	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
+	.Configure<AspNetCoreTraceInstrumentationOptions>(options => options.Filter =
 		httpContext => !httpContext.Request.Path.HasValue
 			|| !httpContext.Request.Path.StartsWithSegments("/swagger")
 			&& !httpContext.Request.Path.StartsWithSegments("/health")
@@ -91,7 +86,7 @@ builder.Services
             builder.Configuration.GetValue<Uri>("ReportAggregate:PlayerBucketBaseUrl")));
 
 builder.Services
-	.AddMessageQueue()
+	.AddPhoenixToolkitsMessageQueue()
 	.AddNatsMessageQueue(natsConfig =>
 	{
 		_ = natsConfig

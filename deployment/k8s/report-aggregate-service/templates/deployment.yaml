@@ -36,7 +36,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8080
               protocol: TCP
           env:
             - name: OTEL_SERVICE_NAME
@@ -81,7 +81,7 @@ spec:
                   name: tgs-connections
                   key: rabbitmq-vhost
           volumeMounts:
-            - mountPath: /config/appsettings.json
+            - mountPath: /app/appsettings.Production.json
               name: appsettings
               readOnly: true
               subPath: appsettings.json

@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
 using MediatR;
-using Tgs.MessageQueue;
 using Tgs.Report.Aggregate.Domain.Models.BrandGameProviderAggregate;
+using Valhalla.MessageQueue;
 
 namespace Tgs.Report.Aggregate.Service.MessageHandlers;
 

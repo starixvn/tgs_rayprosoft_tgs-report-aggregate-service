@@ -29,7 +29,7 @@ public class
     public async Task<MessageResponse> Handle(CreateRoundAggregateRequest request,
 		CancellationToken cancellationToken)
 	{
-		var previousHour = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddHours(-1);
+        var previousHour = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddHours(-1);
 		var theDay = new DateTimeOffset(previousHour.Year, previousHour.Month, previousHour.Day, 0, 0, 0,
 			previousHour.Offset);
 
