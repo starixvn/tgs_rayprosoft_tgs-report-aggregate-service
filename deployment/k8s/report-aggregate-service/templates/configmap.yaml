@@ -6,7 +6,8 @@ data:
   appsettings.json: |
     {
       "ReportAggregate": {
-        "PlayerBucketBaseUrl": "http://tgs-playerbucket-service"
+        "PlayerBucketBaseUrl": "http://tgs-playerbucket-service",
+        "BrandCertificateUrl": "http://brand-cert-api"
       }
     }
   otel-collector-config.yaml: |

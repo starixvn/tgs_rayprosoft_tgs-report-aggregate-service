@@ -1,5 +1,5 @@
 ﻿{
-   "CodeGenerationMode": 3,
+   "CodeGenerationMode": 4,
    "ContextClassName": "TgsContext",
    "ContextNamespace": null,
    "DefaultDacpacSchema": null,
@@ -13,6 +13,7 @@
    "Schemas": null,
    "SelectedHandlebarsLanguage": 0,
    "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
    "Tables": [
       {
          "Name": "bet.rounds",
@@ -20,6 +21,10 @@
       },
       {
          "Name": "dbo.adjust_player_records",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dbo.agent_product_fees",
          "ObjectType": 0
       },
       {
@@ -77,6 +82,7 @@
    "UseDatabaseNames": false,
    "UseDateOnlyTimeOnly": false,
    "UseDbContextSplitting": true,
+   "UseDecimalDataAnnotationForSprocResult": true,
    "UseFluentApiOnly": true,
    "UseHandleBars": false,
    "UseHierarchyId": false,
@@ -84,10 +90,12 @@
    "UseLegacyPluralizer": true,
    "UseManyToManyEntity": true,
    "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
    "UseNoObjectFilter": false,
    "UseNodaTime": false,
    "UseNullableReferences": true,
    "UseSchemaFolders": true,
+   "UseSchemaNamespaces": false,
    "UseSpatial": true,
    "UseT4": false
 }

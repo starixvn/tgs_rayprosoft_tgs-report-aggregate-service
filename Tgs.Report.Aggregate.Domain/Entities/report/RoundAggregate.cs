@@ -9,11 +9,15 @@ public partial class RoundAggregate
 {
     public int Id { get; set; }
 
-    public Guid BrandId { get; set; }
-
     public Guid? AgentId { get; set; }
 
-    public string PlayerCode { get; set; } = null!;
+    public decimal BetAmount { get; set; }
+
+    public Guid BrandId { get; set; }
+
+    public DateTime CreatedOn { get; set; }
+
+    public int GameId { get; set; }
 
     public Guid GameProviderId { get; set; }
 
@@ -23,21 +27,17 @@ public partial class RoundAggregate
 
     public int Minute { get; set; }
 
-    public decimal BetAmount { get; set; }
+    public decimal OriginalTurnover { get; set; }
 
-    public decimal ValidBetAmount { get; set; }
-
-    public decimal Turnover { get; set; }
-
-    public decimal WinLoss { get; set; }
+    public string PlayerCode { get; set; } = null!;
 
     public DateTime ReportDate { get; set; }
 
-    public DateTime CreatedOn { get; set; }
+    public decimal Turnover { get; set; }
 
-    public int GameId { get; set; }
+    public decimal ValidBetAmount { get; set; }
 
-    public decimal OriginalTurnover { get; set; }
+    public decimal WinLoss { get; set; }
 
     public int RoundCount { get; set; }
 }

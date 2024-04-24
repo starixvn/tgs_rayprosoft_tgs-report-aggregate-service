@@ -9,31 +9,31 @@ public partial class AdjustPlayerRecord
 {
     public Guid Id { get; set; }
 
-    public Guid? TransactionId { get; set; }
-
-    public Guid BrandId { get; set; }
-
-    public string PlayerCode { get; set; } = null!;
-
     public short AdjustmentType { get; set; }
-
-    public short Type { get; set; }
-
-    public short TransferType { get; set; }
-
-    public string? TransferTarget { get; set; }
 
     public decimal Amount { get; set; }
 
+    public Guid BrandId { get; set; }
+
     public decimal BucketAmount { get; set; }
-
-    public string? Remark { get; set; }
-
-    public DateTime CreatedOn { get; set; }
 
     public string CreatedByUsername { get; set; } = null!;
 
+    public DateTime CreatedOn { get; set; }
+
     public bool IncludeInNetProfit { get; set; }
 
+    public string PlayerCode { get; set; } = null!;
+
+    public string? Remark { get; set; }
+
+    public Guid? TransactionId { get; set; }
+
     public DateTime TransactionRecordedOn { get; set; }
+
+    public string? TransferTarget { get; set; }
+
+    public short TransferType { get; set; }
+
+    public short Type { get; set; }
 }
