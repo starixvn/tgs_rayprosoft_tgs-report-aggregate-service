@@ -8,7 +8,7 @@ using Tgs.Report.Aggregate.Domain.Interfaces;
 
 namespace Tgs.Report.Aggregate.Repository.Repositories;
 
-public class TgsRepository : DbContext, ITgsRepository
+public class TgsRepository(DbContextOptions<TgsRepository> options) : DbContext(options), ITgsRepository
 {
 	public DbSet<AdjustPlayerRecord> AdjustPlayerRecords { get; set; } = default!;
 
@@ -38,14 +38,12 @@ public class TgsRepository : DbContext, ITgsRepository
 
 	public DbSet<Agent> Agents { get; set; } = null!;
 
-	public IDbContextTransaction? CurrentTransaction =>
+    public DbSet<AgentProductFee> AgentProductFees { get; set; } = null!;
+
+    public IDbContextTransaction? CurrentTransaction =>
 		Database.CurrentTransaction;
 
-	public TgsRepository(DbContextOptions<TgsRepository> options) : base(options)
-	{
-	}
-
-	public ChangeTracker GetChangeTracker() => ChangeTracker;
+    public ChangeTracker GetChangeTracker() => ChangeTracker;
 
 	public IDbConnection GetDbConnection() =>
 		Database.GetDbConnection();

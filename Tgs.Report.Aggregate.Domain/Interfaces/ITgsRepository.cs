@@ -40,7 +40,9 @@ public interface ITgsRepository
 
 	DbSet<Agent> Agents { get; set; }
 
-	IDbConnection GetDbConnection();
+    DbSet<AgentProductFee> AgentProductFees { get; set; }
+
+    IDbConnection GetDbConnection();
 
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

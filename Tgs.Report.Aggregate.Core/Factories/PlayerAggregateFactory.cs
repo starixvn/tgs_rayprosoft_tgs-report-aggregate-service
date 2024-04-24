@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Tgs.Report.Aggregate.Core.Extensions;
+using Tgs.BrandCertificate.Clients;
 using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
@@ -9,7 +9,14 @@ using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.Core.Factories;
 
-public class PlayerAggregateFactory : IPlayerAggregateFactory
+public class PlayerAggregateFactory(
+    ITgsRepository repository,
+    ITgsService<RoundAggregate> roundAggregateRepository,
+    ITgsService<Player> playerRepository,
+    ITgsService<Transaction> transactionRepository,
+    ITgsService<AdjustPlayerRecord> adjustPlayerRecordRepository,
+    IBrandServiceClient brandServiceClient)
+    : IPlayerAggregateFactory
 {
     private static readonly short[] _TransactionTypes =
     {
@@ -34,26 +41,9 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
         (short)TransactionType.PromotionVipLevelBirthday
     };
 
-    private readonly ITgsService<AdjustPlayerRecord> _adjustPlayerRecordRepository;
-    private readonly ITgsService<Player> _playerRepository;
-    private readonly ITgsRepository _repository;
-    private readonly ITgsService<RoundAggregate> _roundAggregateRepository;
-    private readonly ITgsService<Transaction> _transactionRepository;
-
-    public PlayerAggregateFactory(ITgsRepository repository, ITgsService<RoundAggregate> roundAggregateRepository,
-        ITgsService<Player> playerRepository, ITgsService<Transaction> transactionRepository,
-        ITgsService<AdjustPlayerRecord> adjustPlayerRecordRepository)
-    {
-        _repository = repository;
-        _roundAggregateRepository = roundAggregateRepository;
-        _playerRepository = playerRepository;
-        _transactionRepository = transactionRepository;
-        _adjustPlayerRecordRepository = adjustPlayerRecordRepository;
-    }
-
     public Task CreatePlayerAggregatesAsync(PlayerAggregateModel[] models)
     {
-        _ = _repository.PlayerAggregates.AddRangeAsync(models.Select(model => new PlayerAggregate
+        _ = repository.PlayerAggregates.AddRangeAsync(models.Select(model => new PlayerAggregate
         {
             BrandId = model.BrandId,
             AgentId = model.AgentId,
@@ -89,10 +79,11 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
             RoundCount = model.RoundCount,
             SeasonAmount = model.SeasonAmount,
             UpgradeAmount = model.UpgradeAmount,
-            BirthdayAmount = model.BirthdayAmount
+            BirthdayAmount = model.BirthdayAmount,
+            PlatformChargePercentage = model.PlatformChargePercentage
         }));
 
-        return _repository.SaveChangesAsync();
+        return repository.SaveChangesAsync();
     }
 
     public async
@@ -114,12 +105,12 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
         var utcStart = start.ToUniversalTime();
         var utcEnd = end.ToUniversalTime();
 
-        var roundAggregates = await _roundAggregateRepository.GetQueries()
+        var roundAggregates = await roundAggregateRepository.GetQueries()
             .Where(x => x.ReportDate == reportDate.ToUniversalTime()
                 && x.Hour == start.Hour
                 && x.Minute == start.Minute)
             .Join(
-                _repository.Players.Include(x => x.Agent)
+                repository.Players.Include(x => x.Agent)
                     .Include(x => x.Vip),
                 r => r.PlayerCode,
                 p => p.PlayerCode,
@@ -158,10 +149,10 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
             })
             .ToArrayAsync();
 
-        var playerTotals = await _transactionRepository.GetQueries()
+        var playerTotals = await transactionRepository.GetQueries()
             .Where(x => x.RecordedOn >= utcStart && x.RecordedOn < utcEnd)
             .Where(x => _TransactionTypes.Contains(x.Type))
-            .Join(_playerRepository.GetQueries().Include(x => x.Agent),
+            .Join(playerRepository.GetQueries().Include(x => x.Agent),
                 t => t.PlayerCode,
                 p => p.PlayerCode,
                 (t, p) => new
@@ -170,7 +161,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                     Player = p
                 })
             .GroupJoin(
-                _adjustPlayerRecordRepository.GetQueries()
+                adjustPlayerRecordRepository.GetQueries()
                     .Where(x => x.CreatedOn >= utcStart),
                 t => t.Transaction.Id,
                 adjust => adjust.TransactionId,
@@ -269,7 +260,7 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                         .Sum(t => t.Transaction!.Amount + t.Transaction!.LockAmount)
                 }).ToArrayAsync();
 
-        var playerRegisters = await _playerRepository.GetQueries()
+        var playerRegisters = await playerRepository.GetQueries()
             .Include(x => x.Agent)
             .Include(x => x.Vip)
             .Where(x => x.RegisteredOn >= utcStart
@@ -298,10 +289,14 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
 
         var playerData = roundAggregates.Concat(playerTotals).Concat(playerRegisters).ToArray();
 
-        var brands = playerData.Select(x => x.BrandId).Distinct();
+        var brandIds = playerData.Select(x => x.BrandId).Distinct();
 
-        var agents = await _repository.Agents
-            .Where(x => brands.Contains(x.BrandId))
+        var brandInfos = brandServiceClient.GetBrandAgentDividendInfosAsync();
+
+        var platformCharges = await brandInfos.Where(x => brandIds.Contains(x.Id)).ToArrayAsync();
+
+        var agents = await repository.Agents
+            .Where(x => brandIds.Contains(x.BrandId))
             .Select(x => new AgentDividendPercentageModel
             {
                 AgentId = x.Id,
@@ -358,6 +353,13 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                 BirthdayAmount = list.Sum(l => l.BirthdayAmount)
             }).ToArray();
 
+        foreach (var playerAggregateModel in playerAggregate)
+        {
+            playerAggregateModel.PlatformChargePercentage = platformCharges?
+                .FirstOrDefault(x => x.Id == playerAggregateModel.BrandId)?
+                .PlatformCharge ?? 0M;
+        }
+
         var playerBonuses = playerTotals
             .Where(x =>
                 x.RebateAmount != 0
@@ -382,22 +384,39 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
             }).ToArray();
 
         var playerAggregateByGameType = roundAggregates
+            .GroupJoin(
+                repository.AgentProductFees,
+                a => a.AgentId,
+                f => f.AgentId,
+                (agg, fees) => new
+                {
+                    agg,
+                    fees
+                })
+            .SelectMany(
+                x => x.fees.DefaultIfEmpty(),
+                (x, fee) => new
+                {
+                    x.agg,
+                    fee
+                })
             .GroupBy(
                 x => new
                 {
-                    x.BrandId,
-                    x.AgentId,
-                    x.PlayerCode,
-                    x.GameProviderId,
-                    x.GameId,
-                    x.GameType,
-                    x.VipLevel,
-                    x.VipSportsRebatePercentage,
-                    x.VipVirtualSportsRebatePercentage,
-                    x.VipLiveDealerRebatePercentage,
-                    x.VipCardGameRebatePercentage,
-                    x.VipLotteryRebatePercentage,
-                    x.VipSlotRebatePercentage
+                    x.agg.BrandId,
+                    x.agg.AgentId,
+                    x.agg.PlayerCode,
+                    x.agg.GameProviderId,
+                    x.agg.GameId,
+                    x.agg.GameType,
+                    x.agg.VipLevel,
+                    x.agg.VipSportsRebatePercentage,
+                    x.agg.VipVirtualSportsRebatePercentage,
+                    x.agg.VipLiveDealerRebatePercentage,
+                    x.agg.VipCardGameRebatePercentage,
+                    x.agg.VipLotteryRebatePercentage,
+                    x.agg.VipSlotRebatePercentage,
+                    x.fee
                 },
                 (x, aggregate) => new PlayerGameTypeAggregateModel
                 {
@@ -415,11 +434,11 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                     VipCardGameRebatePercentage = x.VipCardGameRebatePercentage,
                     VipLotteryRebatePercentage = x.VipLotteryRebatePercentage,
                     VipSlotRebatePercentage = x.VipSlotRebatePercentage,
-                    BetAmount = aggregate.Sum(a => a.BetAmount),
-                    ValidBetAmount = aggregate.Sum(a => a.ValidBetAmount),
-                    OriginalTurnover = aggregate.Sum(a => a.OriginalTurnover),
-                    Turnover = aggregate.Sum(a => a.Turnover),
-                    WinLoss = aggregate.Sum(a => a.WinLossAmount),
+                    BetAmount = aggregate.Sum(a => a.agg.BetAmount),
+                    ValidBetAmount = aggregate.Sum(a => a.agg.ValidBetAmount),
+                    OriginalTurnover = aggregate.Sum(a => a.agg.OriginalTurnover),
+                    Turnover = aggregate.Sum(a => a.agg.Turnover),
+                    WinLoss = aggregate.Sum(a => a.agg.WinLossAmount),
                     VipRebateAmount = GetPlayerRebateAmountByGameType(new()
                         {
                             SportsRebatePercentage = x.VipSportsRebatePercentage,
@@ -430,12 +449,33 @@ public class PlayerAggregateFactory : IPlayerAggregateFactory
                             SlotRebatePercentage = x.VipSlotRebatePercentage
                         },
                         (short)x.GameType,
-                        aggregate.Select(a => ((short)a.GameType, a.Turnover))),
+                        aggregate.Select(a => ((short)a.agg.GameType, a.agg.Turnover))),
                     CreatedOn = DateTimeOffset.UtcNow,
                     ReportDate = reportDate.UtcDateTime,
                     ReportDateTime = utcStart,
-                    RoundCount = aggregate.Sum(a => a.RoundCount)
+                    RoundCount = aggregate.Sum(a => a.agg.RoundCount),
+                    ProductFeePercentage = x.GameType switch
+                    {
+                        GameType.CardGame => x.fee?.CardGamePercentage ?? 0M,
+                        GameType.LiveDealer => x.fee?.LiveDealerPercentage ?? 0M,
+                        GameType.Lottery => x.fee?.LotteryPercentage ?? 0M,
+                        GameType.Arcade => x.fee?.SlotPercentage ?? 0M,
+                        GameType.Fishing => x.fee?.SlotPercentage ?? 0M,
+                        GameType.Slot => x.fee?.SlotPercentage ?? 0M,
+                        GameType.TableGame => x.fee?.SlotPercentage ?? 0M,
+                        GameType.Sportsbook => x.fee?.SportsPercentage ?? 0M,
+                        GameType.ESports => x.fee?.SportsPercentage ?? 0M,
+                        GameType.VirtualSports => x.fee?.VirtualSportsPercentage ?? 0M,
+                        _ => 0M
+                    }
                 }).ToArray();
+
+        foreach (var playerGameTypeAggregateModel in playerAggregateByGameType)
+        {
+            playerGameTypeAggregateModel.PlatformChargePercentage = platformCharges?
+                .FirstOrDefault(x => x.Id == playerGameTypeAggregateModel.BrandId)?
+                .PlatformCharge ?? 0M;
+        }
 
         return (playerAggregate, playerAggregateByGameType, playerBonuses);
     }

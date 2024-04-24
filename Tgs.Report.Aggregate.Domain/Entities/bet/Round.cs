@@ -9,53 +9,53 @@ public partial class Round
 {
     public Guid Id { get; set; }
 
+    public decimal? BetAmount { get; set; }
+
+    public Guid BrandId { get; set; }
+
+    public short ClientStatus { get; set; }
+
+    public DateTime? ClosedOn { get; set; }
+
+    public decimal? Commission { get; set; }
+
+    public DateTime CreatedOn { get; set; }
+
+    public string CurrencyCode { get; set; } = null!;
+
+    public decimal? EffectiveBettingPercentage { get; set; }
+
+    public DateTime? ExternalClosedOn { get; set; }
+
+    public DateTime? ExternalCreatedOn { get; set; }
+
     public string ExternalRoundId { get; set; } = null!;
+
+    public int GameId { get; set; }
+
+    public Guid GameProviderConfigurationId { get; set; }
 
     public Guid GameProviderId { get; set; }
 
     public string PlayerCode { get; set; } = null!;
 
-    public int GameId { get; set; }
-
-    public string CurrencyCode { get; set; } = null!;
-
-    public short Status { get; set; }
-
-    public Guid GameProviderConfigurationId { get; set; }
-
-    public Guid WalletId { get; set; }
-
-    public DateTime CreatedOn { get; set; }
-
-    public DateTime? ClosedOn { get; set; }
-
-    public DateTime UpdatedOn { get; set; }
-
-    public Guid BrandId { get; set; }
-
-    public DateTime? ExternalCreatedOn { get; set; }
-
-    public DateTime? ExternalClosedOn { get; set; }
-
-    public decimal? BetAmount { get; set; }
-
-    public decimal? ValidBetAmount { get; set; }
-
-    public decimal? SettleAmount { get; set; }
-
-    public decimal? Commission { get; set; }
-
-    public decimal? Turnover { get; set; }
-
-    public decimal? WinLoss { get; set; }
-
-    public decimal? TieBetAdjustment { get; set; }
-
-    public short ClientStatus { get; set; }
+    public DateTime? ReopenedOn { get; set; }
 
     public decimal? ReopenTurnoverAdjustment { get; set; }
 
-    public DateTime? ReopenedOn { get; set; }
+    public decimal? SettleAmount { get; set; }
 
-    public decimal? EffectiveBettingPercentage { get; set; }
+    public short Status { get; set; }
+
+    public decimal? TieBetAdjustment { get; set; }
+
+    public decimal? Turnover { get; set; }
+
+    public DateTime UpdatedOn { get; set; }
+
+    public decimal? ValidBetAmount { get; set; }
+
+    public Guid WalletId { get; set; }
+
+    public decimal? WinLoss { get; set; }
 }

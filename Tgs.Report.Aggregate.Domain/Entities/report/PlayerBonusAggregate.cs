@@ -7,29 +7,29 @@ namespace Tgs.Report.Aggregate.Domain.Entities;
 
 public partial class PlayerBonusAggregate
 {
-    public string PlayerCode { get; set; } = null!;
-
     public int Hour { get; set; }
 
     public int Minute { get; set; }
 
-    public DateTime ReportDate { get; set; }
+    public string PlayerCode { get; set; } = null!;
 
-    public Guid BrandId { get; set; }
+    public DateTime ReportDate { get; set; }
 
     public Guid? AgentId { get; set; }
 
-    public DateTime CreatedOn { get; set; }
+    public decimal BirthdayAmount { get; set; }
 
-    public decimal RebateAmount { get; set; }
+    public Guid BrandId { get; set; }
+
+    public DateTime CreatedOn { get; set; }
 
     public decimal PromotionAmount { get; set; }
 
-    public decimal UpgradeAmount { get; set; }
+    public decimal RebateAmount { get; set; }
+
+    public DateTime? ReportDateTime { get; set; }
 
     public decimal SeasonAmount { get; set; }
 
-    public decimal BirthdayAmount { get; set; }
-
-    public DateTime? ReportDateTime { get; set; }
+    public decimal UpgradeAmount { get; set; }
 }

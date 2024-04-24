@@ -83,7 +83,13 @@ builder.Services
 	})
     .AddPlayerBucketClient(httpClientBuilder => httpClientBuilder
         .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
-            builder.Configuration.GetValue<Uri>("ReportAggregate:PlayerBucketBaseUrl")));
+            builder.Configuration.GetValue<Uri>("ReportAggregate:PlayerBucketBaseUrl")))
+    .AddBrandServiceClient((options, sp) =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+
+        options.BrandCertificateBaseUrl = config.GetValue<Uri>("ReportAggregate:BrandCertificate:Url")!;
+    });
 
 builder.Services
 	.AddPhoenixToolkitsMessageQueue()

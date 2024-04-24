@@ -9,13 +9,17 @@ public partial class VipLevel
 {
     public Guid Id { get; set; }
 
-    public int Level { get; set; }
+    public decimal BirthReward { get; set; }
 
     public Guid BrandId { get; set; }
 
-    public decimal LevelUpAccumulateBetAmount { get; set; }
+    public decimal CardGameRebatePercentage { get; set; }
 
-    public decimal LevelUpAccumulateDeposit { get; set; }
+    public string CreatedByUsername { get; set; } = null!;
+
+    public DateTime CreatedOn { get; set; }
+
+    public int Level { get; set; }
 
     public decimal LevelKeepAccumulateBetAmount { get; set; }
 
@@ -23,31 +27,31 @@ public partial class VipLevel
 
     public bool LevelKeepCondition { get; set; }
 
-    public decimal BirthReward { get; set; }
+    public decimal LevelUpAccumulateBetAmount { get; set; }
+
+    public decimal LevelUpAccumulateDeposit { get; set; }
+
+    public decimal LiveDealerRebatePercentage { get; set; }
+
+    public decimal LotteryRebatePercentage { get; set; }
 
     public decimal PromotionReward { get; set; }
 
     public decimal QuarterlyReward { get; set; }
 
-    public decimal LiveDealerRebatePercentage { get; set; }
-
     public decimal SlotRebatePercentage { get; set; }
-
-    public decimal LotteryRebatePercentage { get; set; }
-
-    public decimal CardGameRebatePercentage { get; set; }
 
     public decimal SportsRebatePercentage { get; set; }
 
-    public decimal VirtualSportsRebatePercentage { get; set; }
-
-    public DateTime CreatedOn { get; set; }
+    public string UpdatedByUsername { get; set; } = null!;
 
     public DateTime UpdatedOn { get; set; }
 
-    public string CreatedByUsername { get; set; } = null!;
+    public decimal VirtualSportsRebatePercentage { get; set; }
 
-    public string UpdatedByUsername { get; set; } = null!;
+    public decimal WithdrawTotalAmountPerDay { get; set; }
+
+    public int WithdrawTransactionsPerDay { get; set; }
 
     public virtual ICollection<Player> Players { get; set; } = new List<Player>();
 }

@@ -11,29 +11,29 @@ public partial class BrandGameProviderAggregate
 
     public int AuditLogId { get; set; }
 
+    public decimal BetAmount { get; set; }
+
     public Guid BrandId { get; set; }
+
+    public decimal Commission { get; set; }
+
+    public DateTime CreatedOn { get; set; }
+
+    public string CurrencyCode { get; set; } = null!;
 
     public Guid GameProviderId { get; set; }
 
     public short GameType { get; set; }
 
-    public string CurrencyCode { get; set; } = null!;
-
-    public int TransactionCount { get; set; }
-
-    public decimal BetAmount { get; set; }
-
-    public decimal ValidBetAmount { get; set; }
-
-    public decimal Turnover { get; set; }
-
-    public decimal WinLoss { get; set; }
+    public DateTime ReportDate { get; set; }
 
     public decimal SettleAmount { get; set; }
 
-    public decimal Commission { get; set; }
+    public int TransactionCount { get; set; }
 
-    public DateTime ReportDate { get; set; }
+    public decimal Turnover { get; set; }
 
-    public DateTime CreatedOn { get; set; }
+    public decimal ValidBetAmount { get; set; }
+
+    public decimal WinLoss { get; set; }
 }

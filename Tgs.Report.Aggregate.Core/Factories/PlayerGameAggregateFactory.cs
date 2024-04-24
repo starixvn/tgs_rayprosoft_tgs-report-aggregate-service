@@ -1,23 +1,15 @@
-﻿using Tgs.Report.Aggregate.Core.Extensions;
-using Tgs.Report.Aggregate.Domain.Entities;
+﻿using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerGameAggregate;
 
 namespace Tgs.Report.Aggregate.Core.Factories;
 
-public class PlayerGameAggregateFactory : IPlayerGameAggregateFactory
+public class PlayerGameAggregateFactory(ITgsRepository repository) : IPlayerGameAggregateFactory
 {
-    private readonly ITgsRepository _repository;
-
-    public PlayerGameAggregateFactory(ITgsRepository repository)
-    {
-        _repository = repository;
-    }
-
     public Task CreatePlayerGameAggregatesAsync(
         PlayerGameTypeAggregateModel[] models)
     {
-        _ = _repository.PlayerGameRebateAggregates.AddRangeAsync(models.Select(model => new PlayerGameRebateAggregate
+        _ = repository.PlayerGameRebateAggregates.AddRangeAsync(models.Select(model => new PlayerGameRebateAggregate
         {
             BrandId = model.BrandId,
             AgentId = model.AgentId,
@@ -43,8 +35,10 @@ public class PlayerGameAggregateFactory : IPlayerGameAggregateFactory
             VipVirtualSportsRebatePercentage = model.VipVirtualSportsRebatePercentage,
             VipLotteryRebatePercentage = model.VipLotteryRebatePercentage,
             RoundCount = model.RoundCount,
+            PlatformChargePercentage = model.PlatformChargePercentage,
+            ProductFeePercentage = model.ProductFeePercentage
         }));
 
-        return _repository.SaveChangesAsync();
+        return repository.SaveChangesAsync();
     }
 }
