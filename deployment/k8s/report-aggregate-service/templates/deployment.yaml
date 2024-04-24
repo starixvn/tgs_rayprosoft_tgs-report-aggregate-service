@@ -87,12 +87,12 @@ spec:
               subPath: appsettings.json
           livenessProbe:
             httpGet:
-              path: /health
+              path: /healthz
               port: 80
             periodSeconds: 5
           startupProbe:
             httpGet:
-              path: /health
+              path: /healthz
               port: 80
             periodSeconds: 2
             failureThreshold: 30
