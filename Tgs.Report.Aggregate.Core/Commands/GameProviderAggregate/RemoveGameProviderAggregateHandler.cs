@@ -7,30 +7,21 @@ using Tgs.Report.Aggregate.Domain.Models.GameProviderAggregate;
 namespace Tgs.Report.Aggregate.Core.Commands.GameProviderAggregate;
 
 public class
-	RemoveGameProviderAggregateHandler : IRequestHandler<RemoveGameProviderAggregateRequest,
-		MessageResponse>
+    RemoveGameProviderAggregateHandler(IGameProviderAggregateFactory gameProviderFactory)
+    : IRequestHandler<RemoveGameProviderAggregateRequest,
+        MessageResponse>
 {
-	private readonly IGameProviderAggregateFactory _gameProviderFactory;
+    public async Task<MessageResponse> Handle(RemoveGameProviderAggregateRequest request,
+        CancellationToken cancellationToken)
+    {
+        var start = request.StartDate.ToOffset(new TimeSpan(8, 0, 0));
 
-	public RemoveGameProviderAggregateHandler(IGameProviderAggregateFactory gameProviderFactory)
-	{
-		_gameProviderFactory = gameProviderFactory;
-	}
+        if (start.Day != 1) throw new Exception("The date must be number 1 of each month.");
 
-	public async Task<MessageResponse> Handle(RemoveGameProviderAggregateRequest request,
-		CancellationToken cancellationToken)
-	{
-		var start = request.StartDate.ToOffset(new(8, 0, 0));
+        var end = DateGenerator.GetFirstDayOfMonth(start.AddMonths(1));
 
-		if (start.Day != 1)
-		{
-			throw new Exception("The date must be number 1 of each month.");
-		}
+        _ = await gameProviderFactory.RemoveGameProviderAggregateAsync(request.GameProviderId, start, end);
 
-		var end = DateGenerator.GetFirstDayOfMonth(start.AddMonths(1));
-
-		_ = await _gameProviderFactory.RemoveGameProviderAggregateAsync(request.GameProviderId, start, end);
-
-		return new() { Valid = true };
-	}
+        return new MessageResponse { Valid = true };
+    }
 }

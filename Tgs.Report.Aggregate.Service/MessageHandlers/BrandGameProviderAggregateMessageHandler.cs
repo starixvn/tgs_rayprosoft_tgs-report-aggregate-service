@@ -6,38 +6,30 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.Report.Aggregate.Service.MessageHandlers;
 
-public class BrandGameProviderAggregateMessageHandler : IMessageHandler
+public class BrandGameProviderAggregateMessageHandler(
+    ILogger<BrandGameProviderAggregateMessageHandler> logger,
+    IMediator mediator)
+    : IMessageHandler
 {
-	private readonly ILogger<BrandGameProviderAggregateMessageHandler> _logger;
-	private readonly IMediator _mediator;
+    public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+    {
+        var json = Encoding.UTF8.GetString(data.Span);
 
-	public BrandGameProviderAggregateMessageHandler(
-		ILogger<BrandGameProviderAggregateMessageHandler> logger,
-		IMediator mediator)
-	{
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-		_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-	}
+        var request = JsonSerializer.Deserialize<CreateBrandGameProviderAggregateRequest>(json)!;
 
-	public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
-	{
-		var json = Encoding.UTF8.GetString(data.Span);
+        logger.Log(LogLevel.Information,
+            new EventId(10000, nameof(BrandGameProviderAggregateMessageHandler)),
+            new
+            {
+                ReceivingOn = DateTimeOffset.UtcNow.ToString("O"),
+                request.BrandId,
+                request.StartDate,
+                request.AuditLogId,
+                request.RedisKey
+            },
+            null,
+            (state, ex) => JsonSerializer.Serialize(state));
 
-		var request = JsonSerializer.Deserialize<CreateBrandGameProviderAggregateRequest>(json)!;
-
-		_logger.Log(LogLevel.Information,
-			new EventId(10000, nameof(BrandGameProviderAggregateMessageHandler)),
-			new
-			{
-				ReceivingOn = DateTimeOffset.UtcNow.ToString("O"),
-				request.BrandId,
-				request.StartDate,
-				request.AuditLogId,
-				request.RedisKey
-			},
-			null,
-			(state, ex) => JsonSerializer.Serialize(state));
-
-		_ = await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
-	}
+        _ = await mediator.Send(request, cancellationToken).ConfigureAwait(false);
+    }
 }

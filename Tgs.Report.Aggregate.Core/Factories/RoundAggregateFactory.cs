@@ -1,26 +1,19 @@
-﻿using System.Data;
-using Dapper;
+﻿using Dapper;
 using Microsoft.EntityFrameworkCore.Storage;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models;
 
 namespace Tgs.Report.Aggregate.Core.Factories;
 
-public class RoundAggregateFactory : IRoundAggregateFactory
+public class RoundAggregateFactory(ITgsRepository repository) : IRoundAggregateFactory
 {
-    private readonly ITgsRepository _repository;
-
-    public RoundAggregateFactory(ITgsRepository repository)
-    {
-        _repository = repository;
-    }
-
     public async ValueTask<RoundAggregateModel[]> GenerateRoundAggregateAsync(DateTimeOffset start,
         DateTimeOffset end)
     {
-        const string spName = "select * from dbo.report_generate_round_aggregates(@_from,@_to,@_report_date,@_created_on,@_hour,@_minute)";
-        var conn = _repository.GetDbConnection();
-        var transaction = _repository.CurrentTransaction?.GetDbTransaction();
+        const string spName =
+            "select * from dbo.report_generate_round_aggregates(@_from,@_to,@_report_date,@_created_on,@_hour,@_minute)";
+        var conn = repository.GetDbConnection();
+        var transaction = repository.CurrentTransaction?.GetDbTransaction();
         var result = await conn.QueryAsync<RoundAggregateModel>(spName,
             new Dictionary<string, object>
             {
@@ -33,7 +26,8 @@ public class RoundAggregateFactory : IRoundAggregateFactory
                 { "_created_on", DateTimeOffset.UtcNow },
                 { "_hour", start.Hour },
                 { "_minute", start.Minute }
-            }, transaction: transaction);
+            },
+            transaction);
 
         return result.ToArray();
     }

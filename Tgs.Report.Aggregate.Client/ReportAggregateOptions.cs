@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Tgs.Report.Aggregate.Client
+namespace Tgs.Report.Aggregate.Client;
+
+public class ReportAggregateOptions
 {
-	public class ReportAggregateOptions
-	{
-		public Uri BaseUrl { get; set; } = default!;
-	}
+    public Uri BaseUrl { get; set; } = default!;
 }

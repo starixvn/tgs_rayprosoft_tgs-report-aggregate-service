@@ -8,24 +8,16 @@ using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 namespace Tgs.Report.Aggregate.Core.Commands.PlayerAggregate;
 
 public class
-    CreateUpdatePlayerAggregateHandler : IRequestHandler<CreateUpdatePlayerAggregateModel,
-        MessageResponse>
-{
-    private readonly IPlayerAggregateTaskQueue _taskQueue;
-    private readonly ITgsService<Domain.Entities.PlayerAggregate> _tgsPlayerAggregateService;
-
-    public CreateUpdatePlayerAggregateHandler(
+    CreateUpdatePlayerAggregateHandler(
         IPlayerAggregateTaskQueue taskQueue,
         ITgsService<Domain.Entities.PlayerAggregate> tgsPlayerAggregateService)
-    {
-        _taskQueue = taskQueue;
-        _tgsPlayerAggregateService = tgsPlayerAggregateService;
-    }
-
+    : IRequestHandler<CreateUpdatePlayerAggregateModel,
+        MessageResponse>
+{
     public async Task<MessageResponse> Handle(CreateUpdatePlayerAggregateModel request,
         CancellationToken cancellationToken)
     {
-        var previousHour = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddHours(-1);
+        var previousHour = DateTimeOffset.Now.ToOffset(new TimeSpan(8, 0, 0)).AddHours(-1);
         var reportDate = new DateTimeOffset(previousHour.Year,
             previousHour.Month,
             previousHour.Day,
@@ -34,22 +26,22 @@ public class
             0,
             previousHour.Offset);
 
-        var marketsOfDay = await _tgsPlayerAggregateService.GetQueries()
+        var marketsOfDay = await tgsPlayerAggregateService.GetQueries()
             .Where(x => x.ReportDate == reportDate.ToUniversalTime())
-            .Select(x => x.Hour).Distinct().ToArrayAsync(cancellationToken);
+            .Select(x => x.Hour)
+            .Distinct()
+            .ToArrayAsync(cancellationToken);
 
         var hourArray = Enumerable.Range(0, previousHour.Hour + 1);
 
         var doHours = hourArray.Except(marketsOfDay).ToArray();
 
         if (doHours.Length == 0)
-        {
-            return new()
+            return new MessageResponse
             {
                 Valid = false,
                 Message = "Not any hours to generate player aggregate."
             };
-        }
 
         foreach (var doHour in doHours)
         {
@@ -68,9 +60,9 @@ public class
                 0,
                 previousHour.Offset).AddHours(1);
 
-            await _taskQueue.QueuePlayerAggregateAsync(new(reportDate, start, end));
+            await taskQueue.QueuePlayerAggregateAsync(new PlayerAggregateQueueModel(reportDate, start, end));
         }
 
-        return new() { Valid = true };
+        return new MessageResponse { Valid = true };
     }
 }

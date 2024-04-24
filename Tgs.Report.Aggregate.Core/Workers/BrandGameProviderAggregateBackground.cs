@@ -6,71 +6,64 @@ using Tgs.Report.Aggregate.Domain.Interfaces;
 
 namespace Tgs.Report.Aggregate.Core.Workers;
 
-public class BrandGameProviderAggregateBackground : BackgroundService
+public class BrandGameProviderAggregateBackground(
+    IBrandGameProviderAggregateTaskQueue taskQueue,
+    IServiceProvider serviceProvider,
+    ILogger<BrandGameProviderAggregateBackground> logger)
+    : BackgroundService
 {
-	private readonly ILogger<BrandGameProviderAggregateBackground> _logger;
-	private readonly IServiceProvider _serviceProvider;
-	private readonly IBrandGameProviderAggregateTaskQueue _taskQueue;
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation(
+            "Brand game provider aggregate queued hosted service is running.");
 
-	public BrandGameProviderAggregateBackground(IBrandGameProviderAggregateTaskQueue taskQueue,
-		IServiceProvider serviceProvider,
-		ILogger<BrandGameProviderAggregateBackground> logger)
-	{
-		_taskQueue = taskQueue;
-		_logger = logger;
-		_serviceProvider = serviceProvider;
-	}
+        await BackgroundProcessingAsync(stoppingToken);
+    }
 
-	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-	{
-		_logger.LogInformation(
-			"Brand game provider aggregate queued hosted service is running.");
+    private async Task BackgroundProcessingAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+            try
+            {
+                using var scope = serviceProvider.CreateScope();
 
-		await BackgroundProcessingAsync(stoppingToken);
-	}
+                var brandGameProviderFactory =
+                    scope.ServiceProvider.GetRequiredService<IBrandGameProviderAggregateFactory>();
+                var redis = scope.ServiceProvider.GetRequiredService<IRedisConnectionFactory>();
 
-	private async Task BackgroundProcessingAsync(CancellationToken stoppingToken)
-	{
-		while (!stoppingToken.IsCancellationRequested)
-			try
-			{
-				using var scope = _serviceProvider.CreateScope();
+                var request =
+                    await taskQueue.DequeueAsync(stoppingToken);
 
-				var brandGameProviderFactory = scope.ServiceProvider.GetRequiredService<IBrandGameProviderAggregateFactory>();
-				var redis = scope.ServiceProvider.GetRequiredService<IRedisConnectionFactory>();
+                var db = redis.GetDataBase();
 
-				var request =
-					await _taskQueue.DequeueAsync(stoppingToken);
+                if (!await db.SetContainsAsync(request.RedisKey, request.BrandId.ToString())
+                        .ConfigureAwait(false))
+                    continue;
 
-				var db = redis.GetDataBase();
+                var start = request.StartDate.ToOffset(new TimeSpan(8, 0, 0));
+                var end = DateGenerator.GetFirstDayOfMonth(start.AddMonths(1));
 
-				if (!await db.SetContainsAsync(request.RedisKey, request.BrandId.ToString())
-						.ConfigureAwait(false))
-				{
-					continue;
-				}
+                _ = await brandGameProviderFactory.RemoveBrandGameProviderAggregateAsync(request.BrandId, start, end);
 
-				var start = request.StartDate.ToOffset(new(8, 0, 0));
-				var end = DateGenerator.GetFirstDayOfMonth(start.AddMonths(1));
+                await brandGameProviderFactory.GenerateBrandGameProviderAggregateAsync(request.BrandId,
+                        start.ToUniversalTime(),
+                        end.ToUniversalTime(),
+                        request.AuditLogId)
+                    .ConfigureAwait(false);
 
-				_ = await brandGameProviderFactory.RemoveBrandGameProviderAggregateAsync(request.BrandId, start, end);
+                _ = await db.SetRemoveAsync(request.RedisKey, request.BrandId.ToString())
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred executing task work item.");
+            }
+    }
 
-				await brandGameProviderFactory.GenerateBrandGameProviderAggregateAsync(request.BrandId,
-					start.ToUniversalTime(), end.ToUniversalTime(), request.AuditLogId).ConfigureAwait(false);
+    public override async Task StopAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation("Brand game provider aggregate queued hosted service is stopping.");
 
-				_ = await db.SetRemoveAsync(request.RedisKey, request.BrandId.ToString())
-					.ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error occurred executing task work item.");
-			}
-	}
-
-	public override async Task StopAsync(CancellationToken stoppingToken)
-	{
-		_logger.LogInformation("Brand game provider aggregate queued hosted service is stopping.");
-
-		await base.StopAsync(stoppingToken);
-	}
+        await base.StopAsync(stoppingToken);
+    }
 }

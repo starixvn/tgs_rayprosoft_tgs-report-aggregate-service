@@ -1,7 +1,6 @@
-﻿using System;
-using MediatR;
+﻿using MediatR;
 
 namespace Tgs.Report.Aggregate.Domain.Models.GameProviderAggregate;
 
-public record RemoveGameProviderAggregateRequest
-	(Guid? GameProviderId, DateTimeOffset StartDate) : IRequest<MessageResponse>;
+public record RemoveGameProviderAggregateRequest(Guid? GameProviderId, DateTimeOffset StartDate)
+    : IRequest<MessageResponse>;

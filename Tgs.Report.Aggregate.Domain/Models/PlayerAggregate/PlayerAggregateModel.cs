@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+﻿namespace Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 
 public record PlayerAggregateModel
 {

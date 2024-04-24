@@ -4,5 +4,5 @@ namespace Tgs.Report.Aggregate.Domain.Interfaces;
 
 public interface IRedisConnectionFactory
 {
-	public IDatabase GetDataBase();
+    public IDatabase GetDataBase();
 }
