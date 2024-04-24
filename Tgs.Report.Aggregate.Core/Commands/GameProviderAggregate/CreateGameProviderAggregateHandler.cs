@@ -6,22 +6,18 @@ using Tgs.Report.Aggregate.Domain.Models.GameProviderAggregate;
 namespace Tgs.Report.Aggregate.Core.Commands.GameProviderAggregate;
 
 public class
-    CreateGameProviderAggregateHandler : IRequestHandler<CreateGameProviderAggregateRequest,
+    CreateGameProviderAggregateHandler(IGameProviderAggregateTaskQueue taskQueue)
+    : IRequestHandler<CreateGameProviderAggregateRequest,
         MessageResponse>
 {
-    private readonly IGameProviderAggregateTaskQueue _taskQueue;
-
-    public CreateGameProviderAggregateHandler(IGameProviderAggregateTaskQueue taskQueue)
-    {
-        _taskQueue = taskQueue;
-    }
-
     public async Task<MessageResponse> Handle(CreateGameProviderAggregateRequest request,
         CancellationToken cancellationToken)
     {
-        await _taskQueue.QueueGameProviderAggregateAsync(new(request.StartDate,
-            request.GameProviderId, request.AuditLogId, request.RedisKey));
+        await taskQueue.QueueGameProviderAggregateAsync(new GameProviderAggregateQueueModel(request.StartDate,
+            request.GameProviderId,
+            request.AuditLogId,
+            request.RedisKey));
 
-        return new() { Valid = true };
+        return new MessageResponse { Valid = true };
     }
 }

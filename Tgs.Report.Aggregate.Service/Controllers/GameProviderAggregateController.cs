@@ -8,18 +8,13 @@ namespace Tgs.Report.Aggregate.Service.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GameProviderAggregateController : ControllerBase
+public class GameProviderAggregateController(ISender mediator) : ControllerBase
 {
-	private readonly IMediator _mediator;
-
-	public GameProviderAggregateController(IMediator mediator)
-	{
-		_mediator = mediator;
-	}
-
-	[HttpDelete]
-	[Description("Remove game provider aggregate")]
-	public Task<MessageResponse> RemoveGameProviderAggregateAsync(
-		[FromQuery] RemoveGameProviderAggregateRequest request) =>
-		_mediator.Send(request);
+    [HttpDelete]
+    [Description("Remove game provider aggregate")]
+    public Task<MessageResponse> RemoveGameProviderAggregateAsync(
+        [FromQuery] RemoveGameProviderAggregateRequest request)
+    {
+        return mediator.Send(request);
+    }
 }

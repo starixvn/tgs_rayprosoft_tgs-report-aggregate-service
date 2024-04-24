@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
+﻿using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 
 namespace Tgs.Report.Aggregate.Domain.Interfaces;
 
@@ -11,5 +8,4 @@ public interface IPlayerBonusAggregateFactory
         CreatePlayerBonusAggregatesAsync(
             PlayerBonusAggregateModel[] aggregate,
             CancellationToken cancellationToken);
-
 }

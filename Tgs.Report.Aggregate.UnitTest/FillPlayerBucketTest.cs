@@ -1,13 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
-using System;
-using System.Threading.Tasks;
-using Tgs.Report.Aggregate.Core.Commands.RoundAggregate;
-using Tgs.Report.Aggregate.Core.Workers;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models;
-using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
 
 namespace Tgs.Report.Aggregate.UnitTest;
 
@@ -24,7 +21,7 @@ public sealed class FillPlayerBucketTest
 
         var models = new RoundMinutelyModel[]
         {
-            new RoundMinutelyModel
+            new()
             {
                 RoundId = Guid.NewGuid(),
                 PlayerCode = "playerCode",
@@ -32,14 +29,16 @@ public sealed class FillPlayerBucketTest
             }
         };
 
-        _ = fakeRoundFactory.GetMinuteRoundAggregateAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>()).Returns(models);
+        _ = fakeRoundFactory.GetMinuteRoundAggregateAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
+            .Returns(models);
 
         var request = new FillPlayerBucketMinutelyRequest(DateTimeOffset.UtcNow);
 
         _ = await sut.Handle(request, default);
 
-        await fakeFillPlayerBucketTaskQueue.Received(1).QueueFillPlayerBucketAsync(
-            Arg.Any<FillPlayerBucketQueueModel>());
+        await fakeFillPlayerBucketTaskQueue.Received(1)
+            .QueueFillPlayerBucketAsync(
+                Arg.Any<FillPlayerBucketQueueModel>());
     }
 
     [Test]
@@ -53,7 +52,7 @@ public sealed class FillPlayerBucketTest
 
         var models = new RoundMinutelyModel[]
         {
-            new RoundMinutelyModel
+            new()
             {
                 RoundId = Guid.NewGuid(),
                 PlayerCode = "playerCode",
@@ -62,13 +61,15 @@ public sealed class FillPlayerBucketTest
             }
         };
 
-        _ = fakeRoundFactory.GetMinuteRoundAggregateAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>()).Returns(models);
+        _ = fakeRoundFactory.GetMinuteRoundAggregateAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>())
+            .Returns(models);
 
         var request = new FillPlayerBucketMinutelyRequest(DateTimeOffset.UtcNow);
 
         _ = await sut.Handle(request, default);
 
-        await fakeFillPlayerBucketTaskQueue.Received(1).QueueFillPlayerBucketAsync(
-            Arg.Is<FillPlayerBucketQueueModel>(x => x.Turnover == 14));
+        await fakeFillPlayerBucketTaskQueue.Received(1)
+            .QueueFillPlayerBucketAsync(
+                Arg.Is<FillPlayerBucketQueueModel>(x => x.Turnover == 14));
     }
 }

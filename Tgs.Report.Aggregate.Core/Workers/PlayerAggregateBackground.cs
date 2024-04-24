@@ -12,141 +12,136 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.Report.Aggregate.Core.Workers;
 
-public class PlayerAggregateBackground : BackgroundService
+public class PlayerAggregateBackground(
+    IPlayerAggregateTaskQueue taskQueue,
+    IServiceProvider serviceProvider,
+    ILogger<PlayerAggregateBackground> logger)
+    : BackgroundService
 {
-	private readonly ILogger<PlayerAggregateBackground> _logger;
-	private readonly IServiceProvider _serviceProvider;
-	private readonly IPlayerAggregateTaskQueue _taskQueue;
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation(
+            "Player Aggregate queued hosted service is running.");
 
-	public PlayerAggregateBackground(IPlayerAggregateTaskQueue taskQueue,
-		IServiceProvider serviceProvider,
-		ILogger<PlayerAggregateBackground> logger)
-	{
-		_taskQueue = taskQueue;
-		_logger = logger;
-		_serviceProvider = serviceProvider;
-	}
+        await BackgroundProcessingAsync(stoppingToken);
+    }
 
-	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-	{
-		_logger.LogInformation(
-			"Player Aggregate queued hosted service is running.");
+    private async Task BackgroundProcessingAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+            try
+            {
+                using var scope = serviceProvider.CreateScope();
 
-		await BackgroundProcessingAsync(stoppingToken);
-	}
+                var messageSender = scope.ServiceProvider.GetRequiredService<IMessageSender>();
+                var playerAggregateFactory = scope.ServiceProvider.GetRequiredService<IPlayerAggregateFactory>();
+                var playerGameAggregateFactory =
+                    scope.ServiceProvider.GetRequiredService<IPlayerGameAggregateFactory>();
+                var playerAggregateService = scope.ServiceProvider.GetRequiredService<ITgsService<PlayerAggregate>>();
+                var playerBonusAggregateService =
+                    scope.ServiceProvider.GetRequiredService<ITgsService<PlayerBonusAggregate>>();
+                var aggregateExecutionTimeFactory =
+                    scope.ServiceProvider.GetRequiredService<IAggregateExecutionTimeFactory>();
+                var bonusAggregateFactory = scope.ServiceProvider.GetRequiredService<IPlayerBonusAggregateFactory>();
 
-	private async Task BackgroundProcessingAsync(CancellationToken stoppingToken)
-	{
-		while (!stoppingToken.IsCancellationRequested)
-			try
-			{
-				using var scope = _serviceProvider.CreateScope();
+                var request = await taskQueue.DequeueAsync(stoppingToken);
 
-				var messageSender = scope.ServiceProvider.GetRequiredService<IMessageSender>();
-				var playerAggregateFactory = scope.ServiceProvider.GetRequiredService<IPlayerAggregateFactory>();
-				var playerGameAggregateFactory =
-					scope.ServiceProvider.GetRequiredService<IPlayerGameAggregateFactory>();
-				var playerAggregateService = scope.ServiceProvider.GetRequiredService<ITgsService<PlayerAggregate>>();
-				var playerBonusAggregateService = scope.ServiceProvider.GetRequiredService<ITgsService<PlayerBonusAggregate>>();
-				var aggregateExecutionTimeFactory =
-					scope.ServiceProvider.GetRequiredService<IAggregateExecutionTimeFactory>();
-				var bonusAggregateFactory = scope.ServiceProvider.GetRequiredService<IPlayerBonusAggregateFactory>();
+                var havePlayerAggregateRecordIsExisted = await playerAggregateService.GetQueries()
+                    .AnyAsync(x =>
+                            x.ReportDate == request.ReportDate.ToUniversalTime() && x.Hour == request.Start.Hour,
+                        stoppingToken);
 
-				var request = await _taskQueue.DequeueAsync(stoppingToken);
+                var playerBonusAggregateRecordIsExisted = await playerBonusAggregateService.GetQueries()
+                    .AnyAsync(x =>
+                            x.ReportDate == request.ReportDate.ToUniversalTime() && x.Hour == request.Start.Hour,
+                        stoppingToken);
 
-				var havePlayerAggregateRecordIsExisted = await playerAggregateService.GetQueries().AnyAsync(x =>
-						x.ReportDate == request.ReportDate.ToUniversalTime() && x.Hour == request.Start.Hour,
-					stoppingToken);
+                if (havePlayerAggregateRecordIsExisted || playerBonusAggregateRecordIsExisted)
+                {
+                    logger.LogInformation(
+                        "{request.ReportDate.Date} {request.Start.Hour} is already existed.",
+                        request.ReportDate.Date,
+                        request.Start.Hour);
 
-				var playerBonusAggregateRecordIsExisted = await playerBonusAggregateService.GetQueries().AnyAsync(x =>
-						x.ReportDate == request.ReportDate.ToUniversalTime() && x.Hour == request.Start.Hour,
-					stoppingToken);
+                    continue;
+                }
 
-				if (havePlayerAggregateRecordIsExisted || playerBonusAggregateRecordIsExisted)
-				{
-					_logger.LogInformation(
-						"{request.ReportDate.Date} {request.Start.Hour} is already existed.",
-						request.ReportDate.Date,
-						request.Start.Hour);
+                var roundExecutionTimeIsExisted = await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(
+                    AggregateType.Round,
+                    request.Start,
+                    request.End,
+                    stoppingToken);
 
-					continue;
-				}
+                if (!roundExecutionTimeIsExisted)
+                {
+                    logger.LogWarning(
+                        "round aggregate is no existed.  {request.ReportDate.Date} {request.Start.Hour}",
+                        request.ReportDate.Date,
+                        request.Start.Hour);
 
-				var roundExecutionTimeIsExisted = await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(
-					AggregateType.Round, request.Start,
-					request.End, stoppingToken);
+                    continue;
+                }
 
-				if (!roundExecutionTimeIsExisted)
-				{
-					_logger.LogWarning(
-						"round aggregate is no existed.  {request.ReportDate.Date} {request.Start.Hour}",
-						request.ReportDate.Date,
-						request.Start.Hour);
+                var executionTimeIsExisted = await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(
+                    AggregateType.Player,
+                    request.Start,
+                    request.End,
+                    stoppingToken);
 
-					continue;
-				}
+                if (executionTimeIsExisted)
+                {
+                    logger.LogWarning(
+                        "{request.ReportDate.Date} {request.Start.Hour} is already executed.",
+                        request.ReportDate.Date,
+                        request.Start.Hour);
 
-				var executionTimeIsExisted = await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(
-					AggregateType.Player, request.Start,
-					request.End, stoppingToken);
+                    continue;
+                }
 
-				if (executionTimeIsExisted)
-				{
-					_logger.LogWarning(
-						"{request.ReportDate.Date} {request.Start.Hour} is already executed.",
-						request.ReportDate.Date,
-						request.Start.Hour);
+                var (aggregates, aggregatesByGameType, aggregateBonus) =
+                    await playerAggregateFactory.GetPlayerAggregatesAsync(request.Start, request.End);
 
-					continue;
-				}
+                using var transactionScope = new TransactionScope(TransactionScopeOption.Required,
+                    new TransactionOptions
+                        { Timeout = TimeSpan.FromMinutes(20) },
+                    TransactionScopeAsyncFlowOption.Enabled);
 
-				var (aggregates, aggregatesByGameType, aggregateBonus) =
-					await playerAggregateFactory.GetPlayerAggregatesAsync(request.Start, request.End);
+                if (aggregates.Length > 0) await playerAggregateFactory.CreatePlayerAggregatesAsync(aggregates);
 
-				using var transactionScope = new TransactionScope(TransactionScopeOption.Required,
-					new TransactionOptions
-					{ Timeout = TimeSpan.FromMinutes(20) }, TransactionScopeAsyncFlowOption.Enabled);
+                if (aggregatesByGameType.Length > 0)
+                    await playerGameAggregateFactory.CreatePlayerGameAggregatesAsync(aggregatesByGameType);
 
-				if (aggregates.Length > 0)
-				{
-					await playerAggregateFactory.CreatePlayerAggregatesAsync(aggregates);
-				}
+                if (aggregateBonus.Length > 0)
+                    _ = await bonusAggregateFactory.CreatePlayerBonusAggregatesAsync(aggregateBonus, stoppingToken);
 
-				if (aggregatesByGameType.Length > 0)
-				{
-					await playerGameAggregateFactory.CreatePlayerGameAggregatesAsync(aggregatesByGameType);
-				}
+                _ = await aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Player,
+                    request.Start,
+                    request.End,
+                    stoppingToken);
 
-				if (aggregateBonus.Length > 0)
-				{
-					_ = await bonusAggregateFactory.CreatePlayerBonusAggregatesAsync(aggregateBonus, stoppingToken);
-				}
+                transactionScope.Complete();
 
-				_ = await aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Player, request.Start,
-					request.End, stoppingToken);
+                var sendForVipLevelUpCalculation = new
+                {
+                    ReportOn = request.ReportDate,
+                    PlayerCodes = aggregates.Where(x => x.BetAmount > 0).Select(x => x.PlayerCode).ToArray()
+                };
 
-				transactionScope.Complete();
+                await messageSender.PublishAsync("tgs.viplevel.aggregate.server",
+                        Encoding.UTF8.GetBytes(JsonSerializer.Serialize(sendForVipLevelUpCalculation)),
+                        stoppingToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred executing task work item.");
+            }
+    }
 
-				var sendForVipLevelUpCalculation = new
-				{
-					ReportOn = request.ReportDate,
-					PlayerCodes = aggregates.Where(x => x.BetAmount > 0).Select(x => x.PlayerCode).ToArray()
-				};
+    public override async Task StopAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation("Player aggregate queued hosted service is stopping.");
 
-				await messageSender.PublishAsync("tgs.viplevel.aggregate.server",
-						Encoding.UTF8.GetBytes(JsonSerializer.Serialize(sendForVipLevelUpCalculation)), stoppingToken)
-					.ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error occurred executing task work item.");
-			}
-	}
-
-	public override async Task StopAsync(CancellationToken stoppingToken)
-	{
-		_logger.LogInformation("Player aggregate queued hosted service is stopping.");
-
-		await base.StopAsync(stoppingToken);
-	}
+        await base.StopAsync(stoppingToken);
+    }
 }

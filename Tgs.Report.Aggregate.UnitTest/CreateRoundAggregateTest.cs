@@ -15,43 +15,47 @@ namespace Tgs.Report.Aggregate.UnitTest;
 
 public sealed class CreateRoundAggregateTest
 {
-	[Test]
-	public async Task Can_Create_Round_Aggregate()
-	{
-		var fakeRoundAggregateFactory = Substitute.For<IRoundAggregateFactory>();
+    [Test]
+    public async Task Can_Create_Round_Aggregate()
+    {
+        var fakeRoundAggregateFactory = Substitute.For<IRoundAggregateFactory>();
         var fakeAggregateExecutionTimeFactory = Substitute.For<IAggregateExecutionTimeFactory>();
-		var fakeTgsRoundAggregateService = Substitute.For<ITgsService<RoundAggregate>>();
+        var fakeTgsRoundAggregateService = Substitute.For<ITgsService<RoundAggregate>>();
 
-		var sut = new CreateRoundAggregateHandler(fakeTgsRoundAggregateService, fakeRoundAggregateFactory, fakeAggregateExecutionTimeFactory);
+        var sut = new CreateRoundAggregateHandler(fakeTgsRoundAggregateService,
+            fakeRoundAggregateFactory,
+            fakeAggregateExecutionTimeFactory);
 
-		var roundAggregate = CreateRoundAggregateFixture()
-			.CreateMany<RoundAggregate>(0)
-			.AsQueryable()
-			.BuildMock();
+        var roundAggregate = CreateRoundAggregateFixture()
+            .CreateMany<RoundAggregate>(0)
+            .AsQueryable()
+            .BuildMock();
 
-		_ = fakeTgsRoundAggregateService.GetQueries().Returns(roundAggregate);
+        _ = fakeTgsRoundAggregateService.GetQueries().Returns(roundAggregate);
 
-        _ = fakeAggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(Arg.Is<AggregateType>(AggregateType.Round),
-                Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), default)
+        _ = fakeAggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(Arg.Is(AggregateType.Round),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                default)
             .Returns(false);
 
-		var response = await sut.Handle(new CreateRoundAggregateRequest(), default);
+        var response = await sut.Handle(new CreateRoundAggregateRequest(), default);
 
-        var count = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour == 0
+        var count = DateTimeOffset.Now.ToOffset(new TimeSpan(8, 0, 0)).Hour == 0
             ? 24
-            : DateTimeOffset.Now.ToOffset(new(8, 0, 0)).Hour;
+            : DateTimeOffset.Now.ToOffset(new TimeSpan(8, 0, 0)).Hour;
 
-		_ = await fakeRoundAggregateFactory.Received(count)
-			.GenerateRoundAggregateAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>());
+        _ = await fakeRoundAggregateFactory.Received(count)
+            .GenerateRoundAggregateAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>());
 
-		Assert.IsTrue(response.Valid);
-	}
+        Assert.IsTrue(response.Valid);
+    }
 
-	private static Fixture CreateRoundAggregateFixture()
-	{
-		var fixture = new Fixture();
-		fixture.Customize<RoundAggregate>(u => u);
-		fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-		return fixture;
-	}
+    private static Fixture CreateRoundAggregateFixture()
+    {
+        var fixture = new Fixture();
+        fixture.Customize<RoundAggregate>(u => u);
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        return fixture;
+    }
 }

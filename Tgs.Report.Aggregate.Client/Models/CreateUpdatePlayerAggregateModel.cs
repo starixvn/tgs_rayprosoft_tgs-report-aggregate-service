@@ -1,4 +1,3 @@
-﻿namespace Tgs.Report.Aggregate.Client.Models
-{
-	public record CreateUpdatePlayerAggregateModel;
-}
+﻿namespace Tgs.Report.Aggregate.Client.Models;
+
+public record CreateUpdatePlayerAggregateModel;

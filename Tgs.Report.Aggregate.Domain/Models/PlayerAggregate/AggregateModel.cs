@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Tgs.Report.Aggregate.Domain.Shared;
 
 namespace Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;

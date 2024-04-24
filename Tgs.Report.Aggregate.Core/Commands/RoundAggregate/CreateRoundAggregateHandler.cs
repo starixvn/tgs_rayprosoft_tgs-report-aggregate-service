@@ -9,70 +9,79 @@ using Tgs.Report.Aggregate.Domain.Shared;
 namespace Tgs.Report.Aggregate.Core.Commands.RoundAggregate;
 
 public class
-	CreateRoundAggregateHandler : IRequestHandler<CreateRoundAggregateRequest,
-		MessageResponse>
-{
-	private readonly IRoundAggregateFactory _roundAggregateFactory;
-	private readonly ITgsService<Domain.Entities.RoundAggregate> _tgsRoundAggregateService;
-    private readonly IAggregateExecutionTimeFactory _aggregateExecutionTimeFactory;
-
-	public CreateRoundAggregateHandler(
+    CreateRoundAggregateHandler(
         ITgsService<Domain.Entities.RoundAggregate> tgsRoundAggregateService,
         IRoundAggregateFactory roundAggregateFactory,
         IAggregateExecutionTimeFactory aggregateExecutionTimeFactory)
-    {
-        _roundAggregateFactory = roundAggregateFactory;
-        _tgsRoundAggregateService = tgsRoundAggregateService;
-        _aggregateExecutionTimeFactory = aggregateExecutionTimeFactory;
-    }
-
+    : IRequestHandler<CreateRoundAggregateRequest,
+        MessageResponse>
+{
     public async Task<MessageResponse> Handle(CreateRoundAggregateRequest request,
-		CancellationToken cancellationToken)
-	{
-        var previousHour = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddHours(-1);
-		var theDay = new DateTimeOffset(previousHour.Year, previousHour.Month, previousHour.Day, 0, 0, 0,
-			previousHour.Offset);
+        CancellationToken cancellationToken)
+    {
+        var previousHour = DateTimeOffset.Now.ToOffset(new TimeSpan(8, 0, 0)).AddHours(-1);
+        var theDay = new DateTimeOffset(previousHour.Year,
+            previousHour.Month,
+            previousHour.Day,
+            0,
+            0,
+            0,
+            previousHour.Offset);
 
-		var marketsOfDay = await _tgsRoundAggregateService.GetQueries()
-			.Where(x => x.ReportDate == theDay.ToUniversalTime())
-			.Select(x => x.Hour).Distinct().ToArrayAsync(cancellationToken);
+        var marketsOfDay = await tgsRoundAggregateService.GetQueries()
+            .Where(x => x.ReportDate == theDay.ToUniversalTime())
+            .Select(x => x.Hour)
+            .Distinct()
+            .ToArrayAsync(cancellationToken);
 
-		var hourArray = Enumerable.Range(0, previousHour.Hour + 1);
+        var hourArray = Enumerable.Range(0, previousHour.Hour + 1);
 
-		var doHours = hourArray.Except(marketsOfDay).ToArray();
+        var doHours = hourArray.Except(marketsOfDay).ToArray();
 
-		foreach (var doHour in doHours)
-		{
-			var start = new DateTimeOffset(previousHour.Year, previousHour.Month, previousHour.Day, doHour,
-				0, 0, previousHour.Offset);
-			var end = new DateTimeOffset(previousHour.Year, previousHour.Month, previousHour.Day, doHour,
-				0, 0, previousHour.Offset).AddHours(1);
+        foreach (var doHour in doHours)
+        {
+            var start = new DateTimeOffset(previousHour.Year,
+                previousHour.Month,
+                previousHour.Day,
+                doHour,
+                0,
+                0,
+                previousHour.Offset);
+            var end = new DateTimeOffset(previousHour.Year,
+                previousHour.Month,
+                previousHour.Day,
+                doHour,
+                0,
+                0,
+                previousHour.Offset).AddHours(1);
 
-			if (await _tgsRoundAggregateService.GetQueries().AnyAsync(x =>
-					x.ReportDate == theDay.ToUniversalTime() && x.Hour == start.Hour, cancellationToken))
-			{
-				return new MessageResponse
-				{
-					Valid = false,
-					Message = $"{theDay.Date} {start.Hour} is already existed."
-				};
-			}
+            if (await tgsRoundAggregateService.GetQueries()
+                    .AnyAsync(x =>
+                            x.ReportDate == theDay.ToUniversalTime() && x.Hour == start.Hour,
+                        cancellationToken))
+                return new MessageResponse
+                {
+                    Valid = false,
+                    Message = $"{theDay.Date} {start.Hour} is already existed."
+                };
 
-            if (await _aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Round, start, end, cancellationToken))
-            {
-                continue;
-            }
+            if (await aggregateExecutionTimeFactory.ExecutionTimeIsExistsAsync(AggregateType.Round,
+                    start,
+                    end,
+                    cancellationToken)) continue;
 
-			using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-			_ = await _roundAggregateFactory.GenerateRoundAggregateAsync(start, end);
+            _ = await roundAggregateFactory.GenerateRoundAggregateAsync(start, end);
 
-            _ = await _aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Round, start,
-                end, cancellationToken);
+            _ = await aggregateExecutionTimeFactory.CreateExecutionTimeAsync(AggregateType.Round,
+                start,
+                end,
+                cancellationToken);
 
-			scope.Complete();
+            scope.Complete();
         }
 
-		return new() { Valid = true };
-	}
+        return new MessageResponse { Valid = true };
+    }
 }
