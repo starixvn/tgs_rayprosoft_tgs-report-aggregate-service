@@ -88,14 +88,19 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 80
+              port: http
             periodSeconds: 5
           startupProbe:
             httpGet:
               path: /healthz
-              port: 80
+              port: http
             periodSeconds: 2
             failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         - name: monitor
