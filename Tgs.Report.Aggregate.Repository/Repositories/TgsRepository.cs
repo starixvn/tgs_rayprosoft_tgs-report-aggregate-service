@@ -82,5 +82,6 @@ public class TgsRepository(DbContextOptions<TgsRepository> options) : DbContext(
         _ = modelBuilder.ApplyConfiguration(new RoundConfiguration());
         _ = modelBuilder.ApplyConfiguration(new PlayerBonusAggregateConfiguration());
         _ = modelBuilder.ApplyConfiguration(new AggregateExecutionTimeConfiguration());
+        _ = modelBuilder.ApplyConfiguration(new AgentProductFeeConfiguration());
     }
 }
