@@ -86,7 +86,7 @@ builder.Services
     {
         var config = sp.GetRequiredService<IConfiguration>();
 
-        options.BrandCertificateBaseUrl = config.GetValue<Uri>("ReportAggregate:BrandCertificate:Url")!;
+        options.BrandCertificateBaseUrl = config.GetValue<Uri>("ReportAggregate:BrandCertificateUrl")!;
     });
 
 builder.Services
