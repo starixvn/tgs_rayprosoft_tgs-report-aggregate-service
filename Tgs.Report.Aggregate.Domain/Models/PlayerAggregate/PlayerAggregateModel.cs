@@ -69,6 +69,4 @@ public record PlayerAggregateModel
     public decimal SeasonAmount { get; set; }
 
     public decimal BirthdayAmount { get; set; }
-
-    public decimal PlatformChargePercentage { get; set; }
 }

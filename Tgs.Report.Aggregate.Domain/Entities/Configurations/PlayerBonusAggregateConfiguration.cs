@@ -20,30 +20,30 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.HasIndex(e => new { e.ReportDate, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_bonus_aggregates_multiple_keys").IsDescending(true, false, false, false);
 
             entity.Property(e => e.PlayerCode)
-            .HasMaxLength(16)
-            .HasColumnName("player_code");
+                .HasMaxLength(16)
+                .HasColumnName("player_code");
             entity.Property(e => e.Hour).HasColumnName("hour");
             entity.Property(e => e.Minute).HasColumnName("minute");
             entity.Property(e => e.ReportDate).HasColumnName("report_date");
             entity.Property(e => e.AgentId).HasColumnName("agent_id");
             entity.Property(e => e.BirthdayAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("birthday_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("birthday_amount");
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
             entity.Property(e => e.CreatedOn).HasColumnName("created_on");
             entity.Property(e => e.PromotionAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("promotion_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("promotion_amount");
             entity.Property(e => e.RebateAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("rebate_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("rebate_amount");
             entity.Property(e => e.ReportDateTime).HasColumnName("report_date_time");
             entity.Property(e => e.SeasonAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("season_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("season_amount");
             entity.Property(e => e.UpgradeAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("upgrade_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("upgrade_amount");
 
             OnConfigurePartial(entity);
         }
