@@ -24,8 +24,8 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AgentId).HasColumnName("agent_id");
             entity.Property(e => e.BetAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("bet_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("bet_amount");
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
             entity.Property(e => e.CreatedOn).HasColumnName("created_on");
             entity.Property(e => e.GameId).HasColumnName("game_id");
@@ -34,20 +34,20 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.Hour).HasColumnName("hour");
             entity.Property(e => e.Minute).HasColumnName("minute");
             entity.Property(e => e.OriginalTurnover)
-            .HasPrecision(18, 6)
-            .HasColumnName("original_turnover");
+                .HasPrecision(18, 6)
+                .HasColumnName("original_turnover");
             entity.Property(e => e.PlayerCode).HasColumnName("player_code");
             entity.Property(e => e.ReportDate).HasColumnName("report_date");
             entity.Property(e => e.RoundCount).HasColumnName("round_count");
             entity.Property(e => e.Turnover)
-            .HasPrecision(18, 6)
-            .HasColumnName("turnover");
+                .HasPrecision(18, 6)
+                .HasColumnName("turnover");
             entity.Property(e => e.ValidBetAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("valid_bet_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("valid_bet_amount");
             entity.Property(e => e.WinLoss)
-            .HasPrecision(18, 6)
-            .HasColumnName("win_loss");
+                .HasPrecision(18, 6)
+                .HasColumnName("win_loss");
 
             OnConfigurePartial(entity);
         }

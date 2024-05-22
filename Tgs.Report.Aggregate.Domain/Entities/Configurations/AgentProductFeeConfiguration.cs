@@ -18,30 +18,67 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.ToTable("agent_product_fees", "dbo");
 
             entity.Property(e => e.AgentId)
-            .ValueGeneratedNever()
-            .HasColumnName("agent_id");
-            entity.Property(e => e.CardGamePercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("card_game_percentage");
+                .ValueGeneratedNever()
+                .HasColumnName("agent_id");
+            entity.Property(e => e.BrandId).HasColumnName("brand_id");
             entity.Property(e => e.CreatedByUsername).HasColumnName("created_by_username");
             entity.Property(e => e.CreatedOn).HasColumnName("created_on");
-            entity.Property(e => e.LiveDealerPercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("live_dealer_percentage");
-            entity.Property(e => e.LotteryPercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("lottery_percentage");
-            entity.Property(e => e.SlotPercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("slot_percentage");
-            entity.Property(e => e.SportsPercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("sports_percentage");
+            entity.Property(e => e.CurrentCardGamePercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("current_card_game_percentage");
+            entity.Property(e => e.CurrentLiveDealerPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("current_live_dealer_percentage");
+            entity.Property(e => e.CurrentLotteryPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("current_lottery_percentage");
+            entity.Property(e => e.CurrentSlotPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("current_slot_percentage");
+            entity.Property(e => e.CurrentSportsPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("current_sports_percentage");
+            entity.Property(e => e.CurrentVirtualSportsPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("current_virtual_sports_percentage");
+            entity.Property(e => e.NextCardGamePercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("next_card_game_percentage");
+            entity.Property(e => e.NextLiveDealerPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("next_live_dealer_percentage");
+            entity.Property(e => e.NextLotteryPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("next_lottery_percentage");
+            entity.Property(e => e.NextSlotPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("next_slot_percentage");
+            entity.Property(e => e.NextSportsPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("next_sports_percentage");
+            entity.Property(e => e.NextVirtualSportsPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("next_virtual_sports_percentage");
+            entity.Property(e => e.PreviousCardGamePercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("previous_card_game_percentage");
+            entity.Property(e => e.PreviousLiveDealerPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("previous_live_dealer_percentage");
+            entity.Property(e => e.PreviousLotteryPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("previous_lottery_percentage");
+            entity.Property(e => e.PreviousSlotPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("previous_slot_percentage");
+            entity.Property(e => e.PreviousSportsPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("previous_sports_percentage");
+            entity.Property(e => e.PreviousVirtualSportsPercentage)
+                .HasPrecision(18, 6)
+                .HasColumnName("previous_virtual_sports_percentage");
             entity.Property(e => e.UpdatedByUsername).HasColumnName("updated_by_username");
             entity.Property(e => e.UpdatedOn).HasColumnName("updated_on");
-            entity.Property(e => e.VirtualSportsPercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("virtual_sports_percentage");
 
             OnConfigurePartial(entity);
         }

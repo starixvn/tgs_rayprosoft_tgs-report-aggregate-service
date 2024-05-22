@@ -20,19 +20,19 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.HasIndex(e => new { e.CreatedOn, e.BrandId, e.PlayerCode, e.Type }, "ix_adjust_player_record_multiple_keys");
 
             entity.Property(e => e.Id)
-            .ValueGeneratedNever()
-            .HasColumnName("id");
+                .ValueGeneratedNever()
+                .HasColumnName("id");
             entity.Property(e => e.AdjustmentType).HasColumnName("adjustment_type");
             entity.Property(e => e.Amount)
-            .HasPrecision(18, 6)
-            .HasColumnName("amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("amount");
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
             entity.Property(e => e.BucketAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("bucket_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("bucket_amount");
             entity.Property(e => e.CreatedByUsername)
-            .HasMaxLength(32)
-            .HasColumnName("created_by_username");
+                .HasMaxLength(32)
+                .HasColumnName("created_by_username");
             entity.Property(e => e.CreatedOn).HasColumnName("created_on");
             entity.Property(e => e.IncludeInNetProfit).HasColumnName("include_in_net_profit");
             entity.Property(e => e.PlayerCode).HasColumnName("player_code");

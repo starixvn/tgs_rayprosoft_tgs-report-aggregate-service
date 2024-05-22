@@ -20,65 +20,65 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.HasIndex(e => e.BrandId, "ix_vip_levels_brand_id");
 
             entity.Property(e => e.Id)
-            .ValueGeneratedNever()
-            .HasColumnName("id");
+                .ValueGeneratedNever()
+                .HasColumnName("id");
             entity.Property(e => e.BirthReward)
-            .HasPrecision(18, 6)
-            .HasColumnName("birth_reward");
+                .HasPrecision(18, 6)
+                .HasColumnName("birth_reward");
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
             entity.Property(e => e.CardGameRebatePercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("card_game_rebate_percentage");
+                .HasPrecision(18, 6)
+                .HasColumnName("card_game_rebate_percentage");
             entity.Property(e => e.CreatedByUsername)
-            .HasMaxLength(32)
-            .HasColumnName("created_by_username");
+                .HasMaxLength(32)
+                .HasColumnName("created_by_username");
             entity.Property(e => e.CreatedOn).HasColumnName("created_on");
             entity.Property(e => e.Level).HasColumnName("level");
             entity.Property(e => e.LevelKeepAccumulateBetAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("level_keep_accumulate_bet_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("level_keep_accumulate_bet_amount");
             entity.Property(e => e.LevelKeepAccumulateDeposit)
-            .HasPrecision(18, 6)
-            .HasColumnName("level_keep_accumulate_deposit");
+                .HasPrecision(18, 6)
+                .HasColumnName("level_keep_accumulate_deposit");
             entity.Property(e => e.LevelKeepCondition).HasColumnName("level_keep_condition");
             entity.Property(e => e.LevelUpAccumulateBetAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("level_up_accumulate_bet_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("level_up_accumulate_bet_amount");
             entity.Property(e => e.LevelUpAccumulateDeposit)
-            .HasPrecision(18, 6)
-            .HasColumnName("level_up_accumulate_deposit");
+                .HasPrecision(18, 6)
+                .HasColumnName("level_up_accumulate_deposit");
             entity.Property(e => e.LiveDealerRebatePercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("live_dealer_rebate_percentage");
+                .HasPrecision(18, 6)
+                .HasColumnName("live_dealer_rebate_percentage");
             entity.Property(e => e.LotteryRebatePercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("lottery_rebate_percentage");
+                .HasPrecision(18, 6)
+                .HasColumnName("lottery_rebate_percentage");
             entity.Property(e => e.PromotionReward)
-            .HasPrecision(18, 6)
-            .HasColumnName("promotion_reward");
+                .HasPrecision(18, 6)
+                .HasColumnName("promotion_reward");
             entity.Property(e => e.QuarterlyReward)
-            .HasPrecision(18, 6)
-            .HasColumnName("quarterly_reward");
+                .HasPrecision(18, 6)
+                .HasColumnName("quarterly_reward");
             entity.Property(e => e.SlotRebatePercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("slot_rebate_percentage");
+                .HasPrecision(18, 6)
+                .HasColumnName("slot_rebate_percentage");
             entity.Property(e => e.SportsRebatePercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("sports_rebate_percentage");
+                .HasPrecision(18, 6)
+                .HasColumnName("sports_rebate_percentage");
             entity.Property(e => e.UpdatedByUsername)
-            .HasMaxLength(32)
-            .HasColumnName("updated_by_username");
+                .HasMaxLength(32)
+                .HasColumnName("updated_by_username");
             entity.Property(e => e.UpdatedOn).HasColumnName("updated_on");
             entity.Property(e => e.VirtualSportsRebatePercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("virtual_sports_rebate_percentage");
+                .HasPrecision(18, 6)
+                .HasColumnName("virtual_sports_rebate_percentage");
             entity.Property(e => e.WithdrawTotalAmountPerDay)
-            .HasPrecision(18, 6)
-            .HasDefaultValueSql("'-1'::integer")
-            .HasColumnName("withdraw_total_amount_per_day");
+                .HasPrecision(18, 6)
+                .HasDefaultValueSql("'-1'::integer")
+                .HasColumnName("withdraw_total_amount_per_day");
             entity.Property(e => e.WithdrawTransactionsPerDay)
-            .HasDefaultValueSql("'-1'::integer")
-            .HasColumnName("withdraw_transactions_per_day");
+                .HasDefaultValueSql("'-1'::integer")
+                .HasColumnName("withdraw_transactions_per_day");
 
             OnConfigurePartial(entity);
         }

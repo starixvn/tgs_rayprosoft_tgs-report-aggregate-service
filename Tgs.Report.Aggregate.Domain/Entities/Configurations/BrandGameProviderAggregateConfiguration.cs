@@ -24,30 +24,30 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AuditLogId).HasColumnName("audit_log_id");
             entity.Property(e => e.BetAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("bet_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("bet_amount");
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
             entity.Property(e => e.Commission)
-            .HasPrecision(18, 6)
-            .HasColumnName("commission");
+                .HasPrecision(18, 6)
+                .HasColumnName("commission");
             entity.Property(e => e.CreatedOn).HasColumnName("created_on");
             entity.Property(e => e.CurrencyCode).HasColumnName("currency_code");
             entity.Property(e => e.GameProviderId).HasColumnName("game_provider_id");
             entity.Property(e => e.GameType).HasColumnName("game_type");
             entity.Property(e => e.ReportDate).HasColumnName("report_date");
             entity.Property(e => e.SettleAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("settle_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("settle_amount");
             entity.Property(e => e.TransactionCount).HasColumnName("transaction_count");
             entity.Property(e => e.Turnover)
-            .HasPrecision(18, 6)
-            .HasColumnName("turnover");
+                .HasPrecision(18, 6)
+                .HasColumnName("turnover");
             entity.Property(e => e.ValidBetAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("valid_bet_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("valid_bet_amount");
             entity.Property(e => e.WinLoss)
-            .HasPrecision(18, 6)
-            .HasColumnName("win_loss");
+                .HasPrecision(18, 6)
+                .HasColumnName("win_loss");
 
             OnConfigurePartial(entity);
         }

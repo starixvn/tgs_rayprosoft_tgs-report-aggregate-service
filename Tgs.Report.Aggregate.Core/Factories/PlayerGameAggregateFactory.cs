@@ -34,9 +34,7 @@ public class PlayerGameAggregateFactory(ITgsRepository repository) : IPlayerGame
             VipSportsRebatePercentage = model.VipSportsRebatePercentage,
             VipVirtualSportsRebatePercentage = model.VipVirtualSportsRebatePercentage,
             VipLotteryRebatePercentage = model.VipLotteryRebatePercentage,
-            RoundCount = model.RoundCount,
-            PlatformChargePercentage = model.PlatformChargePercentage,
-            ProductFeePercentage = model.ProductFeePercentage
+            RoundCount = model.RoundCount
         }));
 
         return repository.SaveChangesAsync();

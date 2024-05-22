@@ -32,29 +32,29 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.HasIndex(e => new { e.ExternalRoundId, e.GameProviderId, e.GameId, e.WalletId }, "ix_rounds_wallet_id_composite");
 
             entity.Property(e => e.Id)
-            .ValueGeneratedNever()
-            .HasColumnName("id");
+                .ValueGeneratedNever()
+                .HasColumnName("id");
             entity.Property(e => e.BetAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("bet_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("bet_amount");
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
             entity.Property(e => e.ClientStatus).HasColumnName("client_status");
             entity.Property(e => e.ClosedOn).HasColumnName("closed_on");
             entity.Property(e => e.Commission)
-            .HasPrecision(18, 6)
-            .HasColumnName("commission");
+                .HasPrecision(18, 6)
+                .HasColumnName("commission");
             entity.Property(e => e.CreatedOn).HasColumnName("created_on");
             entity.Property(e => e.CurrencyCode)
-            .HasMaxLength(10)
-            .HasColumnName("currency_code");
+                .HasMaxLength(10)
+                .HasColumnName("currency_code");
             entity.Property(e => e.EffectiveBettingPercentage)
-            .HasPrecision(18, 6)
-            .HasColumnName("effective_betting_percentage");
+                .HasPrecision(18, 6)
+                .HasColumnName("effective_betting_percentage");
             entity.Property(e => e.ExternalClosedOn).HasColumnName("external_closed_on");
             entity.Property(e => e.ExternalCreatedOn).HasColumnName("external_created_on");
             entity.Property(e => e.ExternalRoundId)
-            .HasMaxLength(255)
-            .HasColumnName("external_round_id");
+                .HasMaxLength(255)
+                .HasColumnName("external_round_id");
             entity.Property(e => e.GameId).HasColumnName("game_id");
             entity.Property(e => e.GameProviderConfigurationId).HasColumnName("game_provider_configuration_id");
             entity.Property(e => e.GameProviderId).HasColumnName("game_provider_id");
@@ -64,17 +64,17 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
             entity.Property(e => e.SettleAmount).HasColumnName("settle_amount");
             entity.Property(e => e.Status).HasColumnName("status");
             entity.Property(e => e.TieBetAdjustment)
-            .HasPrecision(18, 6)
-            .HasColumnName("tie_bet_adjustment");
+                .HasPrecision(18, 6)
+                .HasColumnName("tie_bet_adjustment");
             entity.Property(e => e.Turnover).HasColumnName("turnover");
             entity.Property(e => e.UpdatedOn).HasColumnName("updated_on");
             entity.Property(e => e.ValidBetAmount)
-            .HasPrecision(18, 6)
-            .HasColumnName("valid_bet_amount");
+                .HasPrecision(18, 6)
+                .HasColumnName("valid_bet_amount");
             entity.Property(e => e.WalletId).HasColumnName("wallet_id");
             entity.Property(e => e.WinLoss)
-            .HasPrecision(18, 6)
-            .HasColumnName("win_loss");
+                .HasPrecision(18, 6)
+                .HasColumnName("win_loss");
 
             OnConfigurePartial(entity);
         }

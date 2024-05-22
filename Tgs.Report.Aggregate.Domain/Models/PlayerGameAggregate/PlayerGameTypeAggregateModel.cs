@@ -51,8 +51,4 @@ public record PlayerGameTypeAggregateModel
     public DateTimeOffset ReportDateTime { get; set; }
 
     public int RoundCount { get; set; }
-
-    public decimal PlatformChargePercentage { get; set; }
-
-    public decimal ProductFeePercentage { get; set; }
 }

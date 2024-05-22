@@ -14,8 +14,7 @@ public class PlayerAggregateFactory(
     ITgsService<RoundAggregate> roundAggregateRepository,
     ITgsService<Player> playerRepository,
     ITgsService<Transaction> transactionRepository,
-    ITgsService<AdjustPlayerRecord> adjustPlayerRecordRepository,
-    IBrandServiceClient brandServiceClient)
+    ITgsService<AdjustPlayerRecord> adjustPlayerRecordRepository)
     : IPlayerAggregateFactory
 {
     private static readonly short[] _TransactionTypes =
@@ -79,8 +78,7 @@ public class PlayerAggregateFactory(
             RoundCount = model.RoundCount,
             SeasonAmount = model.SeasonAmount,
             UpgradeAmount = model.UpgradeAmount,
-            BirthdayAmount = model.BirthdayAmount,
-            PlatformChargePercentage = model.PlatformChargePercentage
+            BirthdayAmount = model.BirthdayAmount
         }));
 
         return repository.SaveChangesAsync();
@@ -290,10 +288,6 @@ public class PlayerAggregateFactory(
 
         var brandIds = playerData.Select(x => x.BrandId).Distinct();
 
-        var brandInfos = brandServiceClient.GetBrandAgentDividendInfosAsync();
-
-        var platformCharges = await brandInfos.Where(x => brandIds.Contains(x.Id)).ToArrayAsync();
-
         var agents = await repository.Agents
             .Where(x => brandIds.Contains(x.BrandId))
             .Select(x => new AgentDividendPercentageModel
@@ -355,14 +349,6 @@ public class PlayerAggregateFactory(
                 })
             .ToArray();
 
-        foreach (var playerAggregateModel in playerAggregate)
-            playerAggregateModel.PlatformChargePercentage = platformCharges?
-                                                                .FirstOrDefault(x =>
-                                                                    x.Id == playerAggregateModel.BrandId)
-                                                                ?
-                                                                .PlatformCharge ??
-                                                            0M;
-
         var playerBonuses = playerTotals
             .Where(x =>
                 x.RebateAmount != 0 ||
@@ -388,39 +374,22 @@ public class PlayerAggregateFactory(
             .ToArray();
 
         var playerAggregateByGameType = roundAggregates
-            .GroupJoin(
-                repository.AgentProductFees,
-                a => a.AgentId,
-                f => f.AgentId,
-                (agg, fees) => new
-                {
-                    agg,
-                    fees
-                })
-            .SelectMany(
-                x => x.fees.DefaultIfEmpty(),
-                (x, fee) => new
-                {
-                    x.agg,
-                    fee
-                })
             .GroupBy(
                 x => new
                 {
-                    x.agg.BrandId,
-                    x.agg.AgentId,
-                    x.agg.PlayerCode,
-                    x.agg.GameProviderId,
-                    x.agg.GameId,
-                    x.agg.GameType,
-                    x.agg.VipLevel,
-                    x.agg.VipSportsRebatePercentage,
-                    x.agg.VipVirtualSportsRebatePercentage,
-                    x.agg.VipLiveDealerRebatePercentage,
-                    x.agg.VipCardGameRebatePercentage,
-                    x.agg.VipLotteryRebatePercentage,
-                    x.agg.VipSlotRebatePercentage,
-                    x.fee
+                    x.BrandId,
+                    x.AgentId,
+                    x.PlayerCode,
+                    x.GameProviderId,
+                    x.GameId,
+                    x.GameType,
+                    x.VipLevel,
+                    x.VipSportsRebatePercentage,
+                    x.VipVirtualSportsRebatePercentage,
+                    x.VipLiveDealerRebatePercentage,
+                    x.VipCardGameRebatePercentage,
+                    x.VipLotteryRebatePercentage,
+                    x.VipSlotRebatePercentage
                 },
                 (x, aggregate) => new PlayerGameTypeAggregateModel
                 {
@@ -438,11 +407,11 @@ public class PlayerAggregateFactory(
                     VipCardGameRebatePercentage = x.VipCardGameRebatePercentage,
                     VipLotteryRebatePercentage = x.VipLotteryRebatePercentage,
                     VipSlotRebatePercentage = x.VipSlotRebatePercentage,
-                    BetAmount = aggregate.Sum(a => a.agg.BetAmount),
-                    ValidBetAmount = aggregate.Sum(a => a.agg.ValidBetAmount),
-                    OriginalTurnover = aggregate.Sum(a => a.agg.OriginalTurnover),
-                    Turnover = aggregate.Sum(a => a.agg.Turnover),
-                    WinLoss = aggregate.Sum(a => a.agg.WinLossAmount),
+                    BetAmount = aggregate.Sum(a => a.BetAmount),
+                    ValidBetAmount = aggregate.Sum(a => a.ValidBetAmount),
+                    OriginalTurnover = aggregate.Sum(a => a.OriginalTurnover),
+                    Turnover = aggregate.Sum(a => a.Turnover),
+                    WinLoss = aggregate.Sum(a => a.WinLossAmount),
                     VipRebateAmount = GetPlayerRebateAmountByGameType(new VipLevel
                         {
                             SportsRebatePercentage = x.VipSportsRebatePercentage,
@@ -453,36 +422,13 @@ public class PlayerAggregateFactory(
                             SlotRebatePercentage = x.VipSlotRebatePercentage
                         },
                         (short)x.GameType,
-                        aggregate.Select(a => ((short)a.agg.GameType, a.agg.Turnover))),
+                        aggregate.Select(a => ((short)a.GameType, a.Turnover))),
                     CreatedOn = DateTimeOffset.UtcNow,
                     ReportDate = reportDate.UtcDateTime,
                     ReportDateTime = utcStart,
-                    RoundCount = aggregate.Sum(a => a.agg.RoundCount),
-                    ProductFeePercentage = x.GameType switch
-                    {
-                        GameType.CardGame => x.fee?.CardGamePercentage ?? 0M,
-                        GameType.LiveDealer => x.fee?.LiveDealerPercentage ?? 0M,
-                        GameType.Lottery => x.fee?.LotteryPercentage ?? 0M,
-                        GameType.Arcade => x.fee?.SlotPercentage ?? 0M,
-                        GameType.Fishing => x.fee?.SlotPercentage ?? 0M,
-                        GameType.Slot => x.fee?.SlotPercentage ?? 0M,
-                        GameType.TableGame => x.fee?.SlotPercentage ?? 0M,
-                        GameType.Sportsbook => x.fee?.SportsPercentage ?? 0M,
-                        GameType.ESports => x.fee?.SportsPercentage ?? 0M,
-                        GameType.VirtualSports => x.fee?.VirtualSportsPercentage ?? 0M,
-                        _ => 0M
-                    }
+                    RoundCount = aggregate.Sum(a => a.RoundCount)
                 })
             .ToArray();
-
-        foreach (var playerGameTypeAggregateModel in playerAggregateByGameType)
-            playerGameTypeAggregateModel.PlatformChargePercentage = platformCharges?
-                                                                        .FirstOrDefault(x =>
-                                                                            x.Id ==
-                                                                            playerGameTypeAggregateModel.BrandId)
-                                                                        ?
-                                                                        .PlatformCharge ??
-                                                                    0M;
 
         return (playerAggregate, playerAggregateByGameType, playerBonuses);
     }
