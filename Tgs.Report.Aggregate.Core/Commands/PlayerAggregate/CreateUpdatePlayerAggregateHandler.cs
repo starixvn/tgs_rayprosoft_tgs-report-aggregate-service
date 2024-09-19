@@ -17,7 +17,7 @@ public class
     public async Task<MessageResponse> Handle(CreateUpdatePlayerAggregateModel request,
         CancellationToken cancellationToken)
     {
-        var previousHour = DateTimeOffset.Now.ToOffset(new TimeSpan(8, 0, 0)).AddHours(-1);
+        var previousHour = DateTimeOffset.Now.ToOffset(new TimeSpan(-4, 0, 0)).AddHours(-1);
         var reportDate = new DateTimeOffset(previousHour.Year,
             previousHour.Month,
             previousHour.Day,
