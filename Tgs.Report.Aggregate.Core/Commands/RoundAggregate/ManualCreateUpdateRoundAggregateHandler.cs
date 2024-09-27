@@ -21,7 +21,7 @@ public class
         DateTimeOffset reportDate;
 
         if (!string.IsNullOrEmpty(request.Date) &&
-            DateTimeOffset.TryParse($"{request.Date} {request.Hour}:00 +08:00", out var result))
+            DateTimeOffset.TryParse($"{request.Date} {request.Hour}:00 -04:00", out var result))
             reportDate = new DateTimeOffset(result.Year,
                 result.Month,
                 result.Day,
