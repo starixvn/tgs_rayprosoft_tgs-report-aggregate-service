@@ -40,7 +40,7 @@ public class BrandGameProviderAggregateBackground(
                         .ConfigureAwait(false))
                     continue;
 
-                var start = request.StartDate.ToOffset(new TimeSpan(8, 0, 0));
+                var start = request.StartDate.ToOffset(new TimeSpan(-4, 0, 0));
                 var end = DateGenerator.GetFirstDayOfMonth(start.AddMonths(1));
 
                 _ = await brandGameProviderFactory.RemoveBrandGameProviderAggregateAsync(request.BrandId, start, end);

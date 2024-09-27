@@ -14,7 +14,7 @@ public class
     public async Task<MessageResponse> Handle(RemoveGameProviderAggregateRequest request,
         CancellationToken cancellationToken)
     {
-        var start = request.StartDate.ToOffset(new TimeSpan(8, 0, 0));
+        var start = request.StartDate.ToOffset(new TimeSpan(-4, 0, 0));
 
         if (start.Day != 1) throw new Exception("The date must be number 1 of each month.");
 
