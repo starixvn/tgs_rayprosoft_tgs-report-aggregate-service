@@ -26,4 +26,10 @@ public class TgsService<T>(ITgsRepository repository) : ITgsService<T>
         Repository.Set<T>().UpdateRange(entities);
         _ = await Repository.SaveChangesAsync();
     }
+
+    public async ValueTask RemoveEntitiesRangeAsync(T[] entities)
+    {
+        Repository.Set<T>().RemoveRange(entities);
+        _ = await Repository.SaveChangesAsync();
+    }
 }

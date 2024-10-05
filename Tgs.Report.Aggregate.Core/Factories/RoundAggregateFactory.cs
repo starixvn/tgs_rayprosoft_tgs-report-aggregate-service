@@ -11,7 +11,7 @@ public class RoundAggregateFactory(ITgsRepository repository) : IRoundAggregateF
         DateTimeOffset end)
     {
         const string spName =
-            "select * from dbo.report_generate_round_aggregates(@_from,@_to,@_report_date,@_created_on,@_hour,@_minute)";
+            "select * from dbo.report_generate_round_aggregates_xtest(@_from,@_to,@_report_date,@_created_on,@_hour,@_minute)";
         var conn = repository.GetDbConnection();
         var transaction = repository.CurrentTransaction?.GetDbTransaction();
         var result = await conn.QueryAsync<RoundAggregateModel>(spName,

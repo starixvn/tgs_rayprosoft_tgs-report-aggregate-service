@@ -18,9 +18,11 @@ builder.Services
     .AddHostedService<PlayerAggregateBackground>()
     .AddHostedService<GameProviderAggregateBackground>()
     .AddHostedService<BrandGameProviderAggregateBackground>()
+    .AddHostedService<GenerateRoundAggregateBackground>()
     .AddSingleton<IPlayerAggregateTaskQueue>(_ => new PlayerAggregateTaskQueue(100))
     .AddSingleton<IGameProviderAggregateTaskQueue>(_ => new GameProviderAggregateTaskQueue(100))
-    .AddSingleton<IBrandGameProviderAggregateTaskQueue>(_ => new BrandGameProviderAggregateTaskQueue(100));
+    .AddSingleton<IBrandGameProviderAggregateTaskQueue>(_ => new BrandGameProviderAggregateTaskQueue(100))
+    .AddSingleton<IGenerateRoundAggregateTaskQueue>(_ => new GenerateRoundAggregateTaskQueue(100));
 
 builder.Logging
     .AddOpenTelemetry(options =>

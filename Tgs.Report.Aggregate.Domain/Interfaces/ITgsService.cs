@@ -11,4 +11,6 @@ public interface ITgsService<T>
     ValueTask CreateEntitiesAsync(T[] entities);
 
     ValueTask UpdateEntitiesAsync(T[] entities);
+
+    ValueTask RemoveEntitiesRangeAsync(T[] entities);
 }
