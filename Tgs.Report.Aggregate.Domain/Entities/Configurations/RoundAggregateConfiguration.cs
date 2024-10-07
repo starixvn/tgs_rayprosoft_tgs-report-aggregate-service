@@ -15,7 +15,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
         {
             entity.HasKey(e => e.Id).HasName("pk_round_aggregate_id");
 
-            entity.ToTable("round_aggregates", "report");
+            entity.ToTable("round_aggregates_xtest", "report");
 
             entity.HasIndex(e => new { e.ReportDate, e.Hour, e.Minute }, "ix_round_aggregate_multiple_keys");
 

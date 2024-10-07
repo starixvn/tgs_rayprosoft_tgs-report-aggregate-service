@@ -4,7 +4,7 @@ namespace Tgs.Report.Aggregate.Core.Workers;
 
 public interface IGenerateRoundAggregateTaskQueue
 {
-    ValueTask QueueRoundUpdateAggregateAsync(GenerateRoundAggregateQueueModel model);
+    ValueTask QueueGenerateRoundAggregateAsync(GenerateRoundAggregateQueueModel model);
 
     ValueTask<GenerateRoundAggregateQueueModel> DequeueAsync(CancellationToken cancellationToken);
 }
@@ -22,7 +22,7 @@ public class GenerateRoundAggregateTaskQueue : IGenerateRoundAggregateTaskQueue
         _queue = Channel.CreateBounded<GenerateRoundAggregateQueueModel>(options);
     }
 
-    public async ValueTask QueueRoundUpdateAggregateAsync(GenerateRoundAggregateQueueModel model)
+    public async ValueTask QueueGenerateRoundAggregateAsync(GenerateRoundAggregateQueueModel model)
     {
         if (model == null) throw new ArgumentNullException(nameof(model));
 

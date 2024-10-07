@@ -17,6 +17,13 @@ public class PlayerAggregateController(ISender mediator) : ControllerBase
         return mediator.Send(new CreateUpdatePlayerAggregateModel());
     }
 
+    [HttpPost("generate-player-aggregate")]
+    [Description("Generate player aggregate")]
+    public Task<MessageResponse> GeneratePlayerAggregateAsync()
+    {
+        return mediator.Send(new GeneratePlayerAggregateRequest());
+    }
+
     [HttpPost("manual")]
     [Description("Manual create or update player aggregate")]
     public Task<MessageResponse> ManualCreateUpdatePlayerAggregateAsync(

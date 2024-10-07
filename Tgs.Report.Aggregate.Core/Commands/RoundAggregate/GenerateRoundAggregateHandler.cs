@@ -50,7 +50,7 @@ public class GenerateRoundAggregateHandler(
                     0,
                     startTimeWithOffset.Offset).AddHours(1);
 
-                await taskQueue.QueueRoundUpdateAggregateAsync(
+                await taskQueue.QueueGenerateRoundAggregateAsync(
                    new GenerateRoundAggregateQueueModel(start, end));
             }
         }

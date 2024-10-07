@@ -12,17 +12,19 @@ using Valhalla.MessageQueue;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseSentry();
+//builder.WebHost.UseSentry();
 
 builder.Services
     .AddHostedService<PlayerAggregateBackground>()
     .AddHostedService<GameProviderAggregateBackground>()
     .AddHostedService<BrandGameProviderAggregateBackground>()
     .AddHostedService<GenerateRoundAggregateBackground>()
+    .AddHostedService<GeneratePlayerAggregateBackground>()
     .AddSingleton<IPlayerAggregateTaskQueue>(_ => new PlayerAggregateTaskQueue(100))
     .AddSingleton<IGameProviderAggregateTaskQueue>(_ => new GameProviderAggregateTaskQueue(100))
     .AddSingleton<IBrandGameProviderAggregateTaskQueue>(_ => new BrandGameProviderAggregateTaskQueue(100))
-    .AddSingleton<IGenerateRoundAggregateTaskQueue>(_ => new GenerateRoundAggregateTaskQueue(100));
+    .AddSingleton<IGenerateRoundAggregateTaskQueue>(_ => new GenerateRoundAggregateTaskQueue(100))
+    .AddSingleton<IGeneratePlayerAggregateTaskQueue>(_ => new GeneratePlayerAggregateTaskQueue(100));
 
 builder.Logging
     .AddOpenTelemetry(options =>

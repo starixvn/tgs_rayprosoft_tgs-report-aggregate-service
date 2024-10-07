@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Tgs.BrandCertificate.Clients;
 using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.PlayerAggregate;
@@ -80,6 +79,27 @@ public class PlayerAggregateFactory(
             UpgradeAmount = model.UpgradeAmount,
             BirthdayAmount = model.BirthdayAmount
         }));
+
+        return repository.SaveChangesAsync();
+    }
+
+    public Task RemovePlayerAggregatesAsync(DateTimeOffset start, DateTimeOffset end)
+    {
+        var reportDate = new DateTimeOffset(
+         start.Year,
+         start.Month,
+         start.Day,
+         0,
+         0,
+         0,
+         start.Offset);
+
+        var removeItems = repository.PlayerAggregates
+            .Where(x => x.ReportDate == reportDate.ToUniversalTime() &&
+                        x.Hour == start.Hour &&
+                        x.Minute == start.Minute);
+
+        repository.PlayerAggregates.RemoveRange(removeItems);
 
         return repository.SaveChangesAsync();
     }

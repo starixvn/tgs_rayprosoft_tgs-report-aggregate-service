@@ -29,7 +29,7 @@ public class GenerateRoundAggregateBackground(
 
                 var request = await taskQueue.DequeueAsync(stoppingToken);
 
-                //logger.LogInformation($"Processing generate round aggregate {request}");
+                logger.LogInformation($"Processing generate round aggregate {request}");
 
                 using var transactionScope = new TransactionScope(TransactionScopeOption.Required,
                     new TransactionOptions

@@ -15,7 +15,7 @@ namespace Tgs.Report.Aggregate.Domain.Entities.Configurations
         {
             entity.HasKey(e => new { e.PlayerCode, e.Hour, e.Minute, e.ReportDate }).HasName("pk_player_bonus_aggregates_id");
 
-            entity.ToTable("player_bonus_aggregates", "report");
+            entity.ToTable("player_bonus_aggregates_xtest", "report");
 
             entity.HasIndex(e => new { e.ReportDate, e.BrandId, e.AgentId, e.PlayerCode }, "ix_player_bonus_aggregates_multiple_keys").IsDescending(true, false, false, false);
 
