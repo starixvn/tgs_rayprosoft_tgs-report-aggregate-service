@@ -1,3 +1,7 @@
+variables:
+  PUBLISH_NUGET: 'true'
+  PROJECT_FOLDER: Tgs.Report.Aggregate.Client
+
 include:
   - project: ci/core-cicd
     ref: main
