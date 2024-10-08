@@ -16,7 +16,7 @@ public class GenerateRoundAggregateHandler(
     public async Task<MessageResponse> Handle(GenerateRoundAggregateRequest request,
         CancellationToken cancellationToken)
     {
-        var currentDate = DateTimeOffset.UtcNow.AddDays(-1);
+        var currentDate = DateTimeOffset.UtcNow.AddDays(-8);
         var startRangeDate = currentDate.AddDays(-14);
 
         var marketsOfDay = (await tgsRoundAggregateService.GetQueries()
