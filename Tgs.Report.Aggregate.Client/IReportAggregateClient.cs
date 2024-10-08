@@ -7,7 +7,11 @@ public interface IReportAggregateClient
 {
     ValueTask<MessageResponse> CreatePlayerAggregateAsync(CreateUpdatePlayerAggregateModel request);
 
+    ValueTask<MessageResponse> GeneratePlayerAggregateAsync(GeneratePlayerAggregateModel request);
+
     ValueTask<MessageResponse> CreateRoundAggregateAsync(CreateRoundAggregateModel request);
+
+    ValueTask<MessageResponse> GenerateRoundAggregateAsync(GenerateRoundAggregateModel request);
 
     ValueTask<MessageResponse> FillPlayerBucketMinutelyAsync(FillPlayerBucketMinutelyModel request);
 

@@ -25,10 +25,39 @@ public class ReportAggregateClient(HttpClient client) : IReportAggregateClient
             _jsonSerializerOptions)!;
     }
 
+
+    public async ValueTask<MessageResponse> GeneratePlayerAggregateAsync(GeneratePlayerAggregateModel request)
+    {
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/playerAggregate/generate-player-aggregate")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+        };
+        var response = await client.SendAsync(httpRequest).ConfigureAwait(false);
+
+        _ = response.EnsureSuccessStatusCode();
+
+        return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
+            _jsonSerializerOptions)!;
+    }
+
+
     public async ValueTask<MessageResponse> CreateRoundAggregateAsync(
         CreateRoundAggregateModel request)
     {
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/roundAggregate")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+        };
+        var response = await client.SendAsync(httpRequest).ConfigureAwait(false);
+
+        _ = response.EnsureSuccessStatusCode();
+
+        return JsonSerializer.Deserialize<MessageResponse>(await response.Content.ReadAsStringAsync(),
+            _jsonSerializerOptions)!;
+    }
+    public async ValueTask<MessageResponse> GenerateRoundAggregateAsync(GenerateRoundAggregateModel request)
+    {
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/roundAggregate/generate-round-aggregate")
         {
             Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
         };
