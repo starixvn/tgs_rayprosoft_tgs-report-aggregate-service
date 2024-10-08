@@ -14,7 +14,7 @@ public class GeneratePlayerAggregateHandler(
 {
     public async Task<MessageResponse> Handle(GeneratePlayerAggregateRequest request, CancellationToken cancellationToken)
     {
-        var currentDate = DateTimeOffset.UtcNow.AddDays(-8);
+        var currentDate = DateTimeOffset.UtcNow.AddDays(-1);
         var startRangeDate = currentDate.AddDays(-14);
 
         var marketsOfDay = (await tgsRoundAggregateService.GetQueries()
