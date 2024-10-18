@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using MockQueryable.Moq;
+using MockQueryable;
 using NSubstitute;
 using NUnit.Framework;
 using Tgs.Report.Aggregate.Core.Commands.PlayerAggregate;
@@ -28,21 +28,11 @@ public sealed class CreatePlayerAggregateTest
             .AsQueryable()
             .BuildMock();
 
-        var roundAggregate = CreateRoundAggregateFixture()
-            .CreateMany<RoundAggregate>(0)
-            .AsQueryable()
-            .BuildMock();
-
-        var round = CreateRoundFixture()
-            .CreateMany<Round>(0)
-            .AsQueryable()
-            .BuildMock();
-
         _ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
 
         var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
 
-        Assert.IsTrue(response.Valid);
+        Assert.That(response.Valid);
     }
 
     [Test]
@@ -55,11 +45,6 @@ public sealed class CreatePlayerAggregateTest
 
         var playerAggregate = CreatePlayerAggregateFixture()
             .CreateMany<PlayerAggregate>(0)
-            .AsQueryable()
-            .BuildMock();
-
-        var roundAggregate = CreateRoundAggregateFixture()
-            .CreateMany<RoundAggregate>(0)
             .AsQueryable()
             .BuildMock();
 
@@ -82,7 +67,7 @@ public sealed class CreatePlayerAggregateTest
 
         var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
 
-        Assert.IsTrue(response.Valid);
+        Assert.That(response.Valid);
     }
 
     [Test]
@@ -109,11 +94,6 @@ public sealed class CreatePlayerAggregateTest
             .AsQueryable()
             .BuildMock();
 
-        var roundAggregate = CreateRoundAggregateFixture()
-            .CreateMany<RoundAggregate>(0)
-            .AsQueryable()
-            .BuildMock();
-
         var rounds = CreateRoundFixture()
             .CreateMany<Round>(DateTimeOffset.Now.ToOffset(new TimeSpan(8, 0, 0)).Hour + 1)
             .AsQueryable()
@@ -133,7 +113,7 @@ public sealed class CreatePlayerAggregateTest
 
         var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
 
-        Assert.IsFalse(response.Valid);
+        Assert.That(response.Valid, Is.False);
     }
 
     [Test]
@@ -149,21 +129,11 @@ public sealed class CreatePlayerAggregateTest
             .AsQueryable()
             .BuildMock();
 
-        var roundAggregate = CreateRoundAggregateFixture()
-            .CreateMany<RoundAggregate>(0)
-            .AsQueryable()
-            .BuildMock();
-
-        var round = CreateRoundFixture()
-            .CreateMany<Round>(1)
-            .AsQueryable()
-            .BuildMock();
-
         _ = fakePlayerAggregateService.GetQueries().Returns(playerAggregate);
 
         var response = await sut.Handle(new CreateUpdatePlayerAggregateModel(), default);
 
-        Assert.IsTrue(response.Valid);
+        Assert.That(response.Valid);
     }
 
     private static Fixture CreateRoundAggregateFixture()

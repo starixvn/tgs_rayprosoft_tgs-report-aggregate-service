@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using MockQueryable.Moq;
+using MockQueryable;
 using NSubstitute;
 using NUnit.Framework;
 using Tgs.Report.Aggregate.Core.Commands.RoundAggregate;
@@ -48,7 +48,7 @@ public sealed class CreateRoundAggregateTest
         _ = await fakeRoundAggregateFactory.Received(count)
             .GenerateRoundAggregateAsync(Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>());
 
-        Assert.IsTrue(response.Valid);
+        Assert.That(response.Valid);
     }
 
     private static Fixture CreateRoundAggregateFixture()

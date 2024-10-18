@@ -15,18 +15,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dapper" Version="2.1.28" />
-		<PackageReference Include="MediatR" Version="12.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.8.14">
+		<PackageReference Include="Dapper" Version="2.1.35" />
+		<PackageReference Include="MediatR" Version="12.4.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.11.20">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="PhoenixToolkits.MessageQueue" Version="1.0.3" />
-		<PackageReference Include="Polly" Version="8.2.1" />
-		<PackageReference Include="Tgs.BrandCertificateClient" Version="0.1.6" />
-		<PackageReference Include="Tgs.Core.Infrastructures.Utility" Version="0.0.4" />
-		<PackageReference Include="Tgs.PlayerBucket.Client" Version="1.0.0" />
+		<PackageReference Include="Polly" Version="8.4.2" />
+		<PackageReference Include="Tgs.BrandCertificateClient" Version="0.2.6" />
+		<PackageReference Include="Tgs.Core.Infrastructures.Nats" Version="0.0.7" />
+		<PackageReference Include="Tgs.Core.Infrastructures.Utility" Version="0.0.6" />
+		<PackageReference Include="Tgs.PlayerBucket.Client" Version="1.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>

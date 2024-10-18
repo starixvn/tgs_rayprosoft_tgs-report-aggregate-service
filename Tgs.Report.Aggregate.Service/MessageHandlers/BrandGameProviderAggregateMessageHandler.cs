@@ -1,35 +1,34 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using MediatR;
+using NATS.Client.Core;
 using Tgs.Report.Aggregate.Domain.Models.BrandGameProviderAggregate;
-using Valhalla.MessageQueue;
+using TGS.Core.Infrastructures.Nats.Interface;
 
 namespace Tgs.Report.Aggregate.Service.MessageHandlers;
 
 public class BrandGameProviderAggregateMessageHandler(
     ILogger<BrandGameProviderAggregateMessageHandler> logger,
     IMediator mediator)
-    : IMessageHandler
+    : IMessageHandler<CreateBrandGameProviderAggregateRequest>
 {
-    public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+    public async Task Handle(string subject, string? queueGroup, NatsHeaders? natsHeaders, CreateBrandGameProviderAggregateRequest? message,
+        CancellationToken cancellationToken = default)
     {
-        var json = Encoding.UTF8.GetString(data.Span);
-
-        var request = JsonSerializer.Deserialize<CreateBrandGameProviderAggregateRequest>(json)!;
+        ArgumentNullException.ThrowIfNull(message);
 
         logger.Log(LogLevel.Information,
             new EventId(10000, nameof(BrandGameProviderAggregateMessageHandler)),
             new
             {
                 ReceivingOn = DateTimeOffset.UtcNow.ToString("O"),
-                request.BrandId,
-                request.StartDate,
-                request.AuditLogId,
-                request.RedisKey
+                message.BrandId,
+                message.StartDate,
+                message.AuditLogId,
+                message.RedisKey
             },
             null,
             (state, ex) => JsonSerializer.Serialize(state));
 
-        _ = await mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        _ = await mediator.Send(message, cancellationToken).ConfigureAwait(false);
     }
 }

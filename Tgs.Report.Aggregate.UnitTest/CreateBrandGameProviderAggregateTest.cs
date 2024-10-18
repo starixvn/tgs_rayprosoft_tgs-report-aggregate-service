@@ -27,6 +27,6 @@ public sealed class CreateBrandGameProviderAggregateTest
         await fakeTaskQueue.Received(1)
             .QueueBrandGameProviderAggregateAsync(Arg.Any<BrandGameProviderAggregateQueueModel>());
 
-        Assert.IsTrue(response.Valid);
+        Assert.That(response.Valid);
     }
 }

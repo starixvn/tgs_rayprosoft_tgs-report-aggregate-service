@@ -1,14 +1,12 @@
-﻿using System.Text;
-using System.Text.Json;
-using Microsoft.AspNetCore.Diagnostics;
-using OpenTelemetry.Exporter;
+﻿using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.Report.Aggregate.Core.Workers;
-using Tgs.Report.Aggregate.Domain;
+using Tgs.Report.Aggregate.Domain.Models.BrandGameProviderAggregate;
+using Tgs.Report.Aggregate.Domain.Models.GameProviderAggregate;
 using Tgs.Report.Aggregate.Service.MessageHandlers;
-using Valhalla.MessageQueue;
+using TGS.Core.Infrastructures.Nats;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +16,8 @@ builder.Services
     .AddHostedService<BrandGameProviderAggregateBackground>()
     .AddSingleton<IPlayerAggregateTaskQueue>(_ => new PlayerAggregateTaskQueue(100))
     .AddSingleton<IGameProviderAggregateTaskQueue>(_ => new GameProviderAggregateTaskQueue(100))
-    .AddSingleton<IBrandGameProviderAggregateTaskQueue>(_ => new BrandGameProviderAggregateTaskQueue(100));
+    .AddSingleton<IBrandGameProviderAggregateTaskQueue>(_ => new BrandGameProviderAggregateTaskQueue(100))
+    .AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
 builder.Logging
     .AddOpenTelemetry(options =>
@@ -89,35 +88,19 @@ builder.Services
         options.BrandCertificateBaseUrl = config.GetValue<Uri>("ReportAggregate:BrandCertificateUrl")!;
     });
 
-builder.Services
-    .AddPhoenixToolkitsMessageQueue()
-    .AddNatsMessageQueue(natsConfig =>
-    {
-        _ = natsConfig
-            .ConfigQueueOptions((options, sp) =>
-            {
-                var configuration = sp.GetRequiredService<IConfiguration>();
-
-                options.Url = configuration.GetConnectionString("Nats")!;
-            });
-        _ = natsConfig.AddHandler<BrandGameProviderAggregateMessageHandler>("tgs.report.aggregate.brand.game.provider",
-            "tgs.report.aggregate");
-        _ = natsConfig.AddHandler<GameProviderAggregateMessageHandler>("tgs.report.aggregate.game.provider",
-            "tgs.report.aggregate");
-    })
-    .AddRabbitMessageQueue(config => config
-        .ConfigQueueOptions((options, sp) =>
-        {
-            var configuration = sp.GetRequiredService<IConfiguration>();
-
-            configuration.GetSection("RabbitMQ").Bind(options);
-        }))
-    .ClearAllExchanges()
-    .AddRabbitGlobPatternExchange("report.error", "amq.direct")
-    .AddNatsGlobPatternExchange("tgs.viplevel.aggregate.server")
-    .AddNatsGlobPatternExchange("tgs.report.aggregate.brand.game.provider")
-    .AddNatsGlobPatternExchange("tgs.report.aggregate.game.provider")
-    .AddNatsGlobPatternExchange("*");
+builder.Services.AddNatsMessage(builder.Configuration.GetConnectionString("Nats")!)
+    .SubscribeRegister<CreateBrandGameProviderAggregateRequest>(
+        typeof(BrandGameProviderAggregateMessageHandler),
+        "tgs.report.aggregate.brand.game.provider",
+        "tgs.report.aggregate")
+    .SubscribeRegister<CreateGameProviderAggregateRequest>(
+        typeof(GameProviderAggregateMessageHandler),
+        "tgs.report.aggregate.game.provider",
+        "tgs.report.aggregate")
+    .SubscribeRegister<CreateBrandGameProviderAggregateForScheduleRequest>(
+        typeof(BrandGameProviderAggregateForScheduleMessageHandler),
+        "tgs.report.aggregate.brand.game.provider.for.schedule",
+        "tgs.report.aggregate");
 
 builder.Services.AddHealthChecks();
 
@@ -130,36 +113,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseExceptionHandler(new ExceptionHandlerOptions
-{
-    ExceptionHandler = async context =>
-    {
-        var exceptionFeature = context.Features.Get<IExceptionHandlerFeature>();
-        if (exceptionFeature?.Error != null)
-        {
-            var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger("ExceptionHandler");
-
-            logger.LogError(
-                exceptionFeature.Error,
-                "{exceptionFeature.Error.Message}",
-                exceptionFeature.Error.Message);
-
-            var messageSender = app.Services.GetRequiredService<IMessageSender>();
-
-            await messageSender.PublishAsync("report.error",
-                    Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ReportErrorMessage(
-                        $"{app.Environment.ApplicationName}.report.aggregate: {exceptionFeature.Error.StackTrace}"))))
-                .ConfigureAwait(false);
-
-            await context.Response.WriteAsJsonAsync(new MessageResponse
-            {
-                Message = exceptionFeature.Error.Message,
-                Valid = false
-            });
-        }
-    }
-});
 // Configure the HTTP request pipeline.
 app.UseSwaggerUI();
 

@@ -1,6 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-using System.Transactions;
+﻿using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Tgs.Report.Aggregate.Domain.Entities;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Shared;
-using Valhalla.MessageQueue;
 
 namespace Tgs.Report.Aggregate.Core.Workers;
 
@@ -33,7 +30,6 @@ public class PlayerAggregateBackground(
             {
                 using var scope = serviceProvider.CreateScope();
 
-                var messageSender = scope.ServiceProvider.GetRequiredService<IMessageSender>();
                 var playerAggregateFactory = scope.ServiceProvider.GetRequiredService<IPlayerAggregateFactory>();
                 var playerGameAggregateFactory =
                     scope.ServiceProvider.GetRequiredService<IPlayerGameAggregateFactory>();
@@ -120,17 +116,6 @@ public class PlayerAggregateBackground(
                     stoppingToken);
 
                 transactionScope.Complete();
-
-                var sendForVipLevelUpCalculation = new
-                {
-                    ReportOn = request.ReportDate,
-                    PlayerCodes = aggregates.Where(x => x.BetAmount > 0).Select(x => x.PlayerCode).ToArray()
-                };
-
-                await messageSender.PublishAsync("tgs.viplevel.aggregate.server",
-                        Encoding.UTF8.GetBytes(JsonSerializer.Serialize(sendForVipLevelUpCalculation)),
-                        stoppingToken)
-                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {

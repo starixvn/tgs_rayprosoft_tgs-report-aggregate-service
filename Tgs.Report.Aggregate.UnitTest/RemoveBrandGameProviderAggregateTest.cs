@@ -22,7 +22,8 @@ public sealed class RemoveBrandGameProviderAggregateTest
         _ = fakeDataBase.SetContainsAsync(Arg.Any<RedisKey>(), Arg.Any<RedisValue>()).Returns(false);
 
         var request = new RemoveBrandGameProviderAggregateRequest(Guid.NewGuid(),
-            new DateTimeOffset(2022, 2, 1, 0, 0, 0, new TimeSpan(8, 0, 0)));
+            new DateTimeOffset(2022, 2, 1, 0, 0, 0, new TimeSpan(8, 0, 0)),
+            new DateTimeOffset(2022, 3, 1, 0, 0, 0, new TimeSpan(8, 0, 0)));
 
         var response = await sut.Handle(request, default);
 
@@ -31,6 +32,6 @@ public sealed class RemoveBrandGameProviderAggregateTest
                 Arg.Is(new DateTimeOffset(2022, 2, 1, 0, 0, 0, new TimeSpan(8, 0, 0))),
                 Arg.Is(new DateTimeOffset(2022, 3, 1, 0, 0, 0, new TimeSpan(8, 0, 0))));
 
-        Assert.IsTrue(response.Valid);
+        Assert.That(response.Valid);
     }
 }

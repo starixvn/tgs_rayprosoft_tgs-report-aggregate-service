@@ -28,6 +28,6 @@ public sealed class CreateGameProviderAggregateTest
         await fakeTaskQueue.Received(1)
             .QueueGameProviderAggregateAsync(Arg.Any<GameProviderAggregateQueueModel>());
 
-        Assert.IsTrue(response.Valid);
+        Assert.That(response.Valid);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Tgs.Core.Infrastructures.Utility;
 using Tgs.Report.Aggregate.Domain;
 using Tgs.Report.Aggregate.Domain.Interfaces;
 using Tgs.Report.Aggregate.Domain.Models.BrandGameProviderAggregate;
@@ -14,13 +13,7 @@ public class
     public async Task<MessageResponse> Handle(RemoveBrandGameProviderAggregateRequest request,
         CancellationToken cancellationToken)
     {
-        var start = request.StartDate.ToOffset(new TimeSpan(8, 0, 0));
-
-        if (start.Day != 1) throw new Exception("The date must be number 1 of each month.");
-
-        var end = DateGenerator.GetFirstDayOfMonth(start.AddMonths(1));
-
-        _ = await brandGameProviderFactory.RemoveBrandGameProviderAggregateAsync(request.BrandId, start, end);
+        _ = await brandGameProviderFactory.RemoveBrandGameProviderAggregateAsync(request.BrandId, request.StartDate, request.EndDate);
 
         return new MessageResponse { Valid = true };
     }
