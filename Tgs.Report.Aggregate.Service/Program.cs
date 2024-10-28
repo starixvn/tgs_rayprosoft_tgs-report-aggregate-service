@@ -99,7 +99,7 @@ builder.Services.AddNatsMessage(builder.Configuration.GetConnectionString("Nats"
         "tgs.report.aggregate")
     .SubscribeRegister<CreateBrandGameProviderAggregateForScheduleRequest>(
         typeof(BrandGameProviderAggregateForScheduleMessageHandler),
-        "tgs.report.aggregate.brand.game.provider.for.schedule",
+        "tgs.report.aggregate.brand.game.provider.schedule",
         "tgs.report.aggregate");
 
 builder.Services.AddHealthChecks();
